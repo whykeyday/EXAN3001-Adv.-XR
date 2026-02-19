@@ -18,6 +18,9 @@ public class BreathInputManager : MonoBehaviour
     // Public property to access the breath value (0.0 to 1.0)
     public float BreathValue { get; private set; }
 
+    public bool IsCalibrating => isCalibrating;
+    public float CalibrationTimeRemaining => Mathf.Max(0, calibrationDuration - calibrationTimer);
+
     private AudioClip microphoneClip;
     private string microphoneDevice;
     private float[] audioSamples = new float[128];

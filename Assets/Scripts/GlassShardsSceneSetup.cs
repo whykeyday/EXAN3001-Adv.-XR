@@ -97,9 +97,25 @@ public class GlassShardsSceneSetup : MonoBehaviour
         if (s == null) s = Shader.Find("Standard");
 
         Material mat = new Material(s);
+        // Ensure color is set correctly for URP
         mat.color = color;
-        mat.EnableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", color * emissionIntensity);
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+
+        // MATTE FINISH: Prevent white specular highlights
+        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.0f);
+        if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 0.0f);
+        
+        // Only enable emission if intensity > 0
+        if (emissionIntensity > 0.01f)
+        {
+            mat.EnableKeyword("_EMISSION");
+            mat.SetColor("_EmissionColor", color * emissionIntensity);
+        }
+        else
+        {
+            mat.DisableKeyword("_EMISSION");
+            mat.SetColor("_EmissionColor", Color.black);
+        }
         
         if (color.a < 1.0f) 
         {
@@ -130,8 +146,8 @@ public class GlassShardsSceneSetup : MonoBehaviour
             pos.y = Random.Range(-0.3f, 0.3f);
             
             float size = Random.Range(0.08f, 0.15f);
-            Color col = new Color(0.0f, 0.8f, 1.0f, 0.3f); // Faint Cyan
-            CreateParticle(parent, pos, Vector3.one * size, col, 1.5f);
+            Color col = new Color(0.0f, 0.5f, 1.0f, 0.3f); // Blue-er
+            CreateParticle(parent, pos, Vector3.one * size, col, 1.5f); // Slightly brighter background
         }
 
         // Layer 2: Medium Bubbles (Standard) - Boosting brightness + Blue Mix
@@ -141,14 +157,14 @@ public class GlassShardsSceneSetup : MonoBehaviour
             pos.y = Random.Range(-0.4f, 0.4f);
             
             float size = Random.Range(0.04f, 0.07f);
-            // Mix: 70% Cyan, 30% Deep Blue
+            // Mix: More Blue, Less Cyan
             Color col;
-            if (Random.value > 0.3f) 
-                col = new Color(0.1f, 1.0f, 1.0f, 0.7f); // Cyan
+            if (Random.value > 0.4f) 
+                col = new Color(0.0f, 0.7f, 1.0f, 0.8f); // Sky Blue
             else 
-                col = new Color(0.1f, 0.4f, 1.0f, 0.8f); // Deep Blue
+                col = new Color(0.0f, 0.2f, 1.0f, 0.9f); // Deep Blue
             
-            CreateParticle(parent, pos, Vector3.one * size, col, 3.5f);
+            CreateParticle(parent, pos, Vector3.one * size, col, 5.5f); // Reduced slightly (was 8.0)
         }
 
         // Layer 3: Tiny Glitter Bubbles (Dense) - Boosting brightness + Blue/Colorful Mix
@@ -159,14 +175,14 @@ public class GlassShardsSceneSetup : MonoBehaviour
             
             float size = Random.Range(0.015f, 0.03f);
             
-            // Mix: 60% White-Cyan, 40% Electric Blue
+            // Mix: Electric Blue focus
             Color col;
-            if (Random.value > 0.4f)
-                col = new Color(0.8f, 1.0f, 1.0f, 0.9f); // Bright white-ish cyan
+            if (Random.value > 0.3f)
+                col = new Color(0.3f, 0.8f, 1.0f, 0.95f); // Bright Blue
             else
-                col = new Color(0.0f, 0.6f, 1.0f, 0.9f); // Electric Blue
+                col = new Color(0.0f, 0.4f, 1.0f, 0.95f); // Electric Blue
                 
-            CreateParticle(parent, pos, Vector3.one * size, col, 6.0f); 
+            CreateParticle(parent, pos, Vector3.one * size, col, 8.5f); // Reduced slightly (was 12.0)
         }
     }
 
@@ -184,10 +200,9 @@ public class GlassShardsSceneSetup : MonoBehaviour
         // Rotate 30 on Y - confirming this is the "just now" angle user liked
         treeContainer.transform.localRotation = Quaternion.Euler(0, 30, 0);
 
-        // Brighter wood color -> Reverting to "Dry Brown" -> Even less orange -> Darker Soil Brown
-        // Reduced from (0.5, 0.35, 0.2) to (0.45, 0.32, 0.18) - less saturated
-        Color woodCol = new Color(0.45f, 0.32f, 0.18f, 0.8f); 
-        float treeGlow = 1.4f; // "Slightly glowing"
+        // Darker Black-Brown (Slightly brightened for glow)
+        Color woodCol = new Color(0.2f, 0.12f, 0.05f, 1.0f); 
+        float treeGlow = 6.0f; // Significantly boosted for visibility
         
         // Trunk (Shorter & Lower)
         for (int i = 0; i < 5; i++) 
@@ -246,8 +261,9 @@ public class GlassShardsSceneSetup : MonoBehaviour
         // Rotate 55 on Y as requested previously
         catContainer.transform.localRotation = Quaternion.Euler(0, 55, 0);
 
-        Color catCol = new Color(1.0f, 0.7f, 0.2f, 0.9f); // Golden
-        float glowIntensity = 1.9f; // Middle bright
+        // White Body (Swapped)
+        Color catCol = Color.white; 
+        float glowIntensity = 1.2f; // Low glow for body
         
         // Body (The "Butt Ball")
         CreateParticle(catContainer.transform, new Vector3(0, -0.15f, 0.15f), Vector3.one * 0.45f, catCol, glowIntensity);
@@ -262,10 +278,10 @@ public class GlassShardsSceneSetup : MonoBehaviour
         CreateParticle(catContainer.transform, new Vector3(-0.1f, 0.28f, -0.1f), new Vector3(0.12f, 0.08f, 0.05f), catCol, glowIntensity).transform.localRotation = Quaternion.Euler(0, 0, 25);
         CreateParticle(catContainer.transform, new Vector3(0.1f, 0.28f, -0.1f), new Vector3(0.12f, 0.08f, 0.05f), catCol, glowIntensity).transform.localRotation = Quaternion.Euler(0, 0, -25);
         
-        // Eyes
-        Color eyeCol = new Color(1.0f, 1.0f, 0.8f);
-        CreateParticle(catContainer.transform, new Vector3(-0.08f, 0.18f, -0.22f), Vector3.one * 0.06f, eyeCol, 3.0f); // Eyes stay bright
-        CreateParticle(catContainer.transform, new Vector3(0.08f, 0.18f, -0.22f), Vector3.one * 0.06f, eyeCol, 3.0f);
+        // Eyes (Dark Gray + High Emission = Metallic/Electric Gray)
+        Color eyeCol = new Color(0.25f, 0.25f, 0.25f, 1.0f);
+        CreateParticle(catContainer.transform, new Vector3(-0.08f, 0.18f, -0.22f), Vector3.one * 0.06f, eyeCol, 0.0f); // NO Emission
+        CreateParticle(catContainer.transform, new Vector3(0.08f, 0.18f, -0.22f), Vector3.one * 0.06f, eyeCol, 0.0f);
         
         // Whiskers
         for(int i=1; i<=2; i++) {
