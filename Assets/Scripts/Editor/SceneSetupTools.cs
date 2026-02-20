@@ -204,7 +204,18 @@ public class SceneSetupTools : EditorWindow
         src.rolloffMode = AudioRolloffMode.Linear;
         src.minDistance = 10f;
         src.maxDistance = 500f; 
-        // User needs to assign the clip in Inspector
+        
+        // Auto-assign clip
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/audios/ocean_waves.wav");
+        if (clip != null)
+        {
+            src.clip = clip;
+            Debug.Log("[SceneSetupTools] Auto-assigned ocean_waves.wav");
+        }
+        else
+        {
+            Debug.LogError("[SceneSetupTools] Could not find Assets/audios/ocean_waves.wav!");
+        }
     }
 
     static void SetupCatAudio()
@@ -216,6 +227,14 @@ public class SceneSetupTools : EditorWindow
         src.spatialBlend = 0f;
         src.volume = 0f; // CatInteract controls volume
         src.playOnAwake = false;
+
+        // Auto-assign clip
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/audios/cat.wav");
+        if (clip != null)
+        {
+            src.clip = clip;
+            Debug.Log("[SceneSetupTools] Auto-assigned cat.wav");
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
