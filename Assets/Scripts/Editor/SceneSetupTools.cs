@@ -43,16 +43,18 @@ public class SceneSetupTools : EditorWindow
                 if (partsGO != null) reactor.oceanParticles = partsGO.GetComponent<ParticleSystem>();
                 
                 // Set explicit parameters to match EXAN3001 defaults (just in case)
-                reactor.minVolume = 0.2f;
-                reactor.maxVolume = 1.0f;
+                reactor.minVolume = 0.0f;   // Silence when calm
+                reactor.maxVolume = 1.2f;   // LOUD when anxious (allow >1 for boost)
                 reactor.minPitch = 0.8f;
-                reactor.maxPitch = 1.3f;
+                reactor.maxPitch = 1.6f;    // Higher pitch range
                 
-                // Noise/Turbulence
+                // Noise/Turbulence - BOOSTED
                 reactor.minNoiseStrength = 0.05f;
-                reactor.maxNoiseStrength = 0.5f;
-                reactor.minScrollSpeed = 0.02f;
-                reactor.maxScrollSpeed = 0.3f;
+                reactor.maxNoiseStrength = 1.0f; // Very chaotic
+                reactor.minScrollSpeed = 0.05f;
+                reactor.maxScrollSpeed = 0.6f;   // Fast movement
+                reactor.minNoiseFrequency = 0.1f;
+                reactor.maxNoiseFrequency = 0.8f; // Rapid fluctuation
             }
         }
 
