@@ -31,6 +31,23 @@ public class BreathReactor : MonoBehaviour
     public float minIntensity = 0.5f;
     public float maxIntensity = 2f;
 
+    [Header("Audio Effect (Ocean/Wind)")]
+    [Tooltip("Assign audio source to module volume/pitch with breath.")]
+    public AudioSource targetAudio;
+    public float minVolume = 0.2f;
+    public float maxVolume = 1.0f;
+    public bool controlPitch = false;
+    public float minPitch = 0.8f;
+    public float maxPitch = 1.2f;
+
+    [Header("Particle Effect (Bubbles/Leaves)")]
+    [Tooltip("Assign particle system to modulate emission/speed.")]
+    public ParticleSystem targetParticles;
+    public float minEmission = 10f;
+    public float maxEmission = 50f;
+    public float minSpeed = 0.5f;
+    public float maxSpeed = 2.0f;
+
     void Start()
     {
         // Enable fog in render settings if using fog effect
@@ -43,11 +60,7 @@ public class BreathReactor : MonoBehaviour
 
     void Update()
     {
-        if (breathInput == null)
-        {
-            Debug.LogWarning("BreathReactor: BreathInputManager reference is missing!");
-            return;
-        }
+        if (breathInput == null) return;
 
         float breath = breathInput.BreathValue;
 
@@ -55,10 +68,7 @@ public class BreathReactor : MonoBehaviour
         if (enableFog)
         {
             float fogValue = Mathf.Lerp(minFogDensity, maxFogDensity, breath);
-            if (invertFog)
-            {
-                fogValue = Mathf.Lerp(maxFogDensity, minFogDensity, breath);
-            }
+            if (invertFog) fogValue = Mathf.Lerp(maxFogDensity, minFogDensity, breath);
             RenderSettings.fogDensity = fogValue;
         }
 
@@ -72,6 +82,26 @@ public class BreathReactor : MonoBehaviour
         if (sceneLight != null)
         {
             sceneLight.intensity = Mathf.Lerp(minIntensity, maxIntensity, breath);
+        }
+
+        // 4. Audio Effect (Volume/Pitch)
+        if (targetAudio != null)
+        {
+            targetAudio.volume = Mathf.Lerp(minVolume, maxVolume, breath);
+            if (controlPitch)
+            {
+                targetAudio.pitch = Mathf.Lerp(minPitch, maxPitch, breath);
+            }
+        }
+
+        // 5. Particle Effect (Speed/Emission)
+        if (targetParticles != null)
+        {
+            var main = targetParticles.main;
+            main.simulationSpeed = Mathf.Lerp(minSpeed, maxSpeed, breath);
+
+            var emission = targetParticles.emission;
+            emission.rateOverTime = Mathf.Lerp(minEmission, maxEmission, breath);
         }
     }
 }

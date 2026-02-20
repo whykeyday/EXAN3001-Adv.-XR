@@ -29,6 +29,27 @@ public class SceneSetupTools : EditorWindow
         // OceanAudio placeholder
         SetupOceanAudio();
 
+        // Link BreathReactor to Audio and Particles
+        GameObject breathGO = GameObject.Find("BreathManager");
+        GameObject audioGO  = GameObject.Find("OceanAudio");
+        GameObject partsGO  = GameObject.Find("Memory_Ocean");
+
+        if (breathGO != null)
+        {
+            BreathReactor reactor = breathGO.GetComponent<BreathReactor>();
+            if (reactor != null)
+            {
+                if (audioGO != null) reactor.targetAudio = audioGO.GetComponent<AudioSource>();
+                if (partsGO != null) reactor.targetParticles = partsGO.GetComponent<ParticleSystem>();
+                
+                // Configure for ocean
+                reactor.minEmission = 100f;
+                reactor.maxEmission = 500f; // More particles when breathing hard
+                reactor.minSpeed = 0.5f;
+                reactor.maxSpeed = 2.5f;    // Faster flow
+            }
+        }
+
         Debug.Log("[SceneSetupTools] OceanScene setup complete! Assign ocean_waves.wav to OceanAudio, then save scene.");
     }
 
