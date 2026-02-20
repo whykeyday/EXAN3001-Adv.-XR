@@ -125,6 +125,46 @@ public class SceneSetupTools : EditorWindow
                   "2. Hand GameObjects need tag 'PlayerHand'");
     }
 
+    [MenuItem("Tools/Scene Setup/Helper - Make Selection Transparent")]
+    public static void MakeSelectionTransparent()
+    {
+        GameObject go = Selection.activeGameObject;
+        if (go == null)
+        {
+            Debug.LogError("Please select an object first!");
+            return;
+        }
+
+        Renderer r = go.GetComponent<Renderer>();
+        if (r == null)
+        {
+            Debug.LogError("Selected object has no Renderer!");
+            return;
+        }
+
+        // Create transparent material
+        Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+        mat.name = "TransparentMat_Instance";
+        
+        // Transparency settings for URP Lit
+        mat.SetFloat("_Surface", 1); // Transparent
+        mat.SetFloat("_Blend", 0);   // Alpha
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetInt("_ZWrite", 0);
+        mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        mat.renderQueue = 3000;
+        
+        // Color: White with 0.3 alpha
+        Color c = new Color(1f, 1f, 1f, 0.3f);
+        mat.SetColor("_BaseColor", c);
+        mat.SetColor("_Color", c); // For Standard shader fallback
+
+        // Assign
+        r.material = mat;
+        Debug.Log($"[SceneSetupTools] Made '{go.name}' transparent. Material: {mat.name}");
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // HELPERS — Ocean water particles
     // ─────────────────────────────────────────────────────────────────────────
