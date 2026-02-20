@@ -80,6 +80,21 @@ public class GlassShardsSceneSetup : MonoBehaviour
             case ShardContent.Tree: CreateTreeWorld(innerWorld.transform); break;
             case ShardContent.Cat: CreateCatWorld(innerWorld.transform); break;
         }
+
+        // --- Interaction Components ---
+        // Ensure Collider for Raycast
+        if (GetComponent<Collider>() == null)
+        {
+            // Default to SphereCollider, user can replace with MeshCollider if needed
+            SphereCollider sc = gameObject.AddComponent<SphereCollider>();
+            sc.radius = 0.5f; // Approximate size for interaction
+        }
+
+        // Ensure Interaction Script (Visual Feedback & Selection)
+        if (GetComponent<ShardInteraction>() == null)
+        {
+            gameObject.AddComponent<ShardInteraction>();
+        }
     }
     
     // --- Procedural Art Generators ---

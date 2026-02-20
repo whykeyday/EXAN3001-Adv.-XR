@@ -8,6 +8,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 55daccc09a3b69647bbab145b54a3ab3
+  - enabled: 1
+    path: Assets/Scenes/OceanScene.unity
+    guid: 7df4232d18e8205439d73eb8eb3a1725
+  - enabled: 1
+    path: Assets/Scenes/TreeScene.unity
+    guid: 716723988e7f56643a5147cd09537535
+  - enabled: 1
+    path: Assets/Scenes/CatScene.unity
+    guid: 8963062125fd0164aac84edf77549cef
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}
