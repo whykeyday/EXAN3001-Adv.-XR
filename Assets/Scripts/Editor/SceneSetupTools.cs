@@ -151,6 +151,9 @@ public class SceneSetupTools : EditorWindow
         var velocity = ps.velocityOverLifetime;
         velocity.enabled = true;
         velocity.space   = ParticleSystemSimulationSpace.World;
+        // Explicitly set all axes to avoid "Curve mode mismatch" errors
+        velocity.x       = new ParticleSystem.MinMaxCurve(0f, 0f);
+        velocity.y       = new ParticleSystem.MinMaxCurve(0f, 0f);
         velocity.z       = new ParticleSystem.MinMaxCurve(0.1f, 0.3f); // Gentle drift
 
         var noise = ps.noise;
