@@ -13,6 +13,9 @@ public class SceneSetupTools : EditorWindow
     [MenuItem("Tools/Scene Setup/Setup OceanScene (Corals + BreathReactor)")]
     public static void SetupOceanScene()
     {
+        // Blue ocean water particles
+        CreateOceanWaterParticles();
+
         // 5 Coral formations
         CreateCoralFormation(new Vector3( 1.5f, 0,  1.0f), "Coral_1");
         CreateCoralFormation(new Vector3(-1.0f, 0,  1.5f), "Coral_2");
@@ -20,15 +23,13 @@ public class SceneSetupTools : EditorWindow
         CreateCoralFormation(new Vector3(-0.5f, 0, -1.5f), "Coral_4");
         CreateCoralFormation(new Vector3( 0.5f, 0,  2.5f), "Coral_5");
 
-        // BreathManager (BreathInputManager + BreathReactor together)
+        // BreathManager
         SetupBreathSystem();
 
         // OceanAudio placeholder
         SetupOceanAudio();
 
-        Debug.Log("[SceneSetupTools] OceanScene setup complete! Remember to:\n" +
-                  "1. Add CoralInteraction script to each Coral_ GO\n" +
-                  "2. Assign ocean_waves audio clip to OceanAudio");
+        Debug.Log("[SceneSetupTools] OceanScene setup complete! Assign ocean_waves.wav to OceanAudio, then save scene.");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -95,6 +96,53 @@ public class SceneSetupTools : EditorWindow
         Debug.Log("[SceneSetupTools] TreeScene setup complete! Remember to:\n" +
                   "1. Assign all layer ParticleSystems to TreeHealer if needed\n" +
                   "2. Hand GameObjects need tag 'PlayerHand'");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // HELPERS — Ocean water particles
+    // ─────────────────────────────────────────────────────────────────────────
+    static void CreateOceanWaterParticles()
+    {
+        if (GameObject.Find("Memory_Ocean") != null) return;
+
+        GameObject go = new GameObject("Memory_Ocean");
+        go.transform.position = new Vector3(0, 0, 1.5f);
+
+        ParticleSystem ps = go.AddComponent<ParticleSystem>();
+        ParticleSystemRenderer psr = go.GetComponent<ParticleSystemRenderer>();
+
+        var main = ps.main;
+        main.startSize       = 0.04f;
+        main.startSpeed      = 0f;
+        main.maxParticles    = 4000;
+        main.startLifetime   = 15f;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.startColor      = new Color(0.3f, 0.85f, 1f, 1f); // Ocean blue
+        main.prewarm         = true;
+
+        var emission = ps.emission;
+        emission.rateOverTime = 300f;
+
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale     = new Vector3(8f, 0.01f, 8f);
+
+        var velocity = ps.velocityOverLifetime;
+        velocity.enabled = true;
+        velocity.space   = ParticleSystemSimulationSpace.World;
+        velocity.z       = new ParticleSystem.MinMaxCurve(0.1f, 0.3f); // Gentle drift
+
+        var noise = ps.noise;
+        noise.enabled    = true;
+        noise.strength   = 0.1f;
+        noise.frequency  = 0.1f;
+        noise.scrollSpeed = 0.05f;
+        noise.separateAxes = true;
+        noise.strengthX  = 0.03f;
+        noise.strengthY  = 0.08f;
+        noise.strengthZ  = 0.03f;
+
+        SetupMeshRenderer(psr, new Color(0.3f, 0.85f, 1f, 1f));
     }
 
     // ─────────────────────────────────────────────────────────────────────────

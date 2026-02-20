@@ -86,32 +86,26 @@ public class CatInteract : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("PlayerHand"))
-        {
-            handInside = true;
-            currentHand = other.transform;
-            lastHandPosition = currentHand.position;
-            Debug.Log("CatInteract: Hand entered!");
-        }
+        if (other.transform.IsChildOf(transform.root)) return;
+        handInside = true;
+        currentHand = other.transform;
+        lastHandPosition = currentHand.position;
+        Debug.Log("CatInteract: Hand entered!");
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("PlayerHand"))
-        {
-            handInside = true;
-            currentHand = other.transform;
-        }
+        if (other.transform.IsChildOf(transform.root)) return;
+        handInside = true;
+        currentHand = other.transform;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("PlayerHand"))
-        {
-            handInside = false;
-            currentHand = null;
-            Debug.Log("CatInteract: Hand left.");
-        }
+        if (other.transform.IsChildOf(transform.root)) return;
+        handInside = false;
+        currentHand = null;
+        Debug.Log("CatInteract: Hand left.");
     }
 
     private void Update()

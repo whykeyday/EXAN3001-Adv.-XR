@@ -41,20 +41,15 @@ public class CoralInteraction : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check for player hand
-        if (other.CompareTag("PlayerHand"))
-        {
-            TryEmitParticles();
-        }
+        // Accept any collider that isn't part of this coral
+        if (other.transform.IsChildOf(transform.root)) return;
+        TryEmitParticles();
     }
 
     private void OnTriggerStay(Collider other)
     {
-        // Continuous emission while hand is in contact
-        if (other.CompareTag("PlayerHand"))
-        {
-            TryEmitParticles();
-        }
+        if (other.transform.IsChildOf(transform.root)) return;
+        TryEmitParticles();
     }
 
     private void TryEmitParticles()
