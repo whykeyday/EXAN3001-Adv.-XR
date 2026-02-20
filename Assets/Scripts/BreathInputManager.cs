@@ -6,7 +6,7 @@ using UnityEngine.Android;
 public class BreathInputManager : MonoBehaviour
 {
     [Header("Settings")]
-    public float smoothness = 0.1f;
+    public float smoothness = 0.3f; // increased default for faster response
     public KeyCode debugKey = KeyCode.Space;
 
     [Header("Calibration")]

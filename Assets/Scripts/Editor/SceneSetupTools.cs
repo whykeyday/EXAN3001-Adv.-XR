@@ -42,11 +42,11 @@ public class SceneSetupTools : EditorWindow
                 if (audioGO != null) reactor.targetAudio = audioGO.GetComponent<AudioSource>();
                 if (partsGO != null) reactor.targetParticles = partsGO.GetComponent<ParticleSystem>();
                 
-                // Configure for ocean
-                reactor.minEmission = 100f;
-                reactor.maxEmission = 500f; // More particles when breathing hard
+                // Configure for ocean - More dramatic range
+                reactor.minEmission = 200f;
+                reactor.maxEmission = 1000f; // Much more particles when breathing hard
                 reactor.minSpeed = 0.5f;
-                reactor.maxSpeed = 2.5f;    // Faster flow
+                reactor.maxSpeed = 5.0f;    // Very fast flow
             }
         }
 
@@ -192,8 +192,12 @@ public class SceneSetupTools : EditorWindow
         AudioSource src = go.AddComponent<AudioSource>();
         src.loop = true;
         src.spatialBlend = 0f; // 2D sound
-        src.volume = 0.5f;
+        src.volume = 1.0f;     // Full volume
         src.playOnAwake = true;
+        src.mute = false;      // Ensure unmuted
+        src.rolloffMode = AudioRolloffMode.Linear;
+        src.minDistance = 10f;
+        src.maxDistance = 500f; 
         // User needs to assign the clip in Inspector
     }
 
