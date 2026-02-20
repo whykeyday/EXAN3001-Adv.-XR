@@ -51,13 +51,28 @@ public class BreathInputManager : MonoBehaviour
         // 2. Start Microphone
         if (Microphone.devices.Length > 0)
         {
+            // Log all devices
+            for (int i = 0; i < Microphone.devices.Length; i++)
+            {
+                Debug.Log($"Microphone Device {i}: {Microphone.devices[i]}");
+            }
+
             microphoneDevice = Microphone.devices[0];
-            microphoneClip = Microphone.Start(microphoneDevice, true, 10, 44100);
-            Debug.Log($"Microphone started: {microphoneDevice}");
+            Debug.Log($"Selected Microphone: {microphoneDevice}");
+
+            try
+            {
+                // Start recording, loop = true, 10s buffer, 44100Hz
+                microphoneClip = Microphone.Start(microphoneDevice, true, 10, 44100);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to start microphone: {e.Message}");
+            }
         }
         else
         {
-            Debug.LogWarning("No microphone found! Using Debug Key.");
+            Debug.LogWarning("No microphone found! Using Debug Key (Space).");
         }
     }
 
@@ -66,7 +81,8 @@ public class BreathInputManager : MonoBehaviour
         // 3. Signal Processing
         float targetRms = 0f;
 
-        if (Microphone.IsRecording(microphoneDevice))
+        // Check if recording is actually active
+        if (microphoneClip != null && Microphone.IsRecording(microphoneDevice))
         {
             targetRms = PrepareRMS();
         }
@@ -117,10 +133,14 @@ public class BreathInputManager : MonoBehaviour
     float PrepareRMS()
     {
         // Get position logic to read latest data
-        int position = Microphone.GetPosition(microphoneDevice) - 128;
-        if (position < 0) return 0;
+        int position = Microphone.GetPosition(microphoneDevice);
+        
+        // Handle wrap-around or negative index
+        // We want the last 128 samples
+        int startPos = position - 128;
+        if (startPos < 0) return 0; // Simple safety for very first frame
 
-        microphoneClip.GetData(audioSamples, position);
+        microphoneClip.GetData(audioSamples, startPos);
 
         float sum = 0f;
         for (int i = 0; i < audioSamples.Length; i++)

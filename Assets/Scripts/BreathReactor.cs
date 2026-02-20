@@ -50,6 +50,22 @@ public class BreathReactor : MonoBehaviour
 
     void Start()
     {
+        // Auto-link BreathInputManager if missing
+        if (breathInput == null)
+        {
+            breathInput = GetComponent<BreathInputManager>();
+            if (breathInput == null) breathInput = FindObjectOfType<BreathInputManager>();
+        }
+
+        if (breathInput == null)
+        {
+            Debug.LogError("BreathReactor: No BreathInputManager found on this object or in scene!");
+        }
+        else
+        {
+            Debug.Log("BreathReactor: Linked to BreathInputManager.");
+        }
+
         // Enable fog in render settings if using fog effect
         if (enableFog)
         {

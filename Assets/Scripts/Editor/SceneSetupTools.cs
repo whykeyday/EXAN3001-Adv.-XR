@@ -175,8 +175,11 @@ public class SceneSetupTools : EditorWindow
         if (GameObject.Find("BreathManager") != null) return;
 
         GameObject bmGO = new GameObject("BreathManager");
-        bmGO.AddComponent<BreathInputManager>();
-        bmGO.AddComponent<BreathReactor>();
+        BreathInputManager input = bmGO.AddComponent<BreathInputManager>();
+        BreathReactor reactor = bmGO.AddComponent<BreathReactor>();
+        
+        // Link them
+        reactor.breathInput = input;
     }
 
     static void SetupOceanAudio()
