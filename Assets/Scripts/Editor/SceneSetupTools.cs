@@ -39,14 +39,20 @@ public class SceneSetupTools : EditorWindow
             BreathReactor reactor = breathGO.GetComponent<BreathReactor>();
             if (reactor != null)
             {
-                if (audioGO != null) reactor.targetAudio = audioGO.GetComponent<AudioSource>();
-                if (partsGO != null) reactor.targetParticles = partsGO.GetComponent<ParticleSystem>();
+                if (audioGO != null) reactor.oceanAudio = audioGO.GetComponent<AudioSource>();
+                if (partsGO != null) reactor.oceanParticles = partsGO.GetComponent<ParticleSystem>();
                 
-                // Configure for ocean - More dramatic range
-                reactor.minEmission = 200f;
-                reactor.maxEmission = 1000f; // Much more particles when breathing hard
-                reactor.minSpeed = 0.5f;
-                reactor.maxSpeed = 5.0f;    // Very fast flow
+                // Set explicit parameters to match EXAN3001 defaults (just in case)
+                reactor.minVolume = 0.2f;
+                reactor.maxVolume = 1.0f;
+                reactor.minPitch = 0.8f;
+                reactor.maxPitch = 1.3f;
+                
+                // Noise/Turbulence
+                reactor.minNoiseStrength = 0.05f;
+                reactor.maxNoiseStrength = 0.5f;
+                reactor.minScrollSpeed = 0.02f;
+                reactor.maxScrollSpeed = 0.3f;
             }
         }
 
