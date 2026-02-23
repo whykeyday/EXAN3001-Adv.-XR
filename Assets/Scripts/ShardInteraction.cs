@@ -48,7 +48,7 @@ public class ShardInteraction : MonoBehaviour
         hoverLight.type = LightType.Point;
         hoverLight.color = new Color(1.0f, 0.6f, 0.2f); // Warm Gold
         hoverLight.range = 3.0f;
-        hoverLight.intensity = 8.0f; // Bright!
+        hoverLight.intensity = 8.0f; // Bright
         hoverLight.enabled = false;
 
         Renderer r = GetComponent<Renderer>();
@@ -120,7 +120,7 @@ public class ShardInteraction : MonoBehaviour
         {
             for (int i = 0; i < materials.Length; i++)
             {
-                // Boost Emission
+              
                 if (materials[i].HasProperty("_EmissionColor"))
                 {
                     Color currentEmission = originalEmissionColors[i];
@@ -130,13 +130,13 @@ public class ShardInteraction : MonoBehaviour
                     materials[i].SetColor("_EmissionColor", boost);
                 }
                 
-                // Brighten Base Color
+
                 if (materials[i].HasProperty("_BaseColor"))
                 {
                     materials[i].SetColor("_BaseColor", originalBaseColors[i] + hoverTint);
                 }
 
-                // Boost Rim Intensity (For Glass)
+                
                 if (materials[i].HasProperty("_RimIntensity"))
                 {
                     materials[i].SetFloat("_RimIntensity", originalRimIntensities[i] * hoverEmissionBoost);
