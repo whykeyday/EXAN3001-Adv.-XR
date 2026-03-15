@@ -34,13 +34,29 @@ public class TreeSceneSetup : MonoBehaviour
         if (ambientAudio != null && !ambientAudio.isPlaying) ambientAudio.Play();
     }
 
+    private TreeHealer cachedHealer;
+
     void Update()
     {
-        // Gentle whole-tree sway
+        if (cachedHealer == null) cachedHealer = FindObjectOfType<TreeHealer>();
+
+        // Gentle whole-tree sway & Growth mechanics
         if (treeRoot != null)
         {
+            float energy = cachedHealer != null ? cachedHealer.energyLevel : 0f;
+            
+            // Branch lateral extension: X & Z expand dramatically from 40% to 100%
+            Vector3 targetScale = new Vector3(
+                treeScale * Mathf.Lerp(0.4f, 1.0f, energy),
+                treeScale * Mathf.Lerp(0.6f, 1.0f, energy), // Y grows from 60% to 100%
+                treeScale * Mathf.Lerp(0.4f, 1.0f, energy)
+            );
+
             float s = 1f + Mathf.Sin(Time.time * swaySpeed) * swayAmplitude;
-            treeRoot.transform.localScale = Vector3.one * s;
+            treeRoot.transform.localScale = targetScale * s;
+            
+            // Rise up from the ground slightly as it heals (starts -0.8m underground, goes to 0)
+            treeRoot.transform.position = treeCenter + Vector3.up * Mathf.Lerp(-0.8f, 0f, energy);
         }
     }
 
@@ -58,8 +74,8 @@ public class TreeSceneSetup : MonoBehaviour
         container.transform.SetParent(treeRoot.transform, false);
         container.transform.localRotation = Quaternion.Euler(0, 30, 0);
 
-        Color woodCol = new Color(0.2f, 0.12f, 0.05f, 1f);
-        float glow    = 6.0f;
+        Color darkGreen = new Color(0.25f, 0.35f, 0.05f, 1f); // Dark yellow-green (withered)
+        float glow    = 1.0f; // Start with lower glow for dead tree
 
         // Trunk (5 segments, short)
         for (int i = 0; i < 5; i++)
@@ -69,7 +85,7 @@ public class TreeSceneSetup : MonoBehaviour
                 -0.35f + i * 0.07f,
                 Random.Range(-0.02f, 0.02f));
             float scale = 0.12f * (1f - i / 7f);
-            Sphere(container.transform, pos, Vector3.one * scale, woodCol, glow);
+            Sphere(container.transform, pos, Vector3.one * scale, darkGreen, glow, treeRoot);
         }
 
         // Branches (12, spherical spread, X-biased)
@@ -83,12 +99,12 @@ public class TreeSceneSetup : MonoBehaviour
 
             Vector3 start = new Vector3(0, Random.Range(-0.1f, 0.1f), 0);
             Vector3 end   = start + dir * Random.Range(0.25f, 0.45f);
-            Branch(container.transform, start, end, woodCol, 0.04f, glow);
+            Branch(container.transform, start, end, darkGreen, 0.04f, glow, treeRoot);
         }
     }
 
     // ── Branch helper (matches GlassShardsSceneSetup.CreateBranch) ───────────────────────
-    void Branch(Transform parent, Vector3 start, Vector3 end, Color col, float baseScale, float emission)
+    void Branch(Transform parent, Vector3 start, Vector3 end, Color col, float baseScale, float emission, GameObject rootMarker)
     {
         Vector3 dir = (end - start).normalized;
         float   len = Vector3.Distance(start, end);
@@ -97,18 +113,33 @@ public class TreeSceneSetup : MonoBehaviour
         {
             Vector3 pos   = start + dir * (i * len / segs);
             float   scale = baseScale * (1f - i * 0.8f / segs);
-            Sphere(parent, pos, Vector3.one * scale, col, emission);
+            Sphere(parent, pos, Vector3.one * scale, col, emission, rootMarker);
         }
     }
 
     // ── Sphere primitive helper ───────────────────────────────────────────────────────────
-    void Sphere(Transform parent, Vector3 localPos, Vector3 scale, Color col, float emission)
+    void Sphere(Transform parent, Vector3 localPos, Vector3 scale, Color col, float emission, GameObject rootMarker)
     {
         var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         go.transform.SetParent(parent, false);
         go.transform.localPosition = localPos;
         go.transform.localScale    = scale;
-        Destroy(go.GetComponent<Collider>());
+        
+        Collider c = go.GetComponent<Collider>();
+        if (c != null) c.isTrigger = true;
+        
+        // Add Rigidbody to ensure trigger collisions fire even if hand lacks Rigidbody
+        Rigidbody rb = go.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+        // CRITICAL: Ensure the branches don't get moved by physics engines or explode apart
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+        
+        TreeBranchTrigger trigger = go.AddComponent<TreeBranchTrigger>();
+        TreeHealer healer = FindObjectOfType<TreeHealer>();
+        if (healer != null) {
+            trigger.healer = healer;
+        }
 
         Shader sh = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
         var mat = new Material(sh);
@@ -122,5 +153,10 @@ public class TreeSceneSetup : MonoBehaviour
             mat.SetColor("_EmissionColor", col * emission);
         }
         go.GetComponent<Renderer>().material = mat;
+
+        if (healer != null)
+        {
+            healer.AddTreeRenderer(go.GetComponent<Renderer>());
+        }
     }
 }

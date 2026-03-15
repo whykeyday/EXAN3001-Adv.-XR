@@ -34,12 +34,12 @@ public class TreeHealer : MonoBehaviour
 
     // ============ TREE APPEARANCE ============
     [Header("Tree Appearance - Withered (Start)")]
-    public Color witheredColor = new Color(0.4f, 0.25f, 0.1f, 0.9f); // Brown
+    public Color witheredColor = new Color(0.25f, 0.35f, 0.05f, 0.9f); // Dark Yellow-Green (Deadtree)
     public float witheredEmissionRate = 20f;
     public float witheredSize = 0.03f;
 
     [Header("Tree Appearance - Alive (Healed)")]
-    public Color aliveColor = new Color(0.3f, 0.9f, 0.3f, 0.95f); // Green
+    public Color aliveColor = new Color(0.1f, 0.9f, 0.2f, 0.95f); // Bright Emerald Green
     public Color goldHighlight = new Color(1f, 0.85f, 0.3f, 1f);  // Gold accent
     public float aliveEmissionRate = 150f;
     public float aliveSize = 0.05f;
@@ -52,6 +52,10 @@ public class TreeHealer : MonoBehaviour
     private bool isHealing = false;
     private ParticleSystem.MainModule treeMain;
     private ParticleSystem.EmissionModule treeEmission;
+    
+    // For tracking touches from branches
+    private float lastTouchTime = -1f;
+    private System.Collections.Generic.List<Renderer> treeRenderers = new System.Collections.Generic.List<Renderer>();
 
     private void Start()
     {
@@ -89,38 +93,29 @@ public class TreeHealer : MonoBehaviour
             {
                 playerHand = handObj.transform;
             }
-            else
+        // Decay energy and process distance check if hand exists
+        if (playerHand != null)
+        {
+            float distance = Vector3.Distance(playerHand.position, treeCenter.position);
+
+            // Distance check used as fallback if hands miss triggers
+            if (distance < healingDistance)
             {
-                return; // No hand found
+                ReceiveTouch();
             }
         }
-
-        // Calculate distance to tree
-        float distance = Vector3.Distance(playerHand.position, treeCenter.position);
-
-        // Check if within healing range
-        if (distance < healingDistance)
-        {
-            // Increase energy
-            energyLevel += healingRate * Time.deltaTime;
-            energyLevel = Mathf.Clamp01(energyLevel);
-
-            if (!isHealing)
+        
+        // Decay energy slowly when not healing (give a small buffer of 0.2s)
+        if (Time.time - lastTouchTime > 0.2f)
             {
-                isHealing = true;
-                StartHealing();
-            }
-        }
-        else
-        {
-            // Decay energy slowly when not healing
-            energyLevel -= decayRate * Time.deltaTime;
-            energyLevel = Mathf.Clamp01(energyLevel);
+                energyLevel -= decayRate * Time.deltaTime;
+                energyLevel = Mathf.Clamp01(energyLevel);
 
-            if (isHealing)
-            {
-                isHealing = false;
-                StopHealing();
+                if (isHealing)
+                {
+                    isHealing = false;
+                    StopHealing();
+                }
             }
         }
 
@@ -178,6 +173,46 @@ public class TreeHealer : MonoBehaviour
         // Interpolate particle size
         float currentSize = Mathf.Lerp(witheredSize, aliveSize, energy);
         treeMain.startSize = currentSize;
+        
+        // Modulate tree procedural mesh color and emission if they exist
+        foreach (var r in treeRenderers)
+        {
+            if (r != null && r.material != null)
+            {
+                if (r.material.HasProperty("_BaseColor")) r.material.SetColor("_BaseColor", currentColor);
+                else r.material.color = currentColor;
+                
+                if (r.material.IsKeywordEnabled("_EMISSION"))
+                {
+                    // Lerp emission strength from 1.0 (dead) to 6.0 (alive)
+                    float emissionStrength = Mathf.Lerp(1.0f, 6.0f, energy);
+                    r.material.SetColor("_EmissionColor", currentColor * emissionStrength);
+                }
+            }
+        }
+    }
+
+    public void AddTreeRenderer(Renderer r)
+    {
+        if (r != null && !treeRenderers.Contains(r))
+        {
+            treeRenderers.Add(r);
+        }
+    }
+
+    public void ReceiveTouch()
+    {
+        lastTouchTime = Time.time;
+        
+        // Increase energy
+        energyLevel += healingRate * Time.deltaTime;
+        energyLevel = Mathf.Clamp01(energyLevel);
+
+        if (!isHealing)
+        {
+            isHealing = true;
+            StartHealing();
+        }
     }
 
     private void CreateEnergyParticles()
