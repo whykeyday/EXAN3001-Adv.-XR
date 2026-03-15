@@ -174,6 +174,7 @@ public class ParticleTreeHealer : MonoBehaviour
             // Sync Visual Mesh
             if (enableVisualMesh && visualNode != null)
             {
+                visualNode.SetActive(true); // Show visual mesh node for alive tree
                 visualMF.sharedMesh = aliveMesh;
                 if (aliveMaterial != null) visualMR.sharedMaterial = aliveMaterial;
 
@@ -196,12 +197,7 @@ public class ParticleTreeHealer : MonoBehaviour
             // Sync Visual Mesh
             if (enableVisualMesh && visualNode != null)
             {
-                visualMF.sharedMesh = witheredMesh;
-                if (witheredMaterial != null) visualMR.sharedMaterial = witheredMaterial;
-
-                visualNode.transform.localPosition = Vector3.zero;
-                visualNode.transform.localRotation = Quaternion.identity;
-                visualNode.transform.localScale = Vector3.one;
+                visualNode.SetActive(false); // Hide completely transparent dead tree mesh backup
             }
         }
     }
@@ -257,14 +253,33 @@ public class ParticleTreeHealer : MonoBehaviour
                 if (canFall || wasFalling)
                 {
                     Vector3 vel = pBuffer[i].velocity;
-                    vel.y = fallingSpeed;
-                    // Sway effect
-                    vel.x = Mathf.Sin(Time.time * 2f + i) * 0.15f; 
-                    vel.z = Mathf.Cos(Time.time * 2f + i * 1.3f) * 0.15f;
+                    
+                    // --- AUTOMATIC TWEAK: Divide by Scale so raw slider speed maps to real World-meters/sec ---
+                    float scaleY = transform.lossyScale.y;
+                    if (scaleY <= 0) scaleY = 1.0f;
+                    
+                    vel.y = fallingSpeed / scaleY;
+                    
+                    // Sway effect (also divide by scale to maintain visual sway size)
+                    vel.x = (Mathf.Sin(Time.time * 2f + i) * 0.25f) / scaleY; 
+                    vel.z = (Mathf.Cos(Time.time * 2f + i * 1.3f) * 0.25f) / scaleY;
                     pBuffer[i].velocity = vel;
 
                     // Sakura pink color on falling leaves
-                    pBuffer[i].startColor = Color.Lerp(particleColor, fallingSakuraColor, 0.85f);
+                    Color sakuraColor = Color.Lerp(particleColor, fallingSakuraColor, 0.85f);
+                    
+                    // --- AUTOMATIC TWEAK: Dissipate smoothly as it falls over height difference ---
+                    if (wasFalling)
+                    {
+                        float startFallHeight = 0.65f; 
+                        float fallDepth = startFallHeight - heightRatio;
+                        float opacity = Mathf.Clamp01(1.0f - (fallDepth / 0.25f)); // Fully fades after dropping 25% height
+                        sakuraColor.a *= opacity;
+                        
+                        // Kill once fully invisible to maintain memory efficiency
+                        if (opacity <= 0.01f) pBuffer[i].remainingLifetime = 0f;
+                    }
+                    pBuffer[i].startColor = sakuraColor;
                 }
                 else
                 {
@@ -279,17 +294,22 @@ public class ParticleTreeHealer : MonoBehaviour
             else
             {
                 // Withered / Default State
-                pBuffer[i].startColor = witheredColor;
+                Color c = witheredColor;
+                if (isGrown) c.a = 0f; // Hide top brown particles when tree has grown!
+                
+                pBuffer[i].startColor = c;
                 pBuffer[i].startSize = witheredParticleSize;
 
-                // Breathing Jitter (Tight to surface, floating inside)
+                // --- AUTOMATIC TWEAK: Restore slow Breathing Jitter calibrated to scale ---
+                float scaleY = transform.lossyScale.y;
+                if (scaleY <= 0) scaleY = 1.0f;
+
                 Vector3 jitter = new Vector3(
-                    Mathf.Sin(Time.time * jitterSpeed + i) * jitterAmount,
-                    Mathf.Cos(Time.time * jitterSpeed + i * 1.5f) * jitterAmount,
-                    Mathf.Sin(Time.time * jitterSpeed + i * 0.7f) * jitterAmount
+                    (Mathf.Sin(Time.time * jitterSpeed + i) * jitterAmount) / scaleY,
+                    (Mathf.Cos(Time.time * jitterSpeed + i * 1.5f) * jitterAmount) / scaleY,
+                    (Mathf.Sin(Time.time * jitterSpeed + i * 0.7f) * jitterAmount) / scaleY
                 );
-                
-                // Set velocity to jitter to prevent drift expansion or falling
+
                 pBuffer[i].velocity = jitter; 
             }
         }

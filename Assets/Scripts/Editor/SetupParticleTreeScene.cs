@@ -105,10 +105,12 @@ public class SetupParticleTreeScene : Editor
         // --- AUTOMATIC TWEAK 2: Adjust default rates & Dynamic height ---
         healer.witheredParticleSize = 0.00025f;
         healer.aliveParticleSize = 0.00035f; 
-        healer.fallingSpeed = -0.05f; // Slow down falling leaves
+        healer.fallingSpeed = -0.02f; // Highly optimized slow fall speed
         healer.canopyMaxHeight = deadMesh.bounds.size.y; 
-        healer.jitterSpeed = 0.4f;   // Slow down withered jitter
-        healer.jitterAmount = 0.001f; // Smaller float amount
+        healer.jitterSpeed = 0.4f;   // Optimized slow withered jitter
+        healer.jitterAmount = 0.001f; 
+        healer.witheredEmissionRate = 8000f; 
+        healer.aliveEmissionRate = 80000f;  
 
         // 6. Config Single Particle System
         SetupParticles(particleTree, deadMesh);
