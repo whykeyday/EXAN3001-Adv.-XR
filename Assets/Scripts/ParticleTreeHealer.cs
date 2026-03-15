@@ -258,6 +258,12 @@ public class ParticleTreeHealer : MonoBehaviour
                 {
                     Vector3 vel = pBuffer[i].velocity;
                     
+                    // --- AUTOMATIC TWEAK: Age falling particles so they dissolve on time ---
+                    if (pBuffer[i].remainingLifetime > 1000f)
+                    {
+                        pBuffer[i].remainingLifetime = 4.0f; // Reset to 4s life for decay
+                    }
+
                     // --- AUTOMATIC TWEAK: Divide by Scale so raw slider speed maps to real World-meters/sec ---
                     float scaleY = transform.lossyScale.y;
                     if (scaleY <= 0) scaleY = 1.0f;

@@ -192,33 +192,42 @@ public class SetupParticleTreeScene : Editor
 
         var main = ps.main;
         main.duration = 5.0f;
-        main.startLifetime = 4.0f;
+        main.startLifetime = 100000f; // --- TWEAK: Infinite lifetime to prevent continuous cycle pop pops ---
         main.startSpeed = 0f;
         main.startSize = 0.003f;
-        main.maxParticles = 200000;
-        main.simulationSpace = ParticleSystemSimulationSpace.Local;
+        main.maxParticles = 10000;
+        main.simulationSpace = ParticleSystemSimulationSpace.Local; // --- ROLLBACK: Keep local mode to avoid coordinate scaling conflicts ---
         main.scalingMode = ParticleSystemScalingMode.Hierarchy; 
         main.playOnAwake = true;
 
         var emission = ps.emission;
         emission.enabled = true;
-        emission.rateOverTime = 25000; // start dead
+        emission.rateOverTime = 0; // Turn off continuous spawning
+        
+        // Burst 4000 particles at time 0
+        emission.SetBursts(new ParticleSystem.Burst[] {
+            new ParticleSystem.Burst(0.0f, 4500, 4500, 1, 0.01f)
+        });
+
+        // --- AUTOMATIC TWEAK 3: Disable Internal Noise to prevent scale-multiplication drifts ---
+        var noise = ps.noise;
+        noise.enabled = false; 
 
         var shape = ps.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Mesh;
-        shape.meshShapeType = ParticleSystemMeshShapeType.Vertex;
+        shape.meshShapeType = ParticleSystemMeshShapeType.Triangle; // --- TWEAK: Spawn on faces to prevent vertex overlay pops ---
         shape.mesh = treeMesh;
-
-        // --- AUTOMATIC TWEAK 3: Turn off Noise to attach tight to surface ---
-        var noise = ps.noise;
-        noise.enabled = false; 
 
         ParticleSystemRenderer r = ps.GetComponent<ParticleSystemRenderer>();
         if (r != null)
         {
-            r.renderMode = ParticleSystemRenderMode.Billboard;
-            r.alignment = ParticleSystemRenderSpace.World; // --- AUTOMATIC TWEAK: Stop particles from rotating with camera ---
+            // --- AUTOMATIC TWEAK 4: Use 3D Mesh particles so they surround you from every direction in VR ---
+            r.renderMode = ParticleSystemRenderMode.Mesh;
+            
+            GameObject tempObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            r.mesh = tempObj.GetComponent<MeshFilter>().sharedMesh;
+            DestroyImmediate(tempObj);
             
             // --- AUTOMATIC TWEAK 4: Transparent Particle Material enabling Vertex Colors ---
             Shader particleShader = Shader.Find("Universal Render Pipeline/Particles/Lit");
