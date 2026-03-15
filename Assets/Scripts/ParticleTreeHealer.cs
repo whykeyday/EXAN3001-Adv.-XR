@@ -37,6 +37,10 @@ public class ParticleTreeHealer : MonoBehaviour
     [Header("Falling Speed (Snowflake Downward)")]
     public float fallingSpeed = -0.15f; 
     public float canopyMaxHeight = 15.0f; 
+    [Range(0.01f, 1.0f), Tooltip("下落多长比例后完全透明销毁 (0.25 = 树高的25%)")]
+    public float fallFadeDistance = 0.25f; 
+    [Tooltip("粉色粒子向外散发的推力系数")]
+    public float spreadForce = 0.1f; 
 
     [Range(0f, 1f)]
     public float energyLevel = 0f;
@@ -260,9 +264,12 @@ public class ParticleTreeHealer : MonoBehaviour
                     
                     vel.y = fallingSpeed / scaleY;
                     
-                    // Sway effect (also divide by scale to maintain visual sway size)
-                    vel.x = (Mathf.Sin(Time.time * 2f + i) * 0.25f) / scaleY; 
-                    vel.z = (Mathf.Cos(Time.time * 2f + i * 1.3f) * 0.25f) / scaleY;
+                    // --- AUTOMATIC TWEAK: Radial spread from tree trunk ---
+                    Vector3 spreadDir = new Vector3(pBuffer[i].position.x, 0, pBuffer[i].position.z).normalized;
+
+                    // Sway effect + Outward push (Scaled)
+                    vel.x = (Mathf.Sin(Time.time * 2f + i) * 0.25f + spreadDir.x * spreadForce) / scaleY; 
+                    vel.z = (Mathf.Cos(Time.time * 2f + i * 1.3f) * 0.25f + spreadDir.z * spreadForce) / scaleY;
                     pBuffer[i].velocity = vel;
 
                     // Sakura pink color on falling leaves
@@ -273,7 +280,7 @@ public class ParticleTreeHealer : MonoBehaviour
                     {
                         float startFallHeight = 0.65f; 
                         float fallDepth = startFallHeight - heightRatio;
-                        float opacity = Mathf.Clamp01(1.0f - (fallDepth / 0.25f)); // Fully fades after dropping 25% height
+                        float opacity = Mathf.Clamp01(1.0f - (fallDepth / fallFadeDistance)); // Fully fades after dropping defined distance
                         sakuraColor.a *= opacity;
                         
                         // Kill once fully invisible to maintain memory efficiency

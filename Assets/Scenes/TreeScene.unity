@@ -5999,7 +5999,7 @@ ParticleSystemRenderer:
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 0
+  m_RenderAlignment: 1
   m_Pivot: {x: 0, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1
@@ -10768,15 +10768,17 @@ MonoBehaviour:
   aliveMeshRotationOffset: {x: -90, y: 0, z: 0}
   aliveMeshScaleMultiplier: 1
   jitterSpeed: 0.4
-  jitterAmount: 0.001
-  aliveParticleSize: 0.00035
-  aliveEmissionRate: 80000
+  jitterAmount: 0.04
+  aliveParticleSize: 0.00015
+  aliveEmissionRate: 35000
   healingRate: 0.5
   decayRate: 0.1
   fallingSpeed: -0.02
   canopyMaxHeight: 0.06851152
+  fallFadeDistance: 0.25
+  spreadForce: 0.1
   energyLevel: 0
-  enableVisualMesh: 1
+  enableVisualMesh: 0
   witheredMaterial: {fileID: 2100000, guid: cc26e481ec480b647baf49a7925e77b7, type: 2}
   aliveMaterial: {fileID: 2100000, guid: e3224692cf9e80e448aa9f5e511a8ac7, type: 2}
 --- !u!4 &1902966278
@@ -10788,8 +10790,8 @@ Transform:
   m_GameObject: {fileID: 1902966269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.15924369, z: 0, w: 0.9872393}
-  m_LocalPosition: {x: 1.4, y: 7.5, z: 67.8}
-  m_LocalScale: {x: 987.3105, y: 987.3105, z: 987.3105}
+  m_LocalPosition: {x: 1.6, y: 6.11, z: 51.1}
+  m_LocalScale: {x: 645.7415, y: 645.7415, z: 645.7415}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

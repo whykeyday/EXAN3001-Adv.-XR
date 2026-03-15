@@ -104,13 +104,13 @@ public class SetupParticleTreeScene : Editor
 
         // --- AUTOMATIC TWEAK 2: Adjust default rates & Dynamic height ---
         healer.witheredParticleSize = 0.00025f;
-        healer.aliveParticleSize = 0.00035f; 
-        healer.fallingSpeed = -0.02f; // Highly optimized slow fall speed
+        healer.aliveParticleSize = 0.00015f; // Made smaller to prevent clumped Look
+        healer.fallingSpeed = -0.02f; 
         healer.canopyMaxHeight = deadMesh.bounds.size.y; 
-        healer.jitterSpeed = 0.4f;   // Optimized slow withered jitter
-        healer.jitterAmount = 0.001f; 
+        healer.jitterSpeed = 0.4f;   
+        healer.jitterAmount = 0.04f; // Made larger for visible breathing on scale
         healer.witheredEmissionRate = 8000f; 
-        healer.aliveEmissionRate = 80000f;  
+        healer.aliveEmissionRate = 35000f;   // Balanced lower density
 
         // 6. Config Single Particle System
         SetupParticles(particleTree, deadMesh);
@@ -218,6 +218,7 @@ public class SetupParticleTreeScene : Editor
         if (r != null)
         {
             r.renderMode = ParticleSystemRenderMode.Billboard;
+            r.alignment = ParticleSystemRenderSpace.World; // --- AUTOMATIC TWEAK: Stop particles from rotating with camera ---
             
             // --- AUTOMATIC TWEAK 4: Transparent Particle Material enabling Vertex Colors ---
             Shader particleShader = Shader.Find("Universal Render Pipeline/Particles/Lit");
