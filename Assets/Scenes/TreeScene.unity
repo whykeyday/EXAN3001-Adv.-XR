@@ -10816,8 +10816,8 @@ MonoBehaviour:
   witheredMesh: {fileID: 2494185979427425891, guid: fbbfe8a59ed7bbb49b01e07f8f2aa6eb, type: 3}
   aliveMesh: {fileID: 400870386661491274, guid: de941389c4bba3f4fbd86e520f3d0c10, type: 3}
   witheredColor: {r: 0.48, g: 0.28, b: 0.08, a: 0.9}
-  witheredParticleSize: 0.00025
-  witheredEmissionRate: 8000
+  witheredParticleSize: 0.00015
+  witheredEmissionRate: 0
   trunkColor: {r: 0.48, g: 0.28, b: 0.08, a: 0.9}
   branchColor: {r: 0.6, g: 0.8, b: 0.2, a: 0.9}
   tipColor: {r: 0.1, g: 0.85, b: 0.2, a: 0.95}
@@ -10828,15 +10828,16 @@ MonoBehaviour:
   jitterSpeed: 0.4
   jitterAmount: 0.04
   aliveParticleSize: 0.00015
-  aliveEmissionRate: 35000
+  aliveEmissionRate: 50000
   healingRate: 0.5
   decayRate: 0.1
   fallingSpeed: -0.02
   canopyMaxHeight: 0.06851152
   fallFadeDistance: 0.25
+  fallHeightThreshold: 0.65
   spreadForce: 0.1
-  energyLevel: 0
-  enableVisualMesh: 0
+  energyLevel: 0.23
+  enableVisualMesh: 1
   witheredMaterial: {fileID: 2100000, guid: cc26e481ec480b647baf49a7925e77b7, type: 2}
   aliveMaterial: {fileID: 2100000, guid: e3224692cf9e80e448aa9f5e511a8ac7, type: 2}
 --- !u!4 &1902966278
@@ -10848,8 +10849,8 @@ Transform:
   m_GameObject: {fileID: 1902966269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.15924369, z: 0, w: 0.9872393}
-  m_LocalPosition: {x: 3.9, y: 8.8, z: 46.2}
-  m_LocalScale: {x: 941.28107, y: 941.28107, z: 941.28107}
+  m_LocalPosition: {x: 3.8, y: 9.3, z: 61.8}
+  m_LocalScale: {x: 943.7066, y: 943.7066, z: 943.7066}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

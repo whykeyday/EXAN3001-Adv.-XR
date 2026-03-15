@@ -109,7 +109,7 @@ public class SetupParticleTreeScene : Editor
         healer.canopyMaxHeight = deadMesh.bounds.size.y; 
         healer.jitterSpeed = 0.4f;   
         healer.jitterAmount = 0.04f; // Made larger for visible breathing on scale
-        healer.witheredEmissionRate = 8000f; 
+        healer.witheredEmissionRate = 0f; // --- TWEAK: Use Burst approach only to prevent continuous overcrowding ---
         healer.aliveEmissionRate = 35000f;   // Balanced lower density
 
         // 6. Config Single Particle System

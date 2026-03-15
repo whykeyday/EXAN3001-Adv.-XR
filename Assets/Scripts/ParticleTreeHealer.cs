@@ -39,6 +39,8 @@ public class ParticleTreeHealer : MonoBehaviour
     public float canopyMaxHeight = 15.0f; 
     [Range(0.01f, 1.0f), Tooltip("下落多长比例后完全透明销毁 (0.25 = 树高的25%)")]
     public float fallFadeDistance = 0.25f; 
+    [Range(0.1f, 1.0f), Tooltip("落叶从树上什么高度比例开始下落 (0.65 = 顶峰向下25%处)")]
+    public float fallHeightThreshold = 0.65f; 
     [Tooltip("粉色粒子向外散发的推力系数")]
     public float spreadForce = 0.1f; 
 
@@ -196,6 +198,12 @@ public class ParticleTreeHealer : MonoBehaviour
                 shape.rotation = Vector3.zero;
                 shape.scale = Vector3.one;
                 emission.rateOverTime = witheredEmissionRate;
+
+                // --- AUTOMATIC TWEAK: Burst replenish dead particles on state return if rate is 0 ---
+                if (witheredEmissionRate <= 0.1f)
+                {
+                    ps.Emit(3500); 
+                }
             }
 
             // Sync Visual Mesh
@@ -252,7 +260,7 @@ public class ParticleTreeHealer : MonoBehaviour
 
                 // Falling Leaves Logic (Only tips fall, above 65% height, when shape has swapped)
                 bool wasFalling = pBuffer[i].velocity.y < (fallingSpeed * 0.5f);
-                bool canFall = heightRatio > 0.65f && energyLevel > 0.5f;
+                bool canFall = heightRatio > fallHeightThreshold && energyLevel > 0.5f;
 
                 if (canFall || wasFalling)
                 {
