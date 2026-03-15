@@ -10824,20 +10824,20 @@ MonoBehaviour:
   fallingSakuraColor: {r: 1, g: 0.75, b: 0.8, a: 0.9}
   aliveMeshPositionOffset: {x: 0, y: 0, z: 0}
   aliveMeshRotationOffset: {x: -90, y: 0, z: 0}
-  aliveMeshScaleMultiplier: 1
+  aliveMeshScaleMultiplier: 0.8
   jitterSpeed: 0.4
   jitterAmount: 0.04
   aliveParticleSize: 0.00015
   aliveEmissionRate: 50000
-  healingRate: 0.5
-  decayRate: 0.1
-  fallingSpeed: -0.02
+  healingRate: 0.1
+  decayRate: 0.5
+  fallingSpeed: -0.002
   canopyMaxHeight: 0.06851152
   fallFadeDistance: 0.25
   fallHeightThreshold: 0.65
   spreadForce: 0.1
-  energyLevel: 0.23
-  enableVisualMesh: 1
+  energyLevel: 0.333
+  enableVisualMesh: 0
   witheredMaterial: {fileID: 2100000, guid: cc26e481ec480b647baf49a7925e77b7, type: 2}
   aliveMaterial: {fileID: 2100000, guid: e3224692cf9e80e448aa9f5e511a8ac7, type: 2}
 --- !u!4 &1902966278

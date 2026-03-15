@@ -21,7 +21,7 @@ public class ParticleTreeHealer : MonoBehaviour
 
     [Header("Mesh Morph Manual Calibration")]
     public Vector3 aliveMeshPositionOffset = Vector3.zero;
-    public Vector3 aliveMeshRotationOffset = new Vector3(-90f, 0f, 0f);
+    public Vector3 aliveMeshRotationOffset = Vector3.zero;
     public float aliveMeshScaleMultiplier = 1.0f;
 
     [Header("Withered Breathing Jitter")]
