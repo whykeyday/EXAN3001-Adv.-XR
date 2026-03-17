@@ -33959,7 +33959,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 7.34e-43, z: 1.0157e-41, w: 2.7093556e+31}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: -6.6804153e-37}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -35628,6 +35628,7 @@ MonoBehaviour:
   particleMaterials:
   - {fileID: 10301, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 66e57d92d96b7f04592aaf65535640aa, type: 2}
 --- !u!199 &2059223540
 ParticleSystemRenderer:
   serializedVersion: 6

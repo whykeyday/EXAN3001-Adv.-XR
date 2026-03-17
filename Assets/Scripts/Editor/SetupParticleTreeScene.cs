@@ -13,9 +13,14 @@ public class SetupParticleTreeScene : Editor
     [MenuItem("Tools/Rebuild Transparent Particle Tree Scene")]
     public static void ManualSetupScene()
     {
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "TreeScene")
+        bool isTreeSceneLoaded = false;
+        for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
         {
-            Debug.LogWarning("Please open TreeScene first!");
+            if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).name == "TreeScene") isTreeSceneLoaded = true;
+        }
+        if (!isTreeSceneLoaded)
+        {
+            Debug.LogWarning("Please load TreeScene first!");
             return;
         }
 
@@ -56,6 +61,8 @@ public class SetupParticleTreeScene : Editor
 
         // 4. Create single target root
         GameObject particleTree = new GameObject("TransparentParticleTree");
+        UnityEngine.SceneManagement.Scene treeScene = UnityEngine.SceneManagement.SceneManager.GetSceneByName("TreeScene");
+        if (treeScene.isLoaded) UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(particleTree, treeScene);
         particleTree.transform.position = lastPos;
         particleTree.transform.localScale = lastScale;
         particleTree.transform.rotation = lastRot;
