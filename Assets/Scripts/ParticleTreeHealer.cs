@@ -270,23 +270,24 @@ public class ParticleTreeHealer : MonoBehaviour
         var pMain = petalsPS.main;
         pMain.simulationSpace = ParticleSystemSimulationSpace.World;
         pMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        pMain.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 2.5f); // ★ 寿命短2/3，刚掉出枝头就消失
-        pMain.startSpeed = 0f; // 初始不乱飞
-        pMain.startSize = new ParticleSystem.MinMaxCurve(0.0005f, 0.002f); 
+        pMain.startLifetime = new ParticleSystem.MinMaxCurve(2.0f, 4.0f); // ★ 悬浮更久一点
+        pMain.startSpeed = 0f; 
+        pMain.startSize = 0.0005f; // ★ 绝对微小，绝对不再变大！
         pMain.startColor = pinkPetalColor; 
         pMain.gravityModifier = 0f; // 彻底无重力
-        pMain.maxParticles = 3000; 
+        pMain.maxParticles = 5000; 
 
         var pShape = petalsPS.shape;
-        pShape.shapeType = ParticleSystemShapeType.Sphere; 
-        pShape.position = Vector3.up * Mathf.Max(canopyMaxHeight * 0.7f, aMaxY * 0.7f); // ★ 下沉覆盖整个树冠内部和表面各个地方
-        pShape.radius = canopyMaxHeight * 0.8f; // ★ 扩大半径，让整个树冠周围都有发散的粉色花簇
+        pShape.shapeType = ParticleSystemShapeType.Box; // ★ 改用长方体，完美宽广地覆盖整个树冠层！
+        float treeH = aMaxY - aMinY;
+        pShape.position = Vector3.up * (aMinY + treeH * 0.95f); // ★ 极其靠上，锁定在顶部 95%！
+        pShape.scale = new Vector3(treeH * 1.5f, treeH * 0.1f, treeH * 1.5f); // ★ 极宽极薄的气垫区域，绝对散布全身！
 
         var pVel = petalsPS.velocityOverLifetime;
         pVel.enabled = true; 
-        pVel.x = new ParticleSystem.MinMaxCurve(-0.02f / s, 0.02f / s); 
-        pVel.y = new ParticleSystem.MinMaxCurve(-0.01f / s, 0.01f / s); // ★ 改为完全随风轻微上下浮动，不只是下落！
-        pVel.z = new ParticleSystem.MinMaxCurve(-0.02f / s, 0.02f / s); 
+        pVel.x = new ParticleSystem.MinMaxCurve(-0.01f / s, 0.01f / s); 
+        pVel.y = new ParticleSystem.MinMaxCurve(-0.002f / s, 0.002f / s); // ★ 真正的微波级定格悬浮！
+        pVel.z = new ParticleSystem.MinMaxCurve(-0.01f / s, 0.01f / s);
 
         var pSizeAnim = petalsPS.sizeOverLifetime;
         pSizeAnim.enabled = false; // ★ 彻底关闭放大效果！解决巨型花瓣的问题！
@@ -320,6 +321,7 @@ public class ParticleTreeHealer : MonoBehaviour
         sMain.startColor = new Color(1f, 0.9f, 0.2f, 1f);
         sMain.simulationSpace = ParticleSystemSimulationSpace.World;
         sMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        sMain.maxParticles = 2; // ★ 物理级硬锁：全宇宙同时最多只能存在 2 条丝带！绝对不可能乱！
 
         var sShape = scarfPS.shape;
         sShape.shapeType = ParticleSystemShapeType.Circle;
@@ -381,7 +383,7 @@ public class ParticleTreeHealer : MonoBehaviour
         bMain.loop = true;
         bMain.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
         bMain.startSpeed = 0f; // 无需初始速度
-        bMain.startSize = 0.002f; // ★ 小小的
+        bMain.startSize = 0.015f; // ★ 稍微放大点，保证高清显示完整蝴蝶！之前 0.002 太小可能被截断了！
         bMain.simulationSpace = ParticleSystemSimulationSpace.World;
         bMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
 
@@ -403,7 +405,11 @@ public class ParticleTreeHealer : MonoBehaviour
         bTrails.lifetimeMultiplier = 0.2f; // 拖尾轻微保留
 
         var texAnim = butterfliesPS.textureSheetAnimation;
-        texAnim.enabled = false; // ★ 彻底关闭错误的 2x2 切割材质！恢复为一个完整的贴图或光球精灵！
+        texAnim.enabled = true; // ★ 重新开启帧动画！原来是 3 个连着的图！
+        texAnim.numTilesX = 3;  // ★ 1行3列的排布
+        texAnim.numTilesY = 1;
+        texAnim.animation = ParticleSystemAnimationType.WholeSheet; // 连贯播放整个序列
+        texAnim.cycleCount = 10; // ★ 保证在漫长的生命里，翅膀能多扑扇几遍！
 
         var bRender = butterfliesPS.GetComponent<ParticleSystemRenderer>();
         bRender.renderMode = ParticleSystemRenderMode.Billboard;
@@ -560,7 +566,7 @@ public class ParticleTreeHealer : MonoBehaviour
         }
 
         var bEmis = butterfliesPS.emission;
-        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 3f : 0f; // ★ 稍微恢复一点点蝴蝶的数量
+        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 0.8f : 0f; // ★ 更是稀缺到极点，几乎同时只存在 2/3 只
     }
 
     void LateUpdate()
