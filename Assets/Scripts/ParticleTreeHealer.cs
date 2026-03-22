@@ -15,7 +15,7 @@ public class ParticleTreeHealer : MonoBehaviour
     public Mesh aliveMesh;
     public Vector3 aliveMeshPositionOffset = Vector3.zero;
     public Vector3 aliveMeshRotationOffset = new Vector3(-90, 0, 0);
-    public float aliveMeshScaleMultiplier = 0.8f;
+    public float aliveMeshScaleMultiplier = 0.35f; // 【再一次缩小】让绿树尽量能套进枯树主干里
 
     [Header("====== 视觉染色与特效 ======")]
     [Tooltip("枯树状态的粒子颜色 (棕色/暗琥珀色)")]
@@ -38,13 +38,17 @@ public class ParticleTreeHealer : MonoBehaviour
 
     [Header("====== 粒子密度与数量设置 (任意调整尝试) ======")]
     [Tooltip("枯树的最大生成速率（决定多密集）")]
-    public float witheredParticleRate = 3000f;
+    public float witheredParticleRate = 5000f; // ★ 提升密度默认值
     [Tooltip("绿树的最大生成速率（决定多密集）")]
-    public float aliveParticleRate = 5000f;
+    public float aliveParticleRate = 12000f; // ★ 提升密度默认值
     [Tooltip("单一阶段允许同时存活的最大粒子数量极限")]
     public int maxParticleLimit = 15000;
 
     [Header("====== 治愈与自然衰退进度 ======")]
+    [Tooltip("延迟衰退的时间：离开手后等多久才开始掉色变小（默认60秒）")]
+    public float healLingerDuration = 60f;
+    private float healLingerTimer = 0f;
+
     [Range(0.01f, 1f)] public float healingRate = 0.05f;
     [Range(0.01f, 1f)] public float decayRate = 0.02f;
     [Range(0, 1)] public float energyLevel = 0f;
@@ -60,7 +64,7 @@ public class ParticleTreeHealer : MonoBehaviour
     private ParticleSystem alivePS;
     private ParticleSystem petalsPS;
     private ParticleSystem scarfPS;
-    private ParticleSystem butterflyPS;
+    private ParticleSystem butterfliesPS;
     private ParticleSystem soilPS;
 
     // --- 逻辑控制 ---
@@ -70,7 +74,10 @@ public class ParticleTreeHealer : MonoBehaviour
     private ParticleSystem.Particle[] pBuffer; // 用于读取和染色粒子的高效缓存
     private float scanTimer = 0f;
     private List<GameObject> cachedHands = new List<GameObject>();
-    private float treeMinY = 0f;
+    private float wMinY = 0f;
+    private float wMaxY = 10f;
+    private float aMinY = 0f;
+    private float aMaxY = 10f;
 
     // 粒子生成速率基准
     private readonly int MAX_WITHERED_RATE = 15000;
@@ -82,14 +89,64 @@ public class ParticleTreeHealer : MonoBehaviour
         pBuffer = new ParticleSystem.Particle[Mathf.Max(MAX_ALIVE_RATE, MAX_WITHERED_RATE) + 2000];
         energyLevel = 0f;
 
-        // ★ 动态计算树干截断高度与树冠高度，避免不同模型Inspector填错导致的问题
-        if (aliveMesh != null)
+        // ★ 强行覆盖 Inspector 中可能残留的旧参数，确保本次更新立即生效！！
+        aliveMeshScaleMultiplier = 0.35f;
+        witheredParticleRate = Mathf.Max(witheredParticleRate, 5000f);
+        aliveParticleRate = Mathf.Max(aliveParticleRate, 12000f);
+
+        // 单独计算完全不同的两套骨架空间的 Y 极值，防止因为比例不同导致扫描线与着色断层！
+        if (witheredMesh != null && aliveMesh != null)
         {
-            treeMinY = aliveMesh.bounds.min.y * aliveMeshScaleMultiplier + aliveMeshPositionOffset.y;
-            float maxY = aliveMesh.bounds.max.y * aliveMeshScaleMultiplier + aliveMeshPositionOffset.y;
-            trunkHeightThreshold = treeMinY + (maxY - treeMinY) * 0.45f; // 下方 45% 作为树干 (褐色)
-            canopyMaxHeight = maxY;
+            // 通过构建完整的临时渲染器来精确获取物理界限差距，完美解决缩放与 -90 度旋转造成的包围盒扭曲！！
+            GameObject tempW = new GameObject("TempW");
+            var wFilter = tempW.AddComponent<MeshFilter>();
+            wFilter.sharedMesh = witheredMesh;
+            var wRender = tempW.AddComponent<MeshRenderer>();
+            Bounds wBounds = wRender.bounds;
+
+            GameObject tempA = new GameObject("TempA");
+            var aFilter = tempA.AddComponent<MeshFilter>();
+            aFilter.sharedMesh = aliveMesh;
+            var aRender = tempA.AddComponent<MeshRenderer>();
+            tempA.transform.localEulerAngles = aliveMeshRotationOffset;
+            tempA.transform.localScale = Vector3.one * aliveMeshScaleMultiplier;
+            Bounds aBoundsRaw = aRender.bounds;
+
+            // 存入真实尺度下的最低点差距，强行抵消因为 Scale 0.35 导致的抬升腾空！
+            float hoverOffset = wBounds.min.y - aBoundsRaw.min.y;
+            // 补偿 5% 的高度防止完全陷入图中
+            hoverOffset += (wBounds.max.y - wBounds.min.y) * 0.05f;
+            aliveMeshPositionOffset = new Vector3(aliveMeshPositionOffset.x, hoverOffset, aliveMeshPositionOffset.z);
+
+            // 更新真实边界，确保它完美扎根
+            tempA.transform.position = new Vector3(0, hoverOffset, 0);
+            Bounds aBoundsFinal = aRender.bounds;
+
+            wMinY = wBounds.min.y;
+            wMaxY = wBounds.max.y;
+            aMinY = aBoundsFinal.min.y;
+            aMaxY = aBoundsFinal.max.y;
+
+            Destroy(tempW);
+            Destroy(tempA);
         }
+        else
+        {
+            if (witheredMesh != null)
+            {
+                wMinY = witheredMesh.bounds.min.y;
+                wMaxY = witheredMesh.bounds.max.y;
+            }
+            if (aliveMesh != null)
+            {
+                aMinY = aliveMesh.bounds.min.y * aliveMeshScaleMultiplier + aliveMeshPositionOffset.y;
+                aMaxY = aliveMesh.bounds.max.y * aliveMeshScaleMultiplier + aliveMeshPositionOffset.y;
+            }
+        }
+        
+        // 顶部特效（花瓣、蝴蝶）取两个模型中最高的那一个，避免卡在树干里
+        canopyMaxHeight = Mathf.Max(wMaxY, aMaxY);
+        trunkHeightThreshold = wMinY + (wMaxY - wMinY) * 0.45f;
 
         // 强行修正 UX 体验数值，避免离开手后瞬间衰退回枯树
         healingRate = 0.4f; // 2.5秒完全治愈
@@ -177,62 +234,72 @@ public class ParticleTreeHealer : MonoBehaviour
         aMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
         aMain.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 3.0f);
         aMain.startSpeed = 0f;
-        aMain.startSize = new ParticleSystem.MinMaxCurve(0.0002f, 0.0005f);
+        aMain.startSize = new ParticleSystem.MinMaxCurve(0.0002f, 0.0005f); // 适中尺寸
         aMain.startColor = Color.white;
         aMain.maxParticles = maxParticleLimit;
         aMain.playOnAwake = true;
         
         var aShape = alivePS.shape;
         aShape.shapeType = ParticleSystemShapeType.Mesh;
-        aShape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
-        aShape.mesh = aliveMesh;
+        // ★ 必须用 Vertex，确保粒子死死咬住树的每个多边形顶点，不要松散发射
+        aShape.meshShapeType = ParticleSystemMeshShapeType.Vertex;
+        aShape.mesh = aliveMesh; // 统一只用绿树的模型！
         aShape.position = aliveMeshPositionOffset;
         aShape.rotation = aliveMeshRotationOffset;
         aShape.scale = Vector3.one * aliveMeshScaleMultiplier;
 
         var aCol = alivePS.colorOverLifetime;
         aCol.enabled = true;
-        aCol.color = wGrad; // 复用相同的透明度渐变
+        aCol.color = wGrad;
 
         var aRender = alivePS.GetComponent<ParticleSystemRenderer>();
         aRender.renderMode = ParticleSystemRenderMode.Billboard;
         aRender.material = glowMat;
         var aEmis = alivePS.emission;
-        aEmis.rateOverTime = 0; 
+        aEmis.rateOverTime = 0;
 
         // ==========================================
         // 3. 粉色落花粒子系统 (PinkPetals_PS)
         // ==========================================
         GameObject pObj = new GameObject("PinkPetals_PS");
         pObj.transform.SetParent(transform, false);
-        // 位置设定在树冠顶端
-        pObj.transform.localPosition = Vector3.up * (canopyMaxHeight * 0.85f);
-        pObj.transform.localScale = Vector3.one / s; // 抵消父物体巨大的缩放
+        pObj.transform.localPosition = Vector3.zero;
+        pObj.transform.localScale = Vector3.one;
         
         petalsPS = pObj.AddComponent<ParticleSystem>();
         var pMain = petalsPS.main;
         pMain.simulationSpace = ParticleSystemSimulationSpace.World;
-        pMain.startLifetime = new ParticleSystem.MinMaxCurve(5f, 10f); // 飘落很久
+        pMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        pMain.startLifetime = new ParticleSystem.MinMaxCurve(5f, 10f); 
         pMain.startSpeed = 0f;
-        pMain.startSize = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
-        pMain.startColor = pinkPetalColor; // ★ 使用面板上公开的粉色变量
-        pMain.gravityModifier = 0.015f; // 极缓的重力落下
-        pMain.maxParticles = 2000;
+        pMain.startSize = new ParticleSystem.MinMaxCurve(0.0005f, 0.0015f); // 配合极大/极小树模型自动缩放
+        pMain.startColor = pinkPetalColor; 
+        pMain.gravityModifier = 0.05f; // 极小的重力，缓慢飘落
+        pMain.maxParticles = 8000; 
 
         var pShape = petalsPS.shape;
-        pShape.shapeType = ParticleSystemShapeType.Sphere;
-        pShape.radius = canopyMaxHeight * 0.4f;
+        pShape.shapeType = ParticleSystemShapeType.Box; // 改为长方体盒子在树顶泼洒
+        pShape.position = Vector3.up * Mathf.Max(canopyMaxHeight, aMaxY); // 在树顶往下落
+        pShape.scale = new Vector3(canopyMaxHeight, 2f, canopyMaxHeight);
 
         var pVel = petalsPS.velocityOverLifetime;
         pVel.enabled = true;
-        pVel.x = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
-        pVel.z = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
-        pVel.orbitalY = 0.15f; // 轻微旋转落下
+        pVel.x = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); 
+        pVel.y = new ParticleSystem.MinMaxCurve(-0.5f, -0.1f); // 慢慢飘落
+        pVel.z = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f);
+
+        // ★ 尺寸由小变大膨胀
+        var pSizeAnim = petalsPS.sizeOverLifetime;
+        pSizeAnim.enabled = true;
+        AnimationCurve sizeCurve = new AnimationCurve();
+        sizeCurve.AddKey(new Keyframe(0f, 0.5f)); 
+        sizeCurve.AddKey(new Keyframe(1f, 3.5f)); 
+        pSizeAnim.size = new ParticleSystem.MinMaxCurve(1.0f, sizeCurve);
         
         var pNoise = petalsPS.noise;
         pNoise.enabled = true;
-        pNoise.strength = 0.2f;
-        pNoise.frequency = 0.5f;
+        pNoise.strength = 0.5f; // 随机扭曲飞行路线，增加蓬松空气感
+        pNoise.frequency = 0.3f;
 
         var pRender = petalsPS.GetComponent<ParticleSystemRenderer>();
         pRender.renderMode = ParticleSystemRenderMode.Billboard;
@@ -246,27 +313,29 @@ public class ParticleTreeHealer : MonoBehaviour
         // ==========================================
         GameObject scarfObj = new GameObject("YellowScarf_PS");
         scarfObj.transform.SetParent(transform, false);
-        scarfObj.transform.localPosition = Vector3.up * (canopyMaxHeight * 0.5f);
-        scarfObj.transform.localScale = Vector3.one / s;
+        scarfObj.transform.localPosition = Vector3.zero;
+        scarfObj.transform.localScale = Vector3.one;
 
         scarfPS = scarfObj.AddComponent<ParticleSystem>();
         var sMain = scarfPS.main;
         sMain.loop = true;
-        sMain.startLifetime = 2.5f;
+        sMain.startLifetime = 3.5f;
         sMain.startSpeed = 0f;
-        sMain.startSize = 0.5f;
+        sMain.startSize = 0.0005f; // 极细的丝带
         sMain.startColor = new Color(1f, 0.9f, 0.2f, 1f);
         sMain.simulationSpace = ParticleSystemSimulationSpace.World;
+        sMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
 
         var sShape = scarfPS.shape;
         sShape.shapeType = ParticleSystemShapeType.Circle;
-        sShape.radius = canopyMaxHeight * 0.4f;
+        sShape.position = Vector3.up * (canopyMaxHeight * 0.5f); // 在腰部环绕
+        sShape.radius = canopyMaxHeight * 1.5f; // 远远的环绕
         sShape.arcMode = ParticleSystemShapeMultiModeValue.Loop;
         
         var sVel = scarfPS.velocityOverLifetime;
         sVel.enabled = true;
-        sVel.orbitalY = 4.0f; 
-        sVel.y = new ParticleSystem.MinMaxCurve(1.0f, 2.5f); 
+        sVel.orbitalY = 0.5f; // 缓慢转动防止眼晕
+        sVel.y = new ParticleSystem.MinMaxCurve(0.2f, 0.5f); // 缓慢上升
 
         var sNoise = scarfPS.noise;
         sNoise.enabled = true;
@@ -301,27 +370,31 @@ public class ParticleTreeHealer : MonoBehaviour
         // 蝴蝶
         GameObject bf = new GameObject("Butterfly_PS");
         bf.transform.SetParent(transform, false);
-        bf.transform.localPosition = Vector3.up * (canopyMaxHeight * 0.7f);
-        bf.transform.localScale = Vector3.one / s; 
-        butterflyPS = bf.AddComponent<ParticleSystem>();
-        var bMain = butterflyPS.main;
+        bf.transform.localPosition = Vector3.zero;
+        bf.transform.localScale = Vector3.one; 
+        
+        butterfliesPS = bf.AddComponent<ParticleSystem>();
+        var bMain = butterfliesPS.main;
         bMain.loop = true;
         bMain.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
-        bMain.startSpeed = new ParticleSystem.MinMaxCurve(1.0f, 3.0f);
-        bMain.startSize = 0.5f; 
+        bMain.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
+        bMain.startSize = 0.005f; 
         bMain.simulationSpace = ParticleSystemSimulationSpace.World;
-        var bShape = butterflyPS.shape;
+        bMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+
+        var bShape = butterfliesPS.shape;
         bShape.shapeType = ParticleSystemShapeType.Sphere;
-        bShape.radius = 10.0f;
-        var bVel = butterflyPS.velocityOverLifetime;
+        bShape.position = Vector3.up * Mathf.Max(canopyMaxHeight * 1.05f, aMaxY); 
+        bShape.radius = canopyMaxHeight * 0.5f;
+        var bVel = butterfliesPS.velocityOverLifetime;
         bVel.enabled = true;
-        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.8f, 0.8f); 
-        var texAnim = butterflyPS.textureSheetAnimation;
+        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); // 慢慢飞
+        var texAnim = butterfliesPS.textureSheetAnimation;
         texAnim.enabled = true;
         texAnim.numTilesX = 2; 
         texAnim.numTilesY = 2;
         texAnim.animation = ParticleSystemAnimationType.WholeSheet;
-        var bRender = butterflyPS.GetComponent<ParticleSystemRenderer>();
+        var bRender = butterfliesPS.GetComponent<ParticleSystemRenderer>();
         bRender.renderMode = ParticleSystemRenderMode.Billboard;
         var bMat = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit"));
         bMat.EnableKeyword("_ALPHABLEND_ON");
@@ -337,7 +410,7 @@ public class ParticleTreeHealer : MonoBehaviour
             if (bMat.HasProperty("_BaseMap")) bMat.SetTexture("_BaseMap", butterflyTexture);
         }
         bRender.material = bMat;
-        var bEmis = butterflyPS.emission;
+        var bEmis = butterfliesPS.emission;
         bEmis.rateOverTime = 0;
 
         // 泥土
@@ -406,8 +479,22 @@ public class ParticleTreeHealer : MonoBehaviour
         bool isHealing = triggerOverlapDetected;
         triggerOverlapDetected = false;
 
-        if (isHealing) energyLevel += healingRate * Time.deltaTime; 
-        else energyLevel -= decayRate * Time.deltaTime;
+        if (isHealing) 
+        {
+            energyLevel += healingRate * Time.deltaTime; 
+            healLingerTimer = healLingerDuration; // 只要手在，就充满延迟倒计时
+        }
+        else 
+        {
+            if (healLingerTimer > 0f)
+            {
+                healLingerTimer -= Time.deltaTime; // 等待延迟时间结束
+            }
+            else
+            {
+                energyLevel -= decayRate * Time.deltaTime; // 延迟耗尽，开始极其缓慢地自然衰退（从上往下）
+            }
+        }
 
         energyLevel = Mathf.Clamp01(energyLevel);
 
@@ -416,7 +503,7 @@ public class ParticleTreeHealer : MonoBehaviour
 
     void UpdateParticleSystems(bool isHealing)
     {
-        if (witheredPS == null || alivePS == null || petalsPS == null) return;
+        if (witheredPS == null || alivePS == null) return;
         
         float reversedEnergy = 1.0f - energyLevel;
         
@@ -428,7 +515,7 @@ public class ParticleTreeHealer : MonoBehaviour
 
         // 2. 黄色丝巾环绕逻辑
         var sEmis = scarfPS.emission;
-        if (energyLevel > 0f && energyLevel < 0.99f && isHealing)
+        if (energyLevel >= 0.95f || (energyLevel > 0f && isHealing))
             sEmis.rateOverTime = 150f;
         else
             sEmis.rateOverTime = 0f;
@@ -449,21 +536,23 @@ public class ParticleTreeHealer : MonoBehaviour
         var pEmis = petalsPS.emission;
         if (energyLevel >= 0.95f)
         {
-            pEmis.rateOverTime = 50f;
+            pEmis.rateOverTime = 150f; // ★ 大量生出柳絮粉末
         }
         else
         {
             pEmis.rateOverTime = 0f;
         }
 
-        var bEmis = butterflyPS.emission;
-        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 3f : 0f;
+        var bEmis = butterfliesPS.emission;
+        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 5f : 0f;
     }
 
     void LateUpdate()
     {
-        // 从下往上的治愈扫描线 (根据 energyLevel 决定当前活化到了多高)
-        float currentHeightLimit = Mathf.Lerp(treeMinY, canopyMaxHeight, energyLevel);
+        // 1. 枯树骨架的专属扫描高度
+        float wLimitY = Mathf.Lerp(wMinY, wMaxY, energyLevel);
+        // 2. 活树模型的专属扫描高度
+        float aLimitY = Mathf.Lerp(aMinY, aMaxY, energyLevel);
 
         // 1. 枯树粒子：向上扫光消散
         if (witheredPS != null && witheredPS.isPlaying && witheredPS.particleCount > 0)
@@ -471,37 +560,41 @@ public class ParticleTreeHealer : MonoBehaviour
             int count = witheredPS.GetParticles(pBuffer);
             for (int i = 0; i < count; i++)
             {
-                if (pBuffer[i].position.y < currentHeightLimit)
-                {
+                if (pBuffer[i].position.y < wLimitY)
                     pBuffer[i].remainingLifetime = -1f; // 已治愈区域，枯树立刻消失
-                }
             }
             witheredPS.SetParticles(pBuffer, count);
         }
 
-        // 2. 活树粒子：动态高度展开与三段式渐变变色
+        // 2. 活树粒子：纯粹使用活着的大树模型，由高极值动态进行颜色渐变计算
         if (alivePS != null && alivePS.isPlaying && alivePS.particleCount > 0)
         {
             int count = alivePS.GetParticles(pBuffer);
-            float trunkLine = treeMinY + (canopyMaxHeight - treeMinY) * 0.40f;
-            float leafLine = treeMinY + (canopyMaxHeight - treeMinY) * 0.85f;
+            
+            // 3段式完美色彩渐变：根部(棕) -> 树心(绿) -> 树冠全粉(Pink)
+            // 让大量粉色粒子在树冠上静止附着，完美契合柳絮飘落氛围
+            float trunkLine = aMinY + (aMaxY - aMinY) * 0.30f;
+            float leafLine = aMinY + (aMaxY - aMinY) * 0.65f;
+            float petalLine = aMinY + (aMaxY - aMinY) * 0.85f;
 
             for (int i = 0; i < count; i++)
             {
                 float y = pBuffer[i].position.y;
-                if (y > currentHeightLimit)
+                if (y > aLimitY)
                 {
-                    pBuffer[i].remainingLifetime = -1f; // 还没治愈到的区域抑制活树粒子
+                    pBuffer[i].remainingLifetime = -1f; // 还没治愈到的区域抑制活树
                 }
                 else
                 {
-                    // 高度染色功能！
+                    // 完美的动态插值三段色彩渐变
                     if (y <= trunkLine)
-                        pBuffer[i].startColor = aliveTrunkColor; // 底部树桩：褐色
+                        pBuffer[i].startColor = aliveTrunkColor;
                     else if (y <= leafLine)
-                        pBuffer[i].startColor = aliveLeafColor;  // 中上部枝干：绿色
+                        pBuffer[i].startColor = Color.Lerp(aliveTrunkColor, aliveLeafColor, (y - trunkLine) / (leafLine - trunkLine));
+                    else if (y <= petalLine)
+                        pBuffer[i].startColor = Color.Lerp(aliveLeafColor, pinkPetalColor, (y - leafLine) / (petalLine - leafLine));
                     else
-                        pBuffer[i].startColor = pinkPetalColor;  // 顶部枝梢：粉色
+                        pBuffer[i].startColor = pinkPetalColor; // 树冠满粉
                 }
             }
             alivePS.SetParticles(pBuffer, count);

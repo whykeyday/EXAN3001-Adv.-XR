@@ -5901,6 +5901,7 @@ MonoBehaviour:
   witheredParticleRate: 3000
   aliveParticleRate: 5000
   maxParticleLimit: 20000
+  healLingerDuration: 60
   healingRate: 0.05
   decayRate: 0.124
   energyLevel: 0.333
