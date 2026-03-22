@@ -270,31 +270,26 @@ public class ParticleTreeHealer : MonoBehaviour
         var pMain = petalsPS.main;
         pMain.simulationSpace = ParticleSystemSimulationSpace.World;
         pMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        pMain.startLifetime = new ParticleSystem.MinMaxCurve(5f, 10f); 
-        pMain.startSpeed = 0f;
-        pMain.startSize = new ParticleSystem.MinMaxCurve(0.0005f, 0.0015f); // 配合极大/极小树模型自动缩放
+        pMain.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 2.5f); // ★ 寿命短2/3，刚掉出枝头就消失
+        pMain.startSpeed = 0f; // 初始不乱飞
+        pMain.startSize = new ParticleSystem.MinMaxCurve(0.0005f, 0.002f); 
         pMain.startColor = pinkPetalColor; 
-        pMain.gravityModifier = 0.05f; // 极小的重力，缓慢飘落
-        pMain.maxParticles = 8000; 
+        pMain.gravityModifier = 0f; // 彻底无重力
+        pMain.maxParticles = 3000; 
 
         var pShape = petalsPS.shape;
-        pShape.shapeType = ParticleSystemShapeType.Box; // 改为长方体盒子在树顶泼洒
-        pShape.position = Vector3.up * Mathf.Max(canopyMaxHeight, aMaxY); // 在树顶往下落
-        pShape.scale = new Vector3(canopyMaxHeight, 2f, canopyMaxHeight);
+        pShape.shapeType = ParticleSystemShapeType.Sphere; 
+        pShape.position = Vector3.up * Mathf.Max(canopyMaxHeight * 0.7f, aMaxY * 0.7f); // ★ 下沉覆盖整个树冠内部和表面各个地方
+        pShape.radius = canopyMaxHeight * 0.8f; // ★ 扩大半径，让整个树冠周围都有发散的粉色花簇
 
         var pVel = petalsPS.velocityOverLifetime;
-        pVel.enabled = true;
-        pVel.x = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); 
-        pVel.y = new ParticleSystem.MinMaxCurve(-0.5f, -0.1f); // 慢慢飘落
-        pVel.z = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f);
+        pVel.enabled = true; 
+        pVel.x = new ParticleSystem.MinMaxCurve(-0.02f / s, 0.02f / s); 
+        pVel.y = new ParticleSystem.MinMaxCurve(-0.01f / s, 0.01f / s); // ★ 改为完全随风轻微上下浮动，不只是下落！
+        pVel.z = new ParticleSystem.MinMaxCurve(-0.02f / s, 0.02f / s); 
 
-        // ★ 尺寸由小变大膨胀
         var pSizeAnim = petalsPS.sizeOverLifetime;
-        pSizeAnim.enabled = true;
-        AnimationCurve sizeCurve = new AnimationCurve();
-        sizeCurve.AddKey(new Keyframe(0f, 0.5f)); 
-        sizeCurve.AddKey(new Keyframe(1f, 3.5f)); 
-        pSizeAnim.size = new ParticleSystem.MinMaxCurve(1.0f, sizeCurve);
+        pSizeAnim.enabled = false; // ★ 彻底关闭放大效果！解决巨型花瓣的问题！
         
         var pNoise = petalsPS.noise;
         pNoise.enabled = true;
@@ -319,45 +314,53 @@ public class ParticleTreeHealer : MonoBehaviour
         scarfPS = scarfObj.AddComponent<ParticleSystem>();
         var sMain = scarfPS.main;
         sMain.loop = true;
-        sMain.startLifetime = 3.5f;
+        sMain.startLifetime = 15f; // ★ 时间放慢到 15 秒！
         sMain.startSpeed = 0f;
-        sMain.startSize = 0.0005f; // 极细的丝带
+        sMain.startSize = 0.0001f; // 几乎隐藏本体，全看丝带拖尾
         sMain.startColor = new Color(1f, 0.9f, 0.2f, 1f);
         sMain.simulationSpace = ParticleSystemSimulationSpace.World;
         sMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
 
         var sShape = scarfPS.shape;
         sShape.shapeType = ParticleSystemShapeType.Circle;
-        sShape.position = Vector3.up * (canopyMaxHeight * 0.5f); // 在腰部环绕
-        sShape.radius = canopyMaxHeight * 1.5f; // 远远的环绕
-        sShape.arcMode = ParticleSystemShapeMultiModeValue.Loop;
+        sShape.position = Vector3.up * wMinY; // ★ 从地面根部开始往上绕！
+        sShape.radius = canopyMaxHeight * 4.5f; // ★ 直径再远3倍！
+        sShape.arcMode = ParticleSystemShapeMultiModeValue.BurstSpread; // 让两个丝带头在圆环对侧严格对称！
         
         var sVel = scarfPS.velocityOverLifetime;
         sVel.enabled = true;
-        sVel.orbitalY = 0.5f; // 缓慢转动防止眼晕
-        sVel.y = new ParticleSystem.MinMaxCurve(0.2f, 0.5f); // 缓慢上升
+        sVel.orbitalY = 0.3f; // ★ 极慢极慢的环绕旋转
+        sVel.y = (canopyMaxHeight * 2.0f) / 15f; // ★ 15秒内飞高到原先 2 倍的树盖高度，角度更大，更明显往上蹿！
 
         var sNoise = scarfPS.noise;
         sNoise.enabled = true;
-        sNoise.strength = 1.2f;
-        sNoise.frequency = 0.3f;
-        sNoise.scrollSpeed = 0.5f;
+        sNoise.strength = 1.0f / s; 
+        sNoise.frequency = 0.15f;  
+        sNoise.scrollSpeed = 0.2f;
 
         var sColList = scarfPS.colorOverLifetime;
-        sColList.enabled = true;
-        Gradient grad = new Gradient();
-        grad.SetKeys(
+        sColList.enabled = false; // 关闭生命周期颜色，转而使用真正的拖尾末端淡出
+
+        var sTrails = scarfPS.trails;
+        sTrails.enabled = true;
+        sTrails.ratio = 1.0f; 
+        sTrails.lifetimeMultiplier = 0.4f; // 拖尾长度
+        
+        // ★ 针对拖影本身的头尾颜色淡出：头部完全不透明 -> 尾部彻底变淡透明
+        Gradient trailGrad = new Gradient();
+        trailGrad.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.3f), new GradientAlphaKey(0f, 1f) }
+            new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) }
         );
-        sColList.color = grad;
+        sTrails.colorOverTrail = trailGrad;
 
         var sRender = scarfPS.GetComponent<ParticleSystemRenderer>();
-        sRender.renderMode = ParticleSystemRenderMode.Billboard;
-        sRender.material = glowMat;
+        sRender.renderMode = ParticleSystemRenderMode.None; // ★ 隐藏光球本身，只渲染丝带拖尾！
+        sRender.trailMaterial = glowMat;
         
         var sEmis = scarfPS.emission;
-        sEmis.rateOverTime = 0; // 边治愈边出现
+        sEmis.rateOverTime = 0; 
+        sEmis.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 2, 2, 0, 15f) }); // ★ 与 15 秒寿命保持一致，15秒发一次
 
         // ==========================================
         // 5. 蝴蝶与土壤 (Butterfly_PS, Soil_PS)
@@ -377,25 +380,34 @@ public class ParticleTreeHealer : MonoBehaviour
         var bMain = butterfliesPS.main;
         bMain.loop = true;
         bMain.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
-        bMain.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
-        bMain.startSize = 0.005f; 
+        bMain.startSpeed = 0f; // 无需初始速度
+        bMain.startSize = 0.002f; // ★ 小小的
         bMain.simulationSpace = ParticleSystemSimulationSpace.World;
         bMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
 
         var bShape = butterfliesPS.shape;
         bShape.shapeType = ParticleSystemShapeType.Sphere;
         bShape.position = Vector3.up * Mathf.Max(canopyMaxHeight * 1.05f, aMaxY); 
-        bShape.radius = canopyMaxHeight * 0.5f;
+        bShape.radius = canopyMaxHeight * 2.0f; // ★ 远远的在树冠之间飞行
+        
         var bVel = butterfliesPS.velocityOverLifetime;
         bVel.enabled = true;
-        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); // 慢慢飞
+        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); // 稍微加快环绕速度让其有动感
+        bVel.x = new ParticleSystem.MinMaxCurve(-0.2f / s, 0.2f / s); // ★ 加快横向穿梭
+        bVel.y = new ParticleSystem.MinMaxCurve(-0.05f / s, 0.05f / s); // ★ 给一点微弱的上下浮动，不死板
+        bVel.z = new ParticleSystem.MinMaxCurve(-0.2f / s, 0.2f / s);
+
+        var bTrails = butterfliesPS.trails;
+        bTrails.enabled = true;
+        bTrails.ratio = 1.0f; // 蝴蝶全部带有光斑拖尾
+        bTrails.lifetimeMultiplier = 0.2f; // 拖尾轻微保留
+
         var texAnim = butterfliesPS.textureSheetAnimation;
-        texAnim.enabled = true;
-        texAnim.numTilesX = 2; 
-        texAnim.numTilesY = 2;
-        texAnim.animation = ParticleSystemAnimationType.WholeSheet;
+        texAnim.enabled = false; // ★ 彻底关闭错误的 2x2 切割材质！恢复为一个完整的贴图或光球精灵！
+
         var bRender = butterfliesPS.GetComponent<ParticleSystemRenderer>();
         bRender.renderMode = ParticleSystemRenderMode.Billboard;
+        bRender.trailMaterial = glowMat; // 拖尾材质！
         var bMat = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit"));
         bMat.EnableKeyword("_ALPHABLEND_ON");
         bMat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
@@ -513,12 +525,16 @@ public class ParticleTreeHealer : MonoBehaviour
         var aEmis = alivePS.emission;
         aEmis.rateOverTime = aliveParticleRate * energyLevel;
 
-        // 2. 黄色丝巾环绕逻辑
+        // 2. 黄色由于改为了两条动态上升的丝带拖尾 Burst，仅需整体控制启停即可，不需要 rateOverTime
         var sEmis = scarfPS.emission;
         if (energyLevel >= 0.95f || (energyLevel > 0f && isHealing))
-            sEmis.rateOverTime = 150f;
+        {
+            if (!sEmis.enabled) { sEmis.enabled = true; scarfPS.Play(); } // 重置播放触发两条初始丝带
+        }
         else
-            sEmis.rateOverTime = 0f;
+        {
+            sEmis.enabled = false;
+        }
 
         // 3. 满状态触发特效：粉色落花 & 蝴蝶 & 音效
         if (energyLevel >= 1.0f && !fullyHealedTriggered)
@@ -532,11 +548,11 @@ public class ParticleTreeHealer : MonoBehaviour
             fullyHealedTriggered = false; // 允许第二次交互重新触发！
         }
 
-        // 保持飘落特效状态（粉簇落下）
+        // 保持飘落特效状态（密集的短距悬浮花簇）
         var pEmis = petalsPS.emission;
         if (energyLevel >= 0.95f)
         {
-            pEmis.rateOverTime = 150f; // ★ 大量生出柳絮粉末
+            pEmis.rateOverTime = 800f; // ★ 爆发式增加，形成像花一样一簇簇极其密集的分布
         }
         else
         {
@@ -544,7 +560,7 @@ public class ParticleTreeHealer : MonoBehaviour
         }
 
         var bEmis = butterfliesPS.emission;
-        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 5f : 0f;
+        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 3f : 0f; // ★ 稍微恢复一点点蝴蝶的数量
     }
 
     void LateUpdate()
