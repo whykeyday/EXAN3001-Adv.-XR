@@ -1,0 +1,300 @@
+﻿
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Block8x8F::V7L' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Block8x8F::V7R' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V0' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V1' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V2' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V3' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V4' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V5' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V6' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Formats.Jpeg.Components.Decoder.ColorConverters.JpegColorConverter/Vector4Octet::V7' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Tuples.Vector4Pair::A' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+
+Field 'System.Numerics.Vector4 SixLabors.ImageSharp.Tuples.Vector4Pair::B' from 'C:\Users\whyke\Downloads\EXAN3001-Adv.-XR\EXAN3001-Adv.-XR\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll', exception Failed to resolve System.Numerics.Vector4
+*** Tundra build success (1.01 seconds), 2 items updated, 4 evaluated
+Asset Pipeline Refresh (id=54c4de4a8a4662a4fb088555d0b4c024): Total: 0.012 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+[ScriptCompilation] Requested script compilation because: Recompiling scripts for player build.
+BuildPlayer: start building target 13
+Total cache size 133056700
+Total cache size after purge 133056700
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping application/grpc - - 200 - application/grpc 0.1876ms
+Starting: C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1300b0aP.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssembliesAndTypeDB
+WorkingDir: C:/Users/whyke/Downloads/EXAN3001-Adv.-XR/EXAN3001-Adv.-XR
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      ALC ILPP context 11 is unloading
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\NetStandard\Extensions\2.0.0\System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\System.ComponentModel.Composition.dll" in favor of "C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\NetStandard\compat\2.1.0\shims\netfx\System.ComponentModel.Composition.dll"
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@1.8.21\Unity.Burst.CodeGen\Unity.Burst.Cecil.dll
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc - - 200 - application/grpc 11.0792ms
+Starting: C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\Tools\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1300b0aP.dag.json" "Library/Bee/1300b0aP-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/whyke/Downloads/EXAN3001-Adv.-XR/EXAN3001-Adv.-XR
+ExitCode: 4 Duration: 0s345ms
+[406/668    0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
+[413/668    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.TestRunner.dll
+[414/668    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.TestRunner.pdb
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/1300b0aP-inputdata.json
+[538/668    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra requires additional run (0.30 seconds), 5 items updated, 537 evaluated
+ExitCode: 0 Duration: 0s386ms
+Starting: C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1300b0aP.dag" --continue-on-failure --dagfilejson="Library\Bee\1300b0aP.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssembliesAndTypeDB
+WorkingDir: C:/Users/whyke/Downloads/EXAN3001-Adv.-XR/EXAN3001-Adv.-XR
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Current configuration matches the requested one, skipping
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors application/grpc - - 200 - application/grpc 0.4631ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      Processing assembly Library/Bee/artifacts/1300b0aP.dag/Assembly-CSharp.dll, with 114 defines and 220 references
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      processors: zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingPipeline[0]
+      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Resolved Unity.Burst.Cecil.Rocks, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@1.8.21\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly application/grpc - - 200 - application/grpc 125.2671ms
+ExitCode: 0 Duration: 1s630ms
+Finished compiling graph: 657 nodes, 6741 flattened edges (5401 ToBuild, 94 ToUse), maximum node priority 442
+[           0s] Delete 20 artifact files that are no longer in use. (like Library\Bee\artifacts\mvdfrm\Unity.Tutorials.Core.ref.dll_ADE0DC4A9DAB8351.mvfrm)
+[398/656    0s] WriteText Library/Bee/artifacts/1300b0aP.dag/Assembly-CSharp.dll.mvfrm.rsp
+[399/656    0s] WriteText Library/Bee/artifacts/1300b0aP.dag/Assembly-CSharp.rsp
+[400/656    0s] WriteResponseFile Library/Bee/artifacts/rsp/15201509376401771623.rsp
+[531/656    0s] MovedFromExtractorCombine Library/Bee/artifacts/1300b0aP.dag/Assembly-CSharp.dll.mvfrm
+[532/656    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[572/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll
+[573/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.Poly2Tri.dll
+[574/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.KdTree.dll
+[575/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Oculus.dll
+[576/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll
+[577/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.MockRuntime.dll
+[578/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.dll
+[579/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.dll
+[580/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.OculusQuestSupport.dll
+[581/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.dll
+[582/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.dll
+[583/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualScripting.Flow.dll
+[584/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.Stl.dll
+[585/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.dll
+[586/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll
+[587/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualEffectGraph.Runtime.dll
+[588/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.dll
+[589/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Timeline.dll
+[590/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.RuntimeDebugger.dll
+[591/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.MetaQuestSupport.dll
+[592/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.dll
+[593/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.dll
+[594/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.ConformanceAutomation.dll
+[595/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Interaction.Toolkit.Samples.StarterAssets.dll
+[596/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.dll
+[597/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.MockHMD.dll
+[598/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.Csg.dll
+[599/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Hands.dll
+[600/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.CoreUtils.dll
+[601/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.XR.LegacyInputHelpers.dll
+[602/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualScripting.Core.dll
+[603/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualScripting.State.dll
+[604/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Management.dll
+[605/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.ForUI.dll
+[606/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll
+[607/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll
+[608/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Interaction.Toolkit.dll
+[609/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Internal.dll
+[610/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.MetaQuestSupport.pdb
+[611/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.SpatialTracking.dll
+[612/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.ConformanceAutomation.pdb
+[613/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Hands.pdb
+[614/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Interaction.Toolkit.Samples.StarterAssets.pdb
+[615/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.Csg.pdb
+[616/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.pdb
+[617/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.pdb
+[618/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.CoreUtils.pdb
+[619/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.pdb
+[620/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.RuntimeDebugger.pdb
+[621/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.pdb
+[622/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualEffectGraph.Runtime.pdb
+[623/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.Stl.pdb
+[624/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.pdb
+[625/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Timeline.pdb
+[626/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.pdb
+[627/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.MockRuntime.pdb
+[628/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.Features.OculusQuestSupport.pdb
+[629/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.XR.LegacyInputHelpers.pdb
+[630/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Oculus.pdb
+[631/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.Poly2Tri.pdb
+[632/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.pdb
+[633/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.KdTree.pdb
+[634/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.MockHMD.pdb
+[635/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.pdb
+[636/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.OpenXR.pdb
+[637/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualScripting.Flow.pdb
+[638/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Interaction.Toolkit.pdb
+[639/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.ProBuilder.pdb
+[640/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.pdb
+[641/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Internal.pdb
+[642/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.pdb
+[643/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.pdb
+[644/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.pdb
+[645/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualScripting.State.pdb
+[646/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.SpatialTracking.pdb
+[647/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.XR.Management.pdb
+[648/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.ForUI.pdb
+[649/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.VisualScripting.Core.pdb
+[650/656    0s] Csc Library/Bee/artifacts/1300b0aP.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\ParticleTreeHealer.cs(75,19): warning CS0414: The field 'ParticleTreeHealer.scanTimer' is assigned but its value is never used
+
+Assets\Scripts\BreathInputManager.cs(27,19): warning CS0414: The field 'BreathInputManager.currentRms' is assigned but its value is never used
+[651/656    0s] ILPostProcess Library/Bee/artifacts/1300b0aP.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1300b0aP.dag/Assembly-CSharp.dll, with 114 defines and 220 references
+
+processors: zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[652/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Assembly-CSharp.pdb
+[653/656    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Assembly-CSharp.dll
+[655/656    0s] BuildPlayerDataGenerator Library/BuildPlayerData/Player/RuntimeInitializeOnLoads.json (+1 other)
+*** Tundra build success (1.58 seconds), 88 items updated, 656 evaluated
+Assets\Scripts\ParticleTreeHealer.cs(75,19): warning CS0414: The field 'ParticleTreeHealer.scanTimer' is assigned but its value is never used
+Assets\Scripts\BreathInputManager.cs(27,19): warning CS0414: The field 'BreathInputManager.currentRms' is assigned but its value is never used
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+Asset Pipeline Refresh (id=6d049dd84dabfd842b3d6f285e77a703): Total: 0.089 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Total cache size 133056700
+Total cache size after purge 133056700
+Opening scene 'Assets/Scenes/SampleScene.unity'
+[PhysX] Initialized MultithreadedTaskDispatcher with 24 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 24 workers.
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/Scenes/SampleScene.unity'
+	Deserialize:            28.219 ms
+	Integration:            586.703 ms
+	Integration of assets:  0.057 ms
+	Thread Wait Time:       0.025 ms
+	Total Operation Time:   615.003 ms
+Unloading 593 unused Assets / (326.1 MB). Loaded Objects now: 14822.
+Memory consumption went from 1.72 GB to 1.40 GB.
+Total: 47.301400 ms (FindLiveObjects: 1.324900 ms CreateObjectMapping: 0.825600 ms MarkObjects: 43.118900 ms  DeleteObjects: 2.031000 ms)
+
+[00:00:00] Precompute started.
+[00:00:00] Finished 1 Bake Ambient Probe job (0.00s execute, 0.00s integrate, 0.01s wallclock)
+[00:00:00] Finished 1 Layout Systems job (0.10s execute, 0.00s integrate, 0.10s wallclock)
+[00:00:00] Finished 1 Tetrahedralize Probes job (0.00s execute, 0.00s integrate, 0.01s wallclock)
+[00:00:00] Precompute took 0.115145 seconds.
+Enlighten scene contents:   0 geometries.   0 instances.   0 systems.   0 probe groups.   0 cube maps. Scene is up-to-date.
+[PathTracer] Total bake time: 0.010791, raw bake time: 0.000000
+gi::BakeBackendSwitch: switching bake backend from 1 to 1.
+[00:00:00] Bake started.
+[00:00:00] Finished 1 Bake Runtime job (0.10s execute, 0.00s integrate, 0.10s wallclock)
+[00:00:00] Bake took 0.102095 seconds.
+Progressive Lightmapper: Initialize light probe data job skipped - out of memory.
+[PathTracer] Total bake time: 88.278839, raw bake time: 50.769215
+[00:01:29] LightingDataAsset started.
+> Collecting Enlighten data
+Built GI data in 88.73s
+DisplayProgressNotification: Build Failed
+Error building Player: 2 errors
+Unloading 67 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 2320 unused Assets / (0.5 MB). Loaded Objects now: 12609.
+Memory consumption went from 1.38 GB to 1.38 GB.
+Total: 19.098000 ms (FindLiveObjects: 1.238000 ms CreateObjectMapping: 0.566100 ms MarkObjects: 14.744200 ms  DeleteObjects: 2.548300 ms)
+
+Build Finished, Result: Failure.
+##utp:{"type":"PlayerBuildInfo","version":2,"phase":"Immediate","time":1774214212260,"processId":46764,"steps":[{"description":"Preprocess Player","duration":195},{"description":"Prepare For Build","duration":5253},{"description":"ProducePlayerScriptAssemblies","duration":7057},{"description":"Verify Build setup","duration":34},{"description":"Prepare assets for target platform","duration":128},{"description":"Prepare splash screen","duration":0},{"description":"Building scenes","duration":89454}],"duration":102121}
+[PhysX] Initialized MultithreadedTaskDispatcher with 24 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 24 workers.
+Unloading 8 Unused Serialized files (Serialized files now loaded: 0)
+ProgressiveSceneManager::Cancel()
+[00:00:00] Builtin Sky manager took 222.791457 seconds. Cancelled, so not done yet.
+[00:00:00] LightingDataAsset took 0.287181 seconds. Cancelled, so not done yet.
+Loaded scene 'Temp/__Backupscenes/2.backup'
+	Deserialize:            15.250 ms
+	Integration:            534.292 ms
+	Integration of assets:  0.489 ms
+	Thread Wait Time:       0.029 ms
+	Total Operation Time:   550.060 ms
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            38.119 ms
+	Integration:            123.045 ms
+	Integration of assets:  0.004 ms
+	Thread Wait Time:       496.901 ms
+	Total Operation Time:   658.070 ms
+Loaded scene 'Temp/__Backupscenes/1.backup'
+	Deserialize:            11.230 ms
+	Integration:            4.189 ms
+	Integration of assets:  0.006 ms
+	Thread Wait Time:       608.952 ms
+	Total Operation Time:   624.378 ms
+Unloading 0 unused Assets / (0 B). Loaded Objects now: 15339.
+Memory consumption went from 1.43 GB to 1.43 GB.
+Total: 21.054100 ms (FindLiveObjects: 2.462800 ms CreateObjectMapping: 1.047100 ms MarkObjects: 17.518700 ms  DeleteObjects: 0.024300 ms)
+
+Build completed with a result of 'Failed' in 104 seconds (104008 ms)
+3 errors
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogError (object)
+UnityEditor.BuildPlayerWindow/DefaultBuildMethods:BuildPlayer (UnityEditor.BuildPlayerOptions)
+UnityEditor.BuildPlayerWindow:CallBuildMethods (bool,UnityEditor.BuildOptions)
+UnityEditor.BuildPlayerWindow:BuildPlayerAndRun (bool)
+UnityEditor.BuildPlayerWindow:BuildPlayerAndRun ()
+
+gi::BakeBackendSwitch: Clear() active clients.
+[EnlightenBakeManager] m_Clear = false;
+[00:00:00] Builtin Sky manager started.
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+[00:00:00] Finished 1 Bake Ambient Probe job (0.00s execute, 0.00s integrate, 0.11s wallclock)
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+Asset Pipeline Refresh (id=e5d0ce15170463c4cbf28fafd0cb8fd6): Total: 0.016 seconds - Initiated by RefreshV2(AllowForceSynchronousImport)
+Asset Pipeline Refresh (id=139ee288121b46e478a8bdbe7f7cf886): Total: 0.011 seconds - Initiated by RefreshV2(AllowForceSynchronousImport)
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+Asset Pipeline Refresh (id=4aedfc1ba91747d458190cd4be8cb421): Total: 0.012 seconds - Initiated by RefreshV2(AllowForceSynchronousImport)
+<RI> Initialized touch support.
+
+<RI> Initialized touch support.
+
+Curl error 6: Could not resolve host: cdp.cloud.unity3d.com
+Asset Pipeline Refresh (id=54a26b44f4cdfda42a7532ccfedf1110): Total: 0.010 seconds - Initiated by RefreshV2(AllowForceSynchronousImport)
+Asset Pipeline Refresh (id=50de5dd487b7c9c49ad5958d353ded20): Total: 0.012 seconds - Initiated by RefreshV2(AllowForceSynchronousImport)
+Asset Pipeline Refresh (id=9cd1d7cc4bb42674fa440425d6201c75): Total: 0.010 seconds - Initiated by RefreshV2(AllowForceSynchronousImport)

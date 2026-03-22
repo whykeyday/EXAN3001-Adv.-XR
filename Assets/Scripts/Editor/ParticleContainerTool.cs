@@ -45,6 +45,7 @@ public class ParticleContainerTool
 
                 var main = ps.main;
                 main.loop = true;
+                main.prewarm = true; // 开启预热，一开始就填满
                 main.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 3.5f);
                 main.startSpeed = 0f; // 粒子在容器表面静止，通过闪烁营造活力
                 main.startSize = 0.05f;
@@ -57,10 +58,10 @@ public class ParticleContainerTool
                     new Color(1f, 1f, 1f, 1f)
                 );
 
-                // 一次性迸发大量粒子，填满容器
+                // 持续发射，此消彼伏
                 var emission = ps.emission;
-                emission.rateOverTime = 0f;
-                emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, (short)2000, (short)2000, 1, 1f) });
+                emission.rateOverTime = 800f; // 持续稳定生成
+                emission.SetBursts(new ParticleSystem.Burst[0]); // 清除所有 Burst
 
                 // 形状设为按照 Mesh 发射
                 var shape = ps.shape;
