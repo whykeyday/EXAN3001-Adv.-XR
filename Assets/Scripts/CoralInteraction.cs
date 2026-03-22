@@ -143,14 +143,8 @@ public class CoralInteraction : MonoBehaviour
         );
         colorOverLife.color = gradient;
 
-        // Simple material
-        Shader shader = Shader.Find("Particles/Standard Unlit");
-        if (shader != null)
-        {
-            Material mat = new Material(shader);
-            mat.SetFloat("_Mode", 2); // Fade mode for transparency
-            psr.material = mat;
-        }
+        // Use Glowing Sphere material instead of hard-edged cubes
+        psr.material = ParticleUtils.GetGlowingSphereMaterial();
 
         releaseEffect = ps;
     }

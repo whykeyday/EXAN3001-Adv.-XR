@@ -57,8 +57,33 @@ public class OceanSceneSetup : MonoBehaviour
 
         if (oceanAudio != null && !oceanAudio.isPlaying) oceanAudio.Play();
         
+        if (seagullAudio != null) 
+        {
+            StartCoroutine(RandomSeagullRoutine());
+        }
+        else 
+        {
+            Debug.Log("[Placeholder] Seagull audio missing. Please attach AudioSource.");
+        }
+    }
+
+    private System.Collections.IEnumerator RandomSeagullRoutine()
+    {
+        // Play once initially to give immediate feedback
         if (seagullAudio != null && !seagullAudio.isPlaying) seagullAudio.Play();
-        else if (seagullAudio == null) Debug.Log("[Placeholder] Seagull audio missing. Please attach AudioSource.");
+
+        // Loop and play randomly
+        while (true)
+        {
+            float waitTime = Random.Range(12f, 25f); // Random interval between 12 to 25 seconds
+            yield return new WaitForSeconds(waitTime);
+            
+            if (seagullAudio != null)
+            {
+                seagullAudio.pitch = Random.Range(0.9f, 1.1f); // Add variety to the sound
+                seagullAudio.Play();
+            }
+        }
     }
 
     void Update()

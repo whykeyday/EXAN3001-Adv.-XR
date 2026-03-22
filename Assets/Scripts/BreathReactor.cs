@@ -89,6 +89,13 @@ public class BreathReactor : MonoBehaviour
         {
             noiseModule = oceanParticles.noise;
             mainModule = oceanParticles.main;
+
+            // Ensure ocean particles use the glowing sphere material (not hard cubes)
+            ParticleSystemRenderer psr = oceanParticles.GetComponent<ParticleSystemRenderer>();
+            if (psr != null)
+            {
+                psr.material = ParticleUtils.GetGlowingSphereMaterial();
+            }
         }
     }
 
