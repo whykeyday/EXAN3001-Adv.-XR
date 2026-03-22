@@ -10,7 +10,8 @@ public class FishSwarmFollower : MonoBehaviour
     public float rotationSpeed = 2f;
     
     // Hand tracking logic
-    private Transform[] hands;
+    [Tooltip("If empty, it will auto-search for objects tagged 'PlayerHand'. You can also drag your Left/Right Controllers here manually.")]
+    public Transform[] hands;
 
     void Start()
     {

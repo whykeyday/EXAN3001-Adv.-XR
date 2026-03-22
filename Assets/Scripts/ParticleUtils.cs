@@ -33,8 +33,8 @@ public static class ParticleUtils
         }
 
         // Load built-in default particle texture for perfect soft spheres on Quest
-        Texture2D defaultTex = Resources.GetBuiltinResource<Texture2D>("Default-Particle.psd");
-        if (defaultTex == null) defaultTex = GetSoftCircleTexture();
+        // Unity sometimes throws annoying Console Errors if it can't find this exact PSD in URP/XR
+        Texture2D defaultTex = GetSoftCircleTexture();
 
         mat.mainTexture = defaultTex;
         if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", defaultTex);
