@@ -73,25 +73,26 @@ public class CoralInteraction : MonoBehaviour
         // Create a child object for the release effect
         GameObject effectObj = new GameObject("ReleaseEffect");
         effectObj.transform.SetParent(transform, false);
-        effectObj.transform.localPosition = Vector3.zero;
+        // 按您的要求，起点往下挪一点
+        effectObj.transform.localPosition = new Vector3(0, -0.08f, 0);
 
         ParticleSystem ps = effectObj.AddComponent<ParticleSystem>();
         ParticleSystemRenderer psr = effectObj.GetComponent<ParticleSystemRenderer>();
 
         var main = ps.main;
-        // 把交互飘出的黄色粒子调小，显得更精致
-        main.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.03f); 
-        main.scalingMode = ParticleSystemScalingMode.Hierarchy; // 这一句确保特效会跟随珊瑚一并放大
-        main.startSpeed = 0.5f; // Gentle upward drift
-        main.startLifetime = 3f; // Longer lifetime for floating
+        // 把粒子稍微调大一点点
+        main.startSize = new ParticleSystem.MinMaxCurve(0.015f, 0.045f); 
+        main.scalingMode = ParticleSystemScalingMode.Hierarchy; // 确保特效跟随珊瑚一并放大
+        main.startSpeed = 0.6f; // 更符合火苗的升空速度
+        main.startLifetime = 6f; // 存活时间多一倍
         main.maxParticles = 500;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.loop = false;
         main.playOnAwake = false;
-        main.gravityModifier = -0.05f; // Negative = float upward!
+        main.gravityModifier = -0.08f; // 更像火焰由于热力往上蹿
 
-        // Light yellow / pale gold color (淡黄色)
-        main.startColor = new Color(1f, 0.98f, 0.7f, 0.8f);
+        // 火红色类似火焰一样的基色
+        main.startColor = new Color(1f, 0.3f, 0.05f, 0.9f);
 
         // No continuous emission - only emit via code
         var emission = ps.emission;
@@ -102,47 +103,47 @@ public class CoralInteraction : MonoBehaviour
         shape.shapeType = ParticleSystemShapeType.Sphere;
         shape.radius = 0.15f;
 
-        // Float upward like bubbles
+        // Float upward like flames
         var velocity = ps.velocityOverLifetime;
         velocity.enabled = true;
         velocity.space = ParticleSystemSimulationSpace.World;
-        velocity.y = new ParticleSystem.MinMaxCurve(0.2f, 0.4f); // Upward velocity
+        velocity.y = new ParticleSystem.MinMaxCurve(0.3f, 0.6f); // Upward velocity
 
-        // Gentle side-to-side wobble (like bubbles)
+        // Gentle side-to-side wobble (like flames flickering)
         var noise = ps.noise;
         noise.enabled = true;
-        noise.strength = 0.08f;
-        noise.frequency = 0.5f;
-        noise.scrollSpeed = 0.3f;
+        noise.strength = 0.15f;
+        noise.frequency = 0.8f;
+        noise.scrollSpeed = 0.5f;
         noise.separateAxes = true;
-        noise.strengthX = 0.1f;
-        noise.strengthY = 0.02f; // Less vertical wobble
-        noise.strengthZ = 0.1f;
+        noise.strengthX = 0.15f;
+        noise.strengthY = 0.02f; 
+        noise.strengthZ = 0.15f;
 
         // Size varies slightly over lifetime
         var sizeOverLife = ps.sizeOverLifetime;
         sizeOverLife.enabled = true;
         AnimationCurve sizeCurve = new AnimationCurve();
-        sizeCurve.AddKey(0f, 0.8f);
-        sizeCurve.AddKey(0.5f, 1f);
-        sizeCurve.AddKey(1f, 0.3f);
+        sizeCurve.AddKey(0f, 0.6f);
+        sizeCurve.AddKey(0.3f, 1f);
+        sizeCurve.AddKey(1f, 0.1f);  // 火焰头慢慢变尖消失
         sizeOverLife.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
 
-        // Fade out gently
+        // 像火焰一样的颜色渐变：从红->橙->黄->最后消失
         var colorOverLife = ps.colorOverLifetime;
         colorOverLife.enabled = true;
         Gradient gradient = new Gradient();
         gradient.SetKeys(
             new GradientColorKey[] {
-                new GradientColorKey(new Color(1f, 0.98f, 0.7f), 0f),   // Light yellow
-                new GradientColorKey(new Color(1f, 1f, 0.85f), 0.5f),  // Even lighter
-                new GradientColorKey(new Color(1f, 1f, 0.9f), 1f)      // Almost white
+                new GradientColorKey(new Color(1f, 0.1f, 0f), 0f),     // 底部深红
+                new GradientColorKey(new Color(1f, 0.5f, 0f), 0.4f),   // 中部亮橙
+                new GradientColorKey(new Color(1f, 0.8f, 0.1f), 1f)    // 尖端焰黄
             },
             new GradientAlphaKey[] {
-                new GradientAlphaKey(0f, 0f),      // Fade in
-                new GradientAlphaKey(0.7f, 0.2f), // Visible
-                new GradientAlphaKey(0.7f, 0.7f), // Stay visible
-                new GradientAlphaKey(0f, 1f)      // Fade out
+                new GradientAlphaKey(0f, 0f),      // Fade in quickly
+                new GradientAlphaKey(0.8f, 0.2f), // Strong visibility
+                new GradientAlphaKey(0.5f, 0.7f), // Starts to fade
+                new GradientAlphaKey(0f, 1f)      // Vanish
             }
         );
         colorOverLife.color = gradient;
