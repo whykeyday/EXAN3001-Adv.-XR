@@ -383,14 +383,15 @@ public class ParticleTreeHealer : MonoBehaviour
         bMain.loop = true;
         bMain.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
         bMain.startSpeed = 0f; // 无需初始速度
-        bMain.startSize = 0.015f; // ★ 稍微放大点，保证高清显示完整蝴蝶！之前 0.002 太小可能被截断了！
+        bMain.startSize = 0.006f; // ★ 变小，远看不再突兀
         bMain.simulationSpace = ParticleSystemSimulationSpace.World;
         bMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
 
         var bShape = butterfliesPS.shape;
-        bShape.shapeType = ParticleSystemShapeType.Sphere;
-        bShape.position = Vector3.up * Mathf.Max(canopyMaxHeight * 1.05f, aMaxY); 
-        bShape.radius = canopyMaxHeight * 2.0f; // ★ 远远的在树冠之间飞行
+        bShape.shapeType = ParticleSystemShapeType.Box; // ★ 跟随粉色花瓣相同的发射区域
+        float treeH = aMaxY - aMinY;
+        bShape.position = Vector3.up * (aMinY + treeH * 0.95f); // 同样定位在树冠 95%
+        bShape.scale = new Vector3(treeH * 1.5f, treeH * 0.1f, treeH * 1.5f); // 相同的覆盖整个树顶的薄气垫
         
         var bVel = butterfliesPS.velocityOverLifetime;
         bVel.enabled = true;
@@ -398,6 +399,16 @@ public class ParticleTreeHealer : MonoBehaviour
         bVel.x = new ParticleSystem.MinMaxCurve(-0.2f / s, 0.2f / s); // ★ 加快横向穿梭
         bVel.y = new ParticleSystem.MinMaxCurve(-0.05f / s, 0.05f / s); // ★ 给一点微弱的上下浮动，不死板
         bVel.z = new ParticleSystem.MinMaxCurve(-0.2f / s, 0.2f / s);
+
+        var bColList = butterfliesPS.colorOverLifetime;
+        bColList.enabled = true;
+        Gradient bGrad = new Gradient();
+        // ★ 从透明度 0 淡入出现，在尾期彻底淡出 (decay 消失)
+        bGrad.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.2f), new GradientAlphaKey(1f, 0.8f), new GradientAlphaKey(0f, 1f) }
+        );
+        bColList.color = bGrad;
 
         var bTrails = butterfliesPS.trails;
         bTrails.enabled = true;
@@ -566,7 +577,7 @@ public class ParticleTreeHealer : MonoBehaviour
         }
 
         var bEmis = butterfliesPS.emission;
-        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 0.8f : 0f; // ★ 更是稀缺到极点，几乎同时只存在 2/3 只
+        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 0.4f : 0f; // ★ 再少一半，数量极度稀缺
     }
 
     void LateUpdate()
