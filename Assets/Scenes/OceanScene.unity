@@ -10282,8 +10282,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 35
-      minScalar: 20
+      scalar: 3
+      minScalar: 1.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -11036,7 +11036,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 800
+      scalar: 2500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -35825,7 +35825,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -26
+      value: -53.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.y
@@ -35833,7 +35833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10.8
+      value: -29.4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalRotation.w
@@ -36151,7 +36151,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 0.21960784, g: 0.32156864, b: 0.27061942, a: 1}
-      maxColor: {r: 0.3735848, g: 0.33481658, b: 0.33481658, a: 1}
+      maxColor: {r: 0.3433962, g: 0.33108574, b: 0.33108574, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -36215,7 +36215,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.09
+      scalar: 0.2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -45940,8 +45940,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 35
-      minScalar: 20
+      scalar: 3
+      minScalar: 1.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -46694,7 +46694,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 800
+      scalar: 2500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -50782,7 +50782,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.8
+      value: 34.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.y
@@ -50790,7 +50790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -24.4
+      value: -45.6
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalRotation.w
@@ -51108,7 +51108,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 0.32156864, g: 0.21960784, b: 0.28799555, a: 1}
-      maxColor: {r: 0.3735848, g: 0.33481658, b: 0.33481658, a: 1}
+      maxColor: {r: 0.3433962, g: 0.33108574, b: 0.33108574, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -51172,7 +51172,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.09
+      scalar: 0.2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -60827,7 +60827,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 27.8
+      value: 40.12
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.y
@@ -60835,7 +60835,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 12.9
+      value: 28.02
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalRotation.w
@@ -61153,7 +61153,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 0.24129635, g: 0.21960784, b: 0.32156864, a: 1}
-      maxColor: {r: 0.3735848, g: 0.33481658, b: 0.33481658, a: 1}
+      maxColor: {r: 0.3433962, g: 0.33108574, b: 0.33108574, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -61217,7 +61217,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.09
+      scalar: 0.2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -76358,7 +76358,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.004
+      scalar: 0.008
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -76675,7 +76675,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 200000
+    maxNumParticles: 300000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -125505,8 +125505,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 35
-      minScalar: 20
+      scalar: 3
+      minScalar: 1.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -126259,7 +126259,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 800
+      scalar: 2500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -140222,8 +140222,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 35
-      minScalar: 20
+      scalar: 3
+      minScalar: 1.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -140976,7 +140976,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 800
+      scalar: 2500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -145284,8 +145284,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 35
-      minScalar: 20
+      scalar: 3
+      minScalar: 1.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -146038,7 +146038,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 800
+      scalar: 2500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -150138,7 +150138,7 @@ Transform:
   m_GameObject: {fileID: 1249617917}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5.729141e-14, z: 0}
+  m_LocalPosition: {x: 0, y: -4, z: 0}
   m_LocalScale: {x: 209.6085, y: 516.03516, z: -182.25844}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -199731,7 +199731,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.9
+      value: -39.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.y
@@ -199739,7 +199739,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 29.2
+      value: 42.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5355bb00c4a88744092bc43fea71e937, type: 3}
       propertyPath: m_LocalRotation.w
@@ -200057,7 +200057,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 0.3207547, g: 0.28456363, b: 0.2196867, a: 1}
-      maxColor: {r: 0.3735848, g: 0.33481658, b: 0.33481658, a: 1}
+      maxColor: {r: 0.3433962, g: 0.33108574, b: 0.33108574, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -200121,7 +200121,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.09
+      scalar: 0.2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -225187,8 +225187,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 35
-      minScalar: 20
+      scalar: 3
+      minScalar: 1.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -225941,7 +225941,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 800
+      scalar: 2500
       minScalar: 10
       maxCurve:
         serializedVersion: 2

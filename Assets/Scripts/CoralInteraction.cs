@@ -79,8 +79,8 @@ public class CoralInteraction : MonoBehaviour
         ParticleSystemRenderer psr = effectObj.GetComponent<ParticleSystemRenderer>();
 
         var main = ps.main;
-        // 放大粒子尺寸，让它肉眼可见
-        main.startSize = new ParticleSystem.MinMaxCurve(0.1f, 0.25f); 
+        // 把交互飘出的黄色粒子调小，显得更精致
+        main.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.03f); 
         main.scalingMode = ParticleSystemScalingMode.Hierarchy; // 这一句确保特效会跟随珊瑚一并放大
         main.startSpeed = 0.5f; // Gentle upward drift
         main.startLifetime = 3f; // Longer lifetime for floating
