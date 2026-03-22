@@ -43,6 +43,8 @@ public class CoralInteraction : MonoBehaviour
     {
         // Accept any collider that isn't part of this coral
         if (other.transform.IsChildOf(transform.root)) return;
+        
+        Debug.Log($"[CoralInteraction] 触发！碰撞体名称是: {other.name}");
         TryEmitParticles();
     }
 
@@ -63,24 +65,26 @@ public class CoralInteraction : MonoBehaviour
 
         // Emit particles at contact point
         releaseEffect.Emit(particlesToEmit);
-        Debug.Log($"CoralInteraction: Released {particlesToEmit} particles!");
+        Debug.Log($"[CoralInteraction] 成功释放了 {particlesToEmit} 个黄色粒子！");
     }
 
     private void CreateReleaseEffect()
     {
         // Create a child object for the release effect
         GameObject effectObj = new GameObject("ReleaseEffect");
-        effectObj.transform.SetParent(transform);
+        effectObj.transform.SetParent(transform, false);
         effectObj.transform.localPosition = Vector3.zero;
 
         ParticleSystem ps = effectObj.AddComponent<ParticleSystem>();
         ParticleSystemRenderer psr = effectObj.GetComponent<ParticleSystemRenderer>();
 
         var main = ps.main;
-        main.startSize = new ParticleSystem.MinMaxCurve(0.015f, 0.03f); // Varying bubble sizes
-        main.startSpeed = 0.3f; // Gentle upward drift
+        // 放大粒子尺寸，让它肉眼可见
+        main.startSize = new ParticleSystem.MinMaxCurve(0.1f, 0.25f); 
+        main.scalingMode = ParticleSystemScalingMode.Hierarchy; // 这一句确保特效会跟随珊瑚一并放大
+        main.startSpeed = 0.5f; // Gentle upward drift
         main.startLifetime = 3f; // Longer lifetime for floating
-        main.maxParticles = 200;
+        main.maxParticles = 500;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.loop = false;
         main.playOnAwake = false;
