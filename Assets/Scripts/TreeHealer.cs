@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Tree healing interaction - Tree starts withered (brown, low particles)
@@ -9,40 +10,42 @@ public class TreeHealer : MonoBehaviour
 {
     // ============ REFERENCES ============
     [Header("References")]
-    [Tooltip("The main tree particle system to heal")]
     public ParticleSystem treeParticles;
-
-    [Tooltip("Transform marking the center of the tree")]
     public Transform treeCenter;
-
-    [Tooltip("Transform of the player's hand (auto-found if tagged 'PlayerHand')")]
     public Transform playerHand;
-
-    [Tooltip("Energy particles that fly from hand to tree")]
     public ParticleSystem energyParticles;
+
+    [Header("New Effects (Auto-generated if null)")]
+    public ParticleSystem yellowScarfParticles;
+    public ParticleSystem pinkPetals;
+    public ParticleSystem butterflyParticles;
+    public ParticleSystem soilParticles;
+
+    [Header("Textures")]
+    [Tooltip("Drag Assets/tree/butterflies.png here")]
+    public Texture2D butterflyTexture;
+
+    [Header("Audio (Placeholders)")]
+    public AudioSource birdAudio;
+    public AudioSource chimeAudio;
 
     // ============ HEALING SETTINGS ============
     [Header("Healing Settings")]
-    [Tooltip("Distance threshold to start healing (meters)")]
     public float healingDistance = 0.5f;
-
-    [Tooltip("How fast energy level increases when close")]
-    public float healingRate = 0.3f;
-
-    [Tooltip("How fast energy decays when not healing")]
-    public float decayRate = 0.1f;
+    public float healingRate = 0.05f; // SLOWED DOWN: ~20 seconds to fully heal
+    public float decayRate = 0.02f;
 
     // ============ TREE APPEARANCE ============
     [Header("Tree Appearance - Withered (Start)")]
-    public Color witheredColor = new Color(0.25f, 0.35f, 0.05f, 0.9f); // Dark Yellow-Green (Deadtree)
+    public Color witheredColor = new Color(0.2f, 0.15f, 0.02f, 0.9f); // Darker Brown
     public float witheredEmissionRate = 20f;
-    public float witheredSize = 0.03f;
+    public float witheredSize = 0.04f;
 
     [Header("Tree Appearance - Alive (Healed)")]
     public Color aliveColor = new Color(0.1f, 0.9f, 0.2f, 0.95f); // Bright Emerald Green
-    public Color goldHighlight = new Color(1f, 0.85f, 0.3f, 1f);  // Gold accent
-    public float aliveEmissionRate = 150f;
-    public float aliveSize = 0.05f;
+    public Color goldHighlight = new Color(1f, 0.85f, 0.3f, 1f);  
+    public float aliveEmissionRate = 120f;
+    public float aliveSize = 0.08f;
 
     // ============ STATE ============
     [Header("State (Read Only)")]
@@ -53,128 +56,135 @@ public class TreeHealer : MonoBehaviour
     private ParticleSystem.MainModule treeMain;
     private ParticleSystem.EmissionModule treeEmission;
     
-    // For tracking touches from branches
     private float lastTouchTime = -1f;
-    private System.Collections.Generic.List<Renderer> treeRenderers = new System.Collections.Generic.List<Renderer>();
+    private List<Renderer> treeRenderers = new List<Renderer>();
+    private bool fullyHealedTriggered = false;
 
     private void Start()
     {
-        // Auto-find tree center if not assigned
-        if (treeCenter == null)
-        {
-            treeCenter = transform;
-        }
+        if (treeCenter == null) treeCenter = transform;
 
-        // Cache particle modules
+        CreateMissingEffects();
+
         if (treeParticles != null)
         {
             treeMain = treeParticles.main;
             treeEmission = treeParticles.emission;
+            
+            // Fix tree particles material to make them glow instead of default squares
+            var psr = treeParticles.GetComponent<ParticleSystemRenderer>();
+            if (psr != null && psr.sharedMaterial != null && psr.sharedMaterial.name == "Default-Material")
+            {
+                psr.material = ParticleUtils.GetGlowingSphereMaterial();
+            }
+            
+            // Add noise for "leaves swaying in the wind"
+            var noise = treeParticles.noise;
+            noise.enabled = true;
+            noise.strength = 0.15f;
+            noise.frequency = 0.5f;
+            noise.scrollSpeed = 0.2f;
         }
 
-        // Auto-create energy particles if not assigned
-        if (energyParticles == null)
-        {
-            CreateEnergyParticles();
-        }
-
-        // Start in withered state
         energyLevel = 0f;
         ApplyTreeState(0f);
     }
 
+    private void CreateMissingEffects()
+    {
+        if (energyParticles == null) CreateEnergyParticles();
+        if (yellowScarfParticles == null) CreateYellowScarf();
+        if (pinkPetals == null) CreatePinkPetals();
+        if (butterflyParticles == null) CreateButterflies();
+        if (soilParticles == null) CreateSoil();
+    }
+
     private void Update()
     {
-        // Try to find player hand if not assigned
         if (playerHand == null)
         {
             GameObject handObj = GameObject.FindGameObjectWithTag("PlayerHand");
-            if (handObj != null)
-            {
-                playerHand = handObj.transform;
-            }
-        // Decay energy and process distance check if hand exists
+            if (handObj != null) playerHand = handObj.transform;
+        }
+
         if (playerHand != null)
         {
             float distance = Vector3.Distance(playerHand.position, treeCenter.position);
-
-            // Distance check used as fallback if hands miss triggers
-            if (distance < healingDistance)
-            {
-                ReceiveTouch();
-            }
+            if (distance < healingDistance) ReceiveTouch();
         }
         
-        // Decay energy slowly when not healing (give a small buffer of 0.2s)
         if (Time.time - lastTouchTime > 0.2f)
-            {
-                energyLevel -= decayRate * Time.deltaTime;
-                energyLevel = Mathf.Clamp01(energyLevel);
+        {
+            energyLevel -= decayRate * Time.deltaTime;
+            energyLevel = Mathf.Clamp01(energyLevel);
 
-                if (isHealing)
-                {
-                    isHealing = false;
-                    StopHealing();
-                }
+            if (isHealing)
+            {
+                isHealing = false;
+                StopHealing();
             }
         }
 
-        // Apply visual changes based on energy level
         ApplyTreeState(energyLevel);
+
+        // Transition logic: Yellow scarf swirls while healing
+        if (energyLevel > 0f && energyLevel < 0.99f && isHealing)
+        {
+            if (yellowScarfParticles != null && !yellowScarfParticles.isPlaying) yellowScarfParticles.Play();
+        }
+        else
+        {
+            if (yellowScarfParticles != null && yellowScarfParticles.isPlaying) yellowScarfParticles.Stop();
+        }
+
+        // Fully Healed Triggers
+        if (energyLevel >= 1.0f && !fullyHealedTriggered)
+        {
+            fullyHealedTriggered = true;
+            TriggerFullyHealedEvents();
+        }
+        else if (energyLevel < 0.9f && fullyHealedTriggered)
+        {
+            fullyHealedTriggered = false;
+            if (pinkPetals != null) pinkPetals.Stop();
+            if (butterflyParticles != null) butterflyParticles.Stop();
+        }
+    }
+
+    private void TriggerFullyHealedEvents()
+    {
+        if (pinkPetals != null) pinkPetals.Play();
+        if (butterflyParticles != null) butterflyParticles.Play();
+        
+        if (birdAudio != null) birdAudio.Play();
+        else Debug.Log("[Placeholder] Bird Audio plays here. User: please attach AudioSource with bird clip.");
+
+        if (chimeAudio != null) chimeAudio.Play();
+        else Debug.Log("[Placeholder] Wind Chime Audio plays here. User: please attach AudioSource with chime clip.");
     }
 
     private void StartHealing()
     {
-        Debug.Log("TreeHealer: Healing started!");
-
-        // Start energy particles flying to tree
-        if (energyParticles != null)
-        {
-            energyParticles.gameObject.SetActive(true);
-            energyParticles.Play();
-        }
+        if (energyParticles != null) { energyParticles.gameObject.SetActive(true); energyParticles.Play(); }
     }
 
     private void StopHealing()
     {
-        Debug.Log("TreeHealer: Healing stopped.");
-
-        // Stop energy particles
-        if (energyParticles != null)
-        {
-            energyParticles.Stop();
-        }
+        if (energyParticles != null) energyParticles.Stop();
     }
 
     private void ApplyTreeState(float energy)
     {
         if (treeParticles == null) return;
 
-        // Interpolate color: Brown -> Green -> Gold highlight at max
         Color currentColor;
-        if (energy < 0.7f)
-        {
-            // Brown to Green
-            currentColor = Color.Lerp(witheredColor, aliveColor, energy / 0.7f);
-        }
-        else
-        {
-            // Green to Gold highlight
-            float t = (energy - 0.7f) / 0.3f;
-            currentColor = Color.Lerp(aliveColor, goldHighlight, t * 0.5f);
-        }
+        if (energy < 0.7f) currentColor = Color.Lerp(witheredColor, aliveColor, energy / 0.7f);
+        else currentColor = Color.Lerp(aliveColor, goldHighlight, (energy - 0.7f) / 0.3f * 0.5f);
 
         treeMain.startColor = currentColor;
-
-        // Interpolate emission rate
-        float currentRate = Mathf.Lerp(witheredEmissionRate, aliveEmissionRate, energy);
-        treeEmission.rateOverTime = currentRate;
-
-        // Interpolate particle size
-        float currentSize = Mathf.Lerp(witheredSize, aliveSize, energy);
-        treeMain.startSize = currentSize;
+        treeEmission.rateOverTime = Mathf.Lerp(witheredEmissionRate, aliveEmissionRate, energy);
+        treeMain.startSize = Mathf.Lerp(witheredSize, aliveSize, energy);
         
-        // Modulate tree procedural mesh color and emission if they exist
         foreach (var r in treeRenderers)
         {
             if (r != null && r.material != null)
@@ -184,9 +194,7 @@ public class TreeHealer : MonoBehaviour
                 
                 if (r.material.IsKeywordEnabled("_EMISSION"))
                 {
-                    // Lerp emission strength from 1.0 (dead) to 6.0 (alive)
-                    float emissionStrength = Mathf.Lerp(1.0f, 6.0f, energy);
-                    r.material.SetColor("_EmissionColor", currentColor * emissionStrength);
+                    r.material.SetColor("_EmissionColor", currentColor * Mathf.Lerp(1.5f, 6.0f, energy));
                 }
             }
         }
@@ -194,17 +202,12 @@ public class TreeHealer : MonoBehaviour
 
     public void AddTreeRenderer(Renderer r)
     {
-        if (r != null && !treeRenderers.Contains(r))
-        {
-            treeRenderers.Add(r);
-        }
+        if (r != null && !treeRenderers.Contains(r)) treeRenderers.Add(r);
     }
 
     public void ReceiveTouch()
     {
         lastTouchTime = Time.time;
-        
-        // Increase energy
         energyLevel += healingRate * Time.deltaTime;
         energyLevel = Mathf.Clamp01(energyLevel);
 
@@ -221,103 +224,184 @@ public class TreeHealer : MonoBehaviour
         effectObj.transform.SetParent(transform);
         effectObj.transform.localPosition = Vector3.zero;
         effectObj.SetActive(false);
-
-        ParticleSystem ps = effectObj.AddComponent<ParticleSystem>();
-        ParticleSystemRenderer psr = effectObj.GetComponent<ParticleSystemRenderer>();
-
-        var main = ps.main;
+        energyParticles = effectObj.AddComponent<ParticleSystem>();
+        
+        var main = energyParticles.main;
         main.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.025f);
         main.startSpeed = 2f;
         main.startLifetime = 0.8f;
         main.maxParticles = 100;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.loop = true;
-
-        // Golden energy color
         main.startColor = new Color(1f, 0.9f, 0.4f, 1f);
 
-        var emission = ps.emission;
-        emission.rateOverTime = 30f;
-
-        // Emit from small sphere (will be positioned at hand)
-        var shape = ps.shape;
+        var shape = energyParticles.shape;
         shape.shapeType = ParticleSystemShapeType.Sphere;
         shape.radius = 0.05f;
 
-        // Fly towards tree center (needs custom attraction script or use sub-emitter)
-        // For now, just emit upward towards tree direction
-        var velocity = ps.velocityOverLifetime;
+        var velocity = energyParticles.velocityOverLifetime;
         velocity.enabled = true;
         velocity.space = ParticleSystemSimulationSpace.Local;
+        
+        energyParticles.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+    }
 
-        // Size shrinks
-        var sizeOverLife = ps.sizeOverLifetime;
-        sizeOverLife.enabled = true;
-        AnimationCurve sizeCurve = new AnimationCurve();
-        sizeCurve.AddKey(0f, 1f);
-        sizeCurve.AddKey(1f, 0.2f);
-        sizeOverLife.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
+    private void CreateYellowScarf()
+    {
+        GameObject scarf = new GameObject("YellowScarfParticles");
+        scarf.transform.SetParent(transform);
+        scarf.transform.localPosition = Vector3.up * 0.5f; // Center of trunk
 
-        // Fade out
-        var colorOverLife = ps.colorOverLifetime;
-        colorOverLife.enabled = true;
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new GradientColorKey[] {
-                new GradientColorKey(new Color(1f, 0.9f, 0.4f), 0f),
-                new GradientColorKey(new Color(0.3f, 0.9f, 0.3f), 1f) // Turns green as it reaches tree
-            },
-            new GradientAlphaKey[] {
-                new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(0f, 1f)
-            }
+        yellowScarfParticles = scarf.AddComponent<ParticleSystem>();
+        var main = yellowScarfParticles.main;
+        main.loop = true;
+        main.startLifetime = 2.5f;
+        main.startSpeed = 0f;
+        main.startSize = 0.06f;
+        main.startColor = new Color(1f, 0.9f, 0.2f, 1f);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+        var emission = yellowScarfParticles.emission;
+        emission.rateOverTime = 80f; // Dense to look like a scarf
+
+        var shape = yellowScarfParticles.shape;
+        shape.shapeType = ParticleSystemShapeType.Circle;
+        shape.radius = 0.6f;      
+        shape.arcMode = ParticleSystemShapeMultiModeValue.Loop;
+        
+        var vel = yellowScarfParticles.velocityOverLifetime;
+        vel.enabled = true;
+        vel.orbitalY = 3.0f; // Spin around Y
+        vel.y = new ParticleSystem.MinMaxCurve(0.1f, 0.35f); // Float up
+        
+        var colorOL = yellowScarfParticles.colorOverLifetime;
+        colorOL.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.3f), new GradientAlphaKey(0f, 1f) }
         );
-        colorOverLife.color = gradient;
+        colorOL.color = grad;
 
-        Shader shader = Shader.Find("Particles/Standard Unlit");
-        if (shader != null)
-        {
-            psr.material = new Material(shader);
-        }
+        yellowScarfParticles.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+        yellowScarfParticles.Stop();
+    }
 
-        energyParticles = ps;
+    private void CreatePinkPetals()
+    {
+        GameObject petals = new GameObject("PinkPetals");
+        petals.transform.SetParent(transform);
+        petals.transform.localPosition = Vector3.up * 1.5f; // Top of tree
+
+        pinkPetals = petals.AddComponent<ParticleSystem>();
+        var main = pinkPetals.main;
+        main.loop = true;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.06f);
+        main.startColor = new Color(1f, 0.6f, 0.8f, 0.9f); // Pinkish glowing
+
+        var emission = pinkPetals.emission;
+        emission.rateOverTime = 40f;
+
+        var shape = pinkPetals.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 1.2f;
+
+        var force = pinkPetals.forceOverLifetime;
+        force.enabled = true;
+        force.y = -0.1f; // Gravity fall
+
+        var noise = pinkPetals.noise;
+        noise.enabled = true;
+        noise.strength = 0.05f;
+        noise.frequency = 0.5f;
+        
+        pinkPetals.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+        pinkPetals.Stop();
+    }
+
+    private void CreateButterflies()
+    {
+        GameObject bf = new GameObject("ButterflyParticles");
+        bf.transform.SetParent(transform);
+        bf.transform.localPosition = Vector3.up * 0.8f;
+
+        butterflyParticles = bf.AddComponent<ParticleSystem>();
+        var main = butterflyParticles.main;
+        main.loop = true;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
+        main.startSize = 0.15f; 
+        
+        var emission = butterflyParticles.emission;
+        emission.rateOverTime = 3f;
+
+        var shape = butterflyParticles.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 1.5f;
+
+        var vel = butterflyParticles.velocityOverLifetime;
+        vel.enabled = true;
+        vel.orbitalY = new ParticleSystem.MinMaxCurve(-0.8f, 0.8f); // flutter
+
+        var texAnim = butterflyParticles.textureSheetAnimation;
+        texAnim.enabled = true;
+        texAnim.numTilesX = 2; // Basic 2x2 sprite sheet assumption
+        texAnim.numTilesY = 2;
+        texAnim.animation = ParticleSystemAnimationType.WholeSheet;
+
+        var psr = butterflyParticles.GetComponent<ParticleSystemRenderer>();
+        var mat = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit"));
+        mat.SetFloat("_Surface", 1.0f);
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        
+        if (butterflyTexture != null) mat.mainTexture = butterflyTexture;
+        else Debug.LogWarning("TreeHealer: Please assign 'butterflyTexture' in the inspector.");
+        
+        psr.material = mat;
+        butterflyParticles.Stop();
+    }
+
+    private void CreateSoil()
+    {
+        GameObject soil = new GameObject("SoilParticles");
+        soil.transform.SetParent(transform);
+        soil.transform.localPosition = Vector3.down * 0.1f;
+
+        soilParticles = soil.AddComponent<ParticleSystem>();
+        var main = soilParticles.main;
+        main.loop = true;
+        main.startLifetime = 3f;
+        main.startSpeed = 0f;
+        main.startSize = new ParticleSystem.MinMaxCurve(0.04f, 0.08f);
+        main.startColor = new Color(0.25f, 0.15f, 0.05f, 0.8f);
+
+        var emission = soilParticles.emission;
+        emission.rateOverTime = 30f;
+
+        var shape = soilParticles.shape;
+        shape.shapeType = ParticleSystemShapeType.Circle;
+        shape.radius = 1.0f;
+
+        var vel = soilParticles.velocityOverLifetime;
+        vel.enabled = true;
+        vel.y = new ParticleSystem.MinMaxCurve(-0.01f, 0.02f); // very slight float
+
+        soilParticles.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+        soilParticles.Play(); 
     }
 
     private void LateUpdate()
     {
-        // Position energy particles at player hand
         if (energyParticles != null && playerHand != null && isHealing)
         {
             energyParticles.transform.position = playerHand.position;
-
-            // Point towards tree center
             Vector3 dirToTree = (treeCenter.position - playerHand.position).normalized;
             if (dirToTree.magnitude > 0.01f)
-            {
                 energyParticles.transform.rotation = Quaternion.LookRotation(dirToTree);
-            }
         }
     }
 
-    // ============ PUBLIC API ============
-
-    /// <summary>
-    /// Instantly fully heal the tree
-    /// </summary>
-    public void FullyHeal()
-    {
-        energyLevel = 1f;
-        ApplyTreeState(1f);
-        Debug.Log("TreeHealer: Tree fully healed!");
-    }
-
-    /// <summary>
-    /// Reset tree to withered state
-    /// </summary>
-    public void ResetToWithered()
-    {
-        energyLevel = 0f;
-        ApplyTreeState(0f);
-        Debug.Log("TreeHealer: Tree reset to withered.");
-    }
+    public void FullyHeal() { energyLevel = 1f; ApplyTreeState(1f); }
+    public void ResetToWithered() { energyLevel = 0f; ApplyTreeState(0f); fullyHealedTriggered = false; }
 }

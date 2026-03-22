@@ -137,7 +137,7 @@ public class StarryFieldGenerator : MonoBehaviour
         var noise = ps.noise;
         noise.enabled = false; // Disable noise for "fixed" star look, or very very low
         
-        // COLOR FLASH
+        // COLOR FLASH (TWINKLING)
         var colLine = ps.colorOverLifetime;
         colLine.enabled = true;
         Gradient grad = new Gradient();
@@ -145,8 +145,10 @@ public class StarryFieldGenerator : MonoBehaviour
             new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
             new GradientAlphaKey[] { 
                 new GradientAlphaKey(0.0f, 0.0f), 
-                new GradientAlphaKey(1.0f, 0.1f), 
-                new GradientAlphaKey(1.0f, 0.9f), 
+                new GradientAlphaKey(1.0f, 0.2f), 
+                new GradientAlphaKey(0.2f, 0.4f), 
+                new GradientAlphaKey(1.0f, 0.6f), 
+                new GradientAlphaKey(0.2f, 0.8f), 
                 new GradientAlphaKey(0.0f, 1.0f) 
             }
         );
@@ -220,8 +222,18 @@ public class StarryFieldGenerator : MonoBehaviour
         {
             Material mat = new Material(shader);
             mat.name = "RuntimeStarMaterial";
+            
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+            if (mat.HasProperty("_EmissionColor")) 
+            {
+                mat.EnableKeyword("_EMISSION");
+                mat.SetColor("_EmissionColor", Color.white * 4.0f); // Enhanced HDR Glow
+            }
+
             mat.SetFloat("_Surface", 1.0f); 
-            mat.SetFloat("_Blend", 1.0f);   
+            mat.SetFloat("_Blend", 0.0f); // Changed to Alpha Blend instead of AddITIVE for better glow control
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             mat.SetInt("_ZWrite", 0);
             
             Texture defaultTex = Resources.GetBuiltinResource<Texture2D>("Default-Particle.psd");

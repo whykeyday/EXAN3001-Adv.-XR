@@ -141,15 +141,11 @@ public class TreeSceneSetup : MonoBehaviour
             trigger.healer = healer;
         }
 
-        Shader sh = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-        var mat = new Material(sh);
+        Material mat = ParticleUtils.GetGlowingSphereMaterial();
         if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor",  col);
         else                               mat.color = col;
-        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0f);
-        if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic",   0f);
         if (emission > 0.01f)
         {
-            mat.EnableKeyword("_EMISSION");
             mat.SetColor("_EmissionColor", col * emission);
         }
         go.GetComponent<Renderer>().material = mat;

@@ -75,52 +75,15 @@ public class SetupParticleTreeScene : Editor
         healer.witheredMesh = deadMesh;
         healer.aliveMesh = greenMesh;
 
-        // --- AUTOMATIC TWEAK 1: Create Transparent Materials for visual backing ---
-        if (!AssetDatabase.IsValidFolder("Assets/Materials"))
-        {
-            AssetDatabase.CreateFolder("Assets", "Materials");
-        }
+        // --- Configure visual parameters ---
+        healer.canopyMaxHeight = deadMesh.bounds.size.y;
+        healer.healingRate = 0.05f;
+        healer.decayRate = 0.02f;
+        healer.aliveMeshScaleMultiplier = 0.8f;
+        healer.aliveMeshRotationOffset = new Vector3(-90, 0, 0);
 
-        Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
-        if (litShader != null)
-        {
-            // Dead Tree Material
-            Material deadMat = new Material(litShader);
-            deadMat.SetFloat("_Surface", 1.0f); // Transparent
-            deadMat.SetFloat("_Blend", 0.0f);   // Alpha
-            deadMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            deadMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            deadMat.SetInt("_ZWrite", 0);
-            deadMat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-            if (deadMat.HasProperty("_BaseColor")) deadMat.SetColor("_BaseColor", new Color(0.42f, 0.29f, 0.16f, 0.0f)); // 100% transparent (0.0 Alpha)
-            AssetDatabase.CreateAsset(deadMat, "Assets/Materials/DeadTree_Transparent_Visual.mat");
-            healer.witheredMaterial = deadMat;
-
-            // Alive Tree Material
-            Material aliveMat = new Material(litShader);
-            aliveMat.SetFloat("_Surface", 1.0f);
-            aliveMat.SetFloat("_Blend", 0.0f);
-            aliveMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            aliveMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            aliveMat.SetInt("_ZWrite", 0);
-            aliveMat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-            if (aliveMat.HasProperty("_BaseColor")) aliveMat.SetColor("_BaseColor", new Color(0.1f, 0.6f, 0.2f, 0.35f)); 
-            AssetDatabase.CreateAsset(aliveMat, "Assets/Materials/AliveTree_Transparent_Visual.mat");
-            healer.aliveMaterial = aliveMat;
-        }
-
-        // --- AUTOMATIC TWEAK 2: Adjust default rates & Dynamic height ---
-        healer.witheredParticleSize = 0.00025f;
-        healer.aliveParticleSize = 0.00015f; // Made smaller to prevent clumped Look
-        healer.fallingSpeed = -0.02f; 
-        healer.canopyMaxHeight = deadMesh.bounds.size.y; 
-        healer.jitterSpeed = 0.4f;   
-        healer.jitterAmount = 0.04f; // Made larger for visible breathing on scale
-        healer.witheredEmissionRate = 0f; // --- TWEAK: Use Burst approach only to prevent continuous overcrowding ---
-        healer.aliveEmissionRate = 35000f;   // Balanced lower density
-
-        // 6. Config Single Particle System
-        SetupParticles(particleTree, deadMesh);
+        // Note: The new ParticleTreeHealer creates all particle systems at runtime in Start().
+        // No need to create materials or configure particle sizes here.
 
         // 7. Bind Physics and Rendering directly to the root
         MeshFilter mf = particleTree.AddComponent<MeshFilter>();

@@ -24,6 +24,8 @@ public class OceanSceneSetup : MonoBehaviour
     [Header("Audio (breath-driven volume)")]
     [Tooltip("AudioSource with ocean/underwater ambient clip (Loop = true).")]
     public AudioSource oceanAudio;
+    [Tooltip("AudioSource for seagulls when entering scene.")]
+    public AudioSource seagullAudio;
     [Range(0f, 1f)] public float minVolume = 0.15f;
     [Range(0f, 1f)] public float maxVolume = 1.0f;
 
@@ -54,6 +56,9 @@ public class OceanSceneSetup : MonoBehaviour
         BuildBubbles();
 
         if (oceanAudio != null && !oceanAudio.isPlaying) oceanAudio.Play();
+        
+        if (seagullAudio != null && !seagullAudio.isPlaying) seagullAudio.Play();
+        else if (seagullAudio == null) Debug.Log("[Placeholder] Seagull audio missing. Please attach AudioSource.");
     }
 
     void Update()
@@ -102,25 +107,13 @@ public class OceanSceneSetup : MonoBehaviour
         go.transform.localScale    = Vector3.one * size * bubbleScale;
         Destroy(go.GetComponent<Collider>());
 
-        // Material
-        Shader sh = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-        var mat = new Material(sh);
+        // Material (Using universally soft glowing sphere)
+        Material mat = ParticleUtils.GetGlowingSphereMaterial();
         if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor",  col);
         else                               mat.color = col;
-        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0f);
-        if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic",   0f);
         if (emission > 0.01f)
         {
-            mat.EnableKeyword("_EMISSION");
             mat.SetColor("_EmissionColor", col * emission);
-        }
-        if (col.a < 1f)
-        {
-            mat.SetFloat("_Surface", 1);
-            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            mat.SetInt("_ZWrite", 0);
-            mat.renderQueue = 3000;
         }
         go.GetComponent<Renderer>().material = mat;
 

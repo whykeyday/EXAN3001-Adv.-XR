@@ -24,21 +24,50 @@ public class GlassShardsSceneSetup : MonoBehaviour
 
     void SetupShard()
     {
-        if (glassShader == null)
-            glassShader = Shader.Find("Custom/BlueGlassAmberRim");
-
-        // Apply Glass Material
-        if (glassShader != null)
+        // Apply Glass Material - always use realistic URP glass
+        Renderer r = GetComponent<Renderer>();
+        if (r != null)
         {
-            Renderer r = GetComponent<Renderer>();
-            if (r != null)
+            r.enabled = true;
+            
+            Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
+            if (urpLit != null)
             {
-                r.enabled = true; // Ensure it is visible
-                r.material = new Material(glassShader);
-                r.material.SetColor("_BaseColor", new Color(0.2f, 0.6f, 1.0f, 0.05f)); 
-                r.material.SetColor("_RimColor", new Color(1.0f, 0.6f, 0.0f)); 
-                r.material.SetFloat("_RimPower", 2.0f); 
-                r.material.SetFloat("_RimIntensity", 1.5f);
+                Material mat = new Material(urpLit);
+                mat.name = "RealisticGlass";
+                
+                mat.SetFloat("_Surface", 1); // Transparent
+                mat.SetFloat("_Blend", 0); // Alpha
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                mat.renderQueue = 3000;
+                
+                mat.SetColor("_BaseColor", new Color(0.7f, 0.85f, 1.0f, 0.15f));
+                mat.SetFloat("_Smoothness", 0.98f);
+                mat.SetFloat("_Metallic", 0.25f);
+                
+                mat.EnableKeyword("_EMISSION");
+                mat.SetColor("_EmissionColor", new Color(0.15f, 0.35f, 0.7f) * 0.6f);
+                
+                r.material = mat;
+            }
+            else
+            {
+                // Fallback to custom glass shader
+                if (glassShader == null)
+                    glassShader = Shader.Find("Custom/BlueGlassAmberRim");
+                    
+                if (glassShader != null)
+                {
+                    Material mat = new Material(glassShader);
+                    mat.SetColor("_BaseColor", new Color(0.2f, 0.6f, 1.0f, 0.05f)); 
+                    mat.SetColor("_RimColor", new Color(1.0f, 0.6f, 0.0f)); 
+                    mat.SetFloat("_RimPower", 2.0f); 
+                    mat.SetFloat("_RimIntensity", 1.5f);
+                    r.material = mat;
+                }
             }
         }
         
