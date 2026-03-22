@@ -6,7 +6,6 @@ using System.Collections.Generic;
 /// 完全弃用实体 MeshRenderer，依靠代码控制活树/枯树两套独立粒子系统，
 /// 并且支持根据高度动态将同一棵树的粒子染色为树干（棕色）和树叶（绿色）。
 /// </summary>
-[RequireComponent(typeof(Collider))]
 public class ParticleTreeHealer : MonoBehaviour
 {
     [Header("====== 核心网格引用 ======")]
@@ -36,6 +35,14 @@ public class ParticleTreeHealer : MonoBehaviour
     
     [Tooltip("树冠近似高度（用于确定丝巾、粉色花瓣、蝴蝶的生成位置）")]
     public float canopyMaxHeight = 30f;
+
+    [Header("====== 粒子密度与数量设置 (任意调整尝试) ======")]
+    [Tooltip("枯树的最大生成速率（决定多密集）")]
+    public float witheredParticleRate = 3000f;
+    [Tooltip("绿树的最大生成速率（决定多密集）")]
+    public float aliveParticleRate = 5000f;
+    [Tooltip("单一阶段允许同时存活的最大粒子数量极限")]
+    public int maxParticleLimit = 15000;
 
     [Header("====== 治愈与自然衰退进度 ======")]
     [Range(0.01f, 1f)] public float healingRate = 0.05f;
@@ -130,7 +137,7 @@ public class ParticleTreeHealer : MonoBehaviour
         wMain.startSpeed = 0f;
         wMain.startSize = new ParticleSystem.MinMaxCurve(0.0002f, 0.0005f); // 尺寸大幅度减小
         wMain.startColor = witheredColor;
-        wMain.maxParticles = 5000;
+        wMain.maxParticles = maxParticleLimit;
         wMain.playOnAwake = true;
         
         var wShape = witheredPS.shape;
@@ -172,7 +179,7 @@ public class ParticleTreeHealer : MonoBehaviour
         aMain.startSpeed = 0f;
         aMain.startSize = new ParticleSystem.MinMaxCurve(0.0002f, 0.0005f);
         aMain.startColor = Color.white;
-        aMain.maxParticles = 7000;
+        aMain.maxParticles = maxParticleLimit;
         aMain.playOnAwake = true;
         
         var aShape = alivePS.shape;
@@ -361,21 +368,34 @@ public class ParticleTreeHealer : MonoBehaviour
     // ==========================================
     // 交互与状态更新
     // ==========================================
-    [Header("====== 交互设置 ======")]
-    [Tooltip("玩家距离树多远时触发治愈（世界单位）")]
-    public float interactionRange = 5.0f;
 
     void OnTriggerStay(Collider other)
     {
-        // 忽略自己和自己的子物体
-        if (other.transform.IsChildOf(this.transform)) return;
+        // 向上层级搜索：解决手柄碰撞体挂在子物体上（比如名为 Sphere 且无标签）导致漏判的问题
+        bool isValidHand = false;
+        Transform curr = other.transform;
+        
+        while (curr != null)
+        {
+            if (curr.CompareTag("PlayerHand") || curr.CompareTag("GameController")) 
+            { 
+                isValidHand = true; 
+                break; 
+            }
+            string cn = curr.name.ToLower();
+            // 极度保守的名字匹配，防止误伤玩家的 Gaze Interactor, Teleport Interactor 或 PlayerController
+            if (cn == "left controller" || cn == "right controller" || cn.Contains("hand") || cn.Contains("poke")) 
+            { 
+                isValidHand = true; 
+                break; 
+            }
+            curr = curr.parent;
+        }
 
-        // 忽略明明是地板或静态环境的常见名字
-        string n = other.name.ToLower();
-        if (n.Contains("floor") || n.Contains("ground") || n.Contains("terrain") || n.Contains("plane") || other.gameObject.isStatic) return;
-
-        // 只要不是地板和自己，就认为是玩家的手/身体碰到了！
-        triggerOverlapDetected = true;
+        if (isValidHand)
+        {
+            triggerOverlapDetected = true;
+        }
     }
 
     void Update()
@@ -401,10 +421,10 @@ public class ParticleTreeHealer : MonoBehaviour
         float reversedEnergy = 1.0f - energyLevel;
         
         var wEmis = witheredPS.emission;
-        wEmis.rateOverTime = 1500f * reversedEnergy;
+        wEmis.rateOverTime = witheredParticleRate * reversedEnergy;
 
         var aEmis = alivePS.emission;
-        aEmis.rateOverTime = 2500f * energyLevel;
+        aEmis.rateOverTime = aliveParticleRate * energyLevel;
 
         // 2. 黄色丝巾环绕逻辑
         var sEmis = scarfPS.emission;
@@ -501,14 +521,30 @@ public class TreeTriggerForwarder : MonoBehaviour
     {
         if (parentHealer == null) return;
         
-        // 忽略树本身的结构碰撞
-        if (other.transform.IsChildOf(parentHealer.transform)) return;
+        // 向上层级搜索：解决手柄碰撞体挂在子物体上导致漏判的问题
+        bool isValidHand = false;
+        Transform curr = other.transform;
+        
+        while (curr != null)
+        {
+            if (curr.CompareTag("PlayerHand") || curr.CompareTag("GameController")) 
+            { 
+                isValidHand = true; 
+                break; 
+            }
+            string cn = curr.name.ToLower();
+            // 极度保守的名字匹配，防止误伤玩家的 Gaze Interactor, Teleport Interactor 或 PlayerController
+            if (cn == "left controller" || cn == "right controller" || cn.Contains("hand") || cn.Contains("poke")) 
+            { 
+                isValidHand = true; 
+                break; 
+            }
+            curr = curr.parent;
+        }
 
-        // 忽略属于环境地面的常见碰撞体
-        string n = other.name.ToLower();
-        if (n.Contains("floor") || n.Contains("ground") || n.Contains("terrain") || n.Contains("plane") || other.gameObject.isStatic) return;
-
-        // 碰到任何不是地板且非自身的活跃物体，认定为玩家交互并告知主脚本！
-        parentHealer.triggerOverlapDetected = true;
+        if (isValidHand)
+        {
+            parentHealer.triggerOverlapDetected = true;
+        }
     }
 }

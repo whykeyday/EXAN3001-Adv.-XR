@@ -515,6 +515,8 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
+  leftControllerVisual: {fileID: 0}
+  rightControllerVisual: {fileID: 0}
 --- !u!1 &756192406
 GameObject:
   m_ObjectHideFlags: 0
@@ -933,8 +935,7 @@ GameObject:
   - component: {fileID: 1902966274}
   - component: {fileID: 1902966273}
   - component: {fileID: 1902966272}
-  - component: {fileID: 1902966271}
-  - component: {fileID: 1902966270}
+  - component: {fileID: 1902966279}
   m_Layer: 0
   m_Name: TransparentParticleTree
   m_TagString: Untagged
@@ -942,49 +943,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!135 &1902966270
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1902966269}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1.6
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!64 &1902966271
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1902966269}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2494185979427425891, guid: fbbfe8a59ed7bbb49b01e07f8f2aa6eb, type: 3}
 --- !u!54 &1902966272
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5940,6 +5898,9 @@ MonoBehaviour:
   pinkPetalColor: {r: 1, g: 0.6, b: 0.8, a: 0.9}
   trunkHeightThreshold: 15
   canopyMaxHeight: 0.06851152
+  witheredParticleRate: 3000
+  aliveParticleRate: 5000
+  maxParticleLimit: 20000
   healingRate: 0.05
   decayRate: 0.124
   energyLevel: 0.333
@@ -5947,7 +5908,6 @@ MonoBehaviour:
   chimeAudio: {fileID: 0}
   butterflyTexture: {fileID: 2800000, guid: 464650f62db3b63478a0f4546554f48f, type: 3}
   triggerOverlapDetected: 0
-  interactionRange: 5
 --- !u!4 &1902966278
 Transform:
   m_ObjectHideFlags: 0
@@ -5963,6 +5923,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &1902966279
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902966269}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.005985775
+  m_Height: 0.05218946
+  m_Direction: 1
+  m_Center: {x: 0.00019816929, y: 0.009589313, z: -0.00033646144}
 --- !u!1 &2092139007
 GameObject:
   m_ObjectHideFlags: 0

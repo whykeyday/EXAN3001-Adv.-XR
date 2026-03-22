@@ -12,6 +12,12 @@ public class GhostHandVisualizer : MonoBehaviour
     public float handRadius = 0.035f; // Radius of the tube (3.5cm base)
     public float handScale = 1.8f;    // Global Scale Multiplier (1.8x)
 
+    [Header("Controller Visuals (拿手柄时隐藏手)")]
+    [Tooltip("把你的左手柄模型拖到这里")]
+    public GameObject leftControllerVisual;
+    [Tooltip("把你的右手柄模型拖到这里")]
+    public GameObject rightControllerVisual;
+
     // Data Structures for tracking instances
     private class HandVisuals
     {
@@ -107,21 +113,47 @@ public class GhostHandVisualizer : MonoBehaviour
         }
     }
 
+    // ★ 新增判定：检查某个节点（左手或右手）是否有实体手柄正在被追踪
+    bool IsControllerActive(UnityEngine.XR.XRNode node)
+    {
+        var devices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(node, devices);
+        foreach (var device in devices)
+        {
+            // 只要设备包含控制器特征，说明是实体手柄
+            if ((device.characteristics & UnityEngine.XR.InputDeviceCharacteristics.Controller) != 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void Update()
     {
+        // 核心切换逻辑：如果拿了手柄（有 Controller 特征的设备），就关掉对应侧的虚拟手
+        bool leftCtrlActive = IsControllerActive(UnityEngine.XR.XRNode.LeftHand);
+        bool rightCtrlActive = IsControllerActive(UnityEngine.XR.XRNode.RightHand);
+
+        // 如果你绑定了手柄模型，顺便帮你自动显示/隐藏它们！
+        if (leftControllerVisual != null) leftControllerVisual.SetActive(leftCtrlActive);
+        if (rightControllerVisual != null) rightControllerVisual.SetActive(rightCtrlActive);
+
         if (handSubsystem == null || !handSubsystem.running)
         {
             GetHandSubsystem();
             return;
         }
 
-        UpdateHand(handSubsystem.leftHand, leftHandVisuals);
-        UpdateHand(handSubsystem.rightHand, rightHandVisuals);
+        // !leftCtrlActive 表示“只要没拿手柄”，才允许显示这只追踪手
+        UpdateHand(handSubsystem.leftHand, leftHandVisuals, !leftCtrlActive);
+        UpdateHand(handSubsystem.rightHand, rightHandVisuals, !rightCtrlActive);
     }
 
-    void UpdateHand(XRHand hand, HandVisuals visuals)
+    void UpdateHand(XRHand hand, HandVisuals visuals, bool allowHand)
     {
-        if (!hand.isTracked)
+        // 如果不允许显示手（拿了手柄），或者手部没有被摄像头捕捉到追踪，隐藏它！
+        if (!allowHand || !hand.isTracked)
         {
             visuals.root.SetActive(false);
             return;

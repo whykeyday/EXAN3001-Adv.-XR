@@ -34047,6 +34047,8 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.035
   handScale: 1.8
+  leftControllerVisual: {fileID: 0}
+  rightControllerVisual: {fileID: 0}
 --- !u!1 &1870232604
 GameObject:
   m_ObjectHideFlags: 0
