@@ -23,13 +23,13 @@ public class BreathReactor : MonoBehaviour
     public float minNoiseStrength = 0.05f;
 
     [Tooltip("Maximum noise strength when breath is high (1)")]
-    public float maxNoiseStrength = 0.5f;
+    public float maxNoiseStrength = 15f; // 刚才嫌小，直接加大 30 倍！
 
     [Tooltip("Minimum scroll speed when calm")]
     public float minScrollSpeed = 0.02f;
 
     [Tooltip("Maximum scroll speed when anxious")]
-    public float maxScrollSpeed = 0.3f;
+    public float maxScrollSpeed = 5f; // 海浪翻涌速度拉满
 
     [Tooltip("Minimum noise frequency when calm")]
     public float minNoiseFrequency = 0.05f;

@@ -46,18 +46,8 @@ public class CoralInteractor : MonoBehaviour
 
     void Update()
     {
-        float b = (breath != null) ? breath.BreathValue : 0f;
-
-        // Scale 变形
-        float targetScale = Mathf.Lerp(1.0f, breathScaleMultiplier, b);
-        transform.localScale = initialScale * targetScale;
-
-        // Float / Bob 浮动频率和幅度
-        float currentSpeed = Mathf.Lerp(baseFloatSpeed, maxFloatSpeed, b);
-        float currentAmp = Mathf.Lerp(baseFloatAmplitude, maxFloatAmplitude, b);
-        
-        floatTimer += Time.deltaTime * currentSpeed;
-        transform.localPosition = initialLocalPos + Vector3.up * Mathf.Sin(floatTimer) * currentAmp;
+        // 按照最新需求，大珊瑚不再随着呼吸跳动和变大
+        // 仅保留下面的交互特效逻辑
     }
 
     void CreateTouchParticles()
