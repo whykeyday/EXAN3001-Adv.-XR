@@ -21130,8 +21130,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -46122,8 +46122,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -80842,8 +80842,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -95673,8 +95673,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -100550,8 +100550,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 1, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -105533,8 +105533,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -110358,8 +110358,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.9924528, g: 0.41399357, b: 0.043068595, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -134460,6 +134460,11 @@ MonoBehaviour:
   murderedCatModel: {fileID: 1272770465}
   toonCatModel: {fileID: 1639619902}
   toonCatPurrAudio: {fileID: 0}
+  fireSpeed: 0.1
+  fireLifetime: 1
+  fireGravity: -0.5
+  fireSize: 0.04
+  fireOffset: {x: 0, y: -0.5, z: 0}
   fireplaceModel: {fileID: 143120998}
   sofaModel: {fileID: 1547890039}
   fireplaceAudio: {fileID: 0}
