@@ -204,6 +204,7 @@ public class CatSceneSetup : MonoBehaviour
             CatTouchReceiver rec = blackCatModel.gameObject.AddComponent<CatTouchReceiver>();
             rec.catRole = CatTouchReceiver.CatRole.Aggressive;
             if (blackCatAggrAudio != null) rec.audioSource = CreateAudioSource(blackCatModel, blackCatAggrAudio);
+            AttachForwarders(blackCatModel, rec);
         }
 
         // 2. 灵魂疑犯猫 (死循环脚本)
@@ -213,7 +214,8 @@ public class CatSceneSetup : MonoBehaviour
             murderedCatModel.gameObject.AddComponent<SofaCatForeverLooper>();
             
             CatTouchReceiver rec = murderedCatModel.gameObject.AddComponent<CatTouchReceiver>();
-            rec.catRole = CatTouchReceiver.CatRole.Purr; // 给它挂载一样的交互逻辑
+            rec.catRole = CatTouchReceiver.CatRole.Purr;
+            AttachForwarders(murderedCatModel, rec);
         }
 
         // 3. 卡通猫
@@ -223,6 +225,21 @@ public class CatSceneSetup : MonoBehaviour
             CatTouchReceiver rec = toonCatModel.gameObject.AddComponent<CatTouchReceiver>();
             rec.catRole = CatTouchReceiver.CatRole.Purr;
             if (toonCatPurrAudio != null) rec.audioSource = CreateAudioSource(toonCatModel, toonCatPurrAudio);
+            AttachForwarders(toonCatModel, rec);
+        }
+    }
+
+    // 核心桥接技术：把子层网格身上的碰撞信号，快递给老爹身上的接收器！
+    void AttachForwarders(Transform root, CatTouchReceiver receiver)
+    {
+        Collider[] cols = root.GetComponentsInChildren<Collider>();
+        foreach (Collider c in cols)
+        {
+            if (c.gameObject != root.gameObject)
+            {
+                CatTouchForwarder fwd = c.gameObject.AddComponent<CatTouchForwarder>();
+                fwd.target = receiver;
+            }
         }
     }
 
@@ -230,7 +247,12 @@ public class CatSceneSetup : MonoBehaviour
     {
         AudioSource src = parent.gameObject.AddComponent<AudioSource>();
         src.clip = clip;
-        src.spatialBlend = 1f; // 3D 立体声
+        // 保证音量穿透力：别设为完全 1.0 的纯 3D，保留 0.75 使得全屏都能隐约听到
+        src.spatialBlend = 0.75f; 
+        src.volume = 1f;
+        src.minDistance = 2f;  // 贴脸 2 米内都是最大音量
+        src.maxDistance = 20f; // 20 米外才完全消失
+        src.rolloffMode = AudioRolloffMode.Linear; // 线性衰减更符合直观
         src.playOnAwake = false;
         return src;
     }
@@ -239,21 +261,73 @@ public class CatSceneSetup : MonoBehaviour
     {
         if (target == null) return;
         
-        // 【终极物理修复】：
-        // 1. 无视所有缩放：确保触发球在世界里恰好只有半米大，防止 FBX 放大 100 倍后包住了整个白模房间！
-        SphereCollider sc = target.gameObject.GetComponent<SphereCollider>();
-        if (sc == null) sc = target.gameObject.AddComponent<SphereCollider>();
-        sc.isTrigger = true;
-        float maxScale = Mathf.Max(target.lossyScale.x, Mathf.Max(target.lossyScale.y, target.lossyScale.z));
-        sc.radius = 0.5f / (maxScale == 0 ? 1f : maxScale);
+        // 【逆转思路：全面尊重玩家手工配置】
+        // 原生 FBX 动画骨骼会导致通过脚本读取的 Bounds 严重飞偏移，所以绝不能去硬算！
+        // 既然你之前【自己手动加过 Collider】，说明你精心调装过大小。
+        // 我们不该清场删掉它！我们只需要把它从一堵“挡路的死墙”，变成“能穿透的手电筒（触发器）”！
+        Collider[] allCols = target.GetComponentsInChildren<Collider>();
+        if (allCols.Length > 0)
+        {
+            foreach(var c in allCols) 
+            {
+                c.isTrigger = true; // 把所有手动添加的挡路碰撞体全部软化成触发器
+            }
+        }
+        else
+        {
+            // 如果玩家真的完全没加，再给个默认空气球
+            SphereCollider sc = target.gameObject.AddComponent<SphereCollider>();
+            sc.isTrigger = true;
+            float maxScale = Mathf.Max(target.lossyScale.x, Mathf.Max(target.lossyScale.y, target.lossyScale.z));
+            sc.radius = 0.5f / (maxScale == 0 ? 1f : maxScale);
+        }
 
-        // 2. 致命大坑：珊瑚（Coral）没有 Rigidbody，所以是静态碰撞体，你的手能触发它！
-        // 如果我们画蛇添足给猫加了 Kinematic Rigidbody，手也是 Kinematic，
-        // 在某些项目的物理设置中，Kinematic 撞 Kinematic 会被物理引擎直接无视抛弃！
-        // 所以我们现在“倒退”回和珊瑚一样的纯净配置：果断删掉可能存在的刚体！
+        // 彻底删除会导致 XR手柄（Kinematic）因物理矩阵而相互穿透不报信的 Rigidbody！
         Rigidbody rb = target.GetComponent<Rigidbody>();
         if (rb != null) Destroy(rb);
     }
+
+    public static bool IsValidPlayer(Collider other, Transform self)
+    {
+        // 注意！绝对不能用 self.root，很多玩家喜欢把整个场景全放进一家名叫 environment 的根文件夹！
+        // 如果用 root 判定，意味着整个屋里的东西全成了你的孩子，判定直接报废！
+        // 我们只排斥明确属于“它自身这块零配件”碰撞体的自己人！
+        if (other.transform.IsChildOf(self)) return false;
+
+        string n = other.name.ToLower();
+        // 绝对黑名单：排除所有可能一直贴在一起的环境建筑
+        if (n.Contains("ground") || n.Contains("floor") || n.Contains("sofa") || 
+            n.Contains("room") || n.Contains("plane") || n.Contains("placeholder") ||
+            n.Contains("terrain") || n.Contains("wall") || n.Contains("fire") || n.Contains("cat"))
+        {
+            return false;
+        }
+
+        // 白名单：无限制深度往上扒祖宗，寻找 VR 控制器的常见特征字眼
+        Transform curr = other.transform;
+        while (curr != null)
+        {
+            string cn = curr.name.ToLower();
+            if (cn.Contains("hand") || cn.Contains("controller") || cn.Contains("interact") || 
+                cn.Contains("xr") || cn.Contains("left") || cn.Contains("right") || 
+                cn.Contains("player") || cn.Contains("camera"))
+            {
+                return true; // 确认是玩家手柄
+            }
+            curr = curr.parent;
+        }
+
+        // 宁可杀错绝不放过：如果在祖宗结构里找不到任何明显代表“玩家/VR设备”的关键词标记，
+        // 我们坚决不认为这是一个合法的手！这能 100% 杜绝阿猫阿狗的场景白模（如名为 Cube 的地板）无限触发互动！
+        return false; 
+    }
+}
+
+public class CatTouchForwarder : MonoBehaviour
+{
+    public CatTouchReceiver target;
+    void OnTriggerEnter(Collider other) { if (target != null) target.OnTriggerEnter(other); }
+    void OnTriggerStay(Collider other)  { if (target != null) target.OnTriggerStay(other); }
 }
 
 public class AutoCatAnimator : MonoBehaviour
@@ -315,6 +389,11 @@ public class CatTouchReceiver : MonoBehaviour
     // 获取真实的网格中心，无视模型原点的偏离
     public Vector3 GetTrueCenter()
     {
+        // 如果有玩家手动加的碰撞体（无论盒子还是胶囊），它的中心绝对是最完美的！
+        Collider col = GetComponentInChildren<Collider>();
+        if (col != null) return col.bounds.center;
+
+        // 兜底：如果完全没有碰撞体，再用极其容易被骨骼污染的 Mesh 暴力算
         Renderer[] rs = GetComponentsInChildren<Renderer>();
         if (rs.Length == 0) return transform.position;
         Bounds b = rs[0].bounds;
@@ -341,46 +420,41 @@ public class CatTouchReceiver : MonoBehaviour
 
     void Update()
     {
-        bool playerNearby = false;
-        Vector3 center = GetTrueCenter();
-
-        // 使用 Camera.main 作为更稳妥的 VR 头显位置（如果 Camera.allCameras 获取的有问题）
-        Camera playerCam = Camera.main;
-        if (playerCam != null)
-        {
-            Vector2 catPlane = new Vector2(center.x, center.z);
-            Vector2 camPlane = new Vector2(playerCam.transform.position.x, playerCam.transform.position.z);
-            if (Vector2.Distance(catPlane, camPlane) < 4.0f) playerNearby = true;
-        }
-
         bool forceInteract = Input.GetKeyDown(KeyCode.E);
-
-        if (Time.time - lastTouchTime >= Cooldown && (playerNearby || forceInteract))
+        if (forceInteract && Time.time - lastTouchTime >= Cooldown)
         {
             TriggerCat();
         }
 
-        // --- 状态灯反馈：有人靠近变绿，互动中变红，待命蓝 ---
+        // --- 状态灯反馈：互动中变红，平时隐形 ---
         if (statusIndicator != null)
         {
             if (Time.time - lastTouchTime < Cooldown) 
             {
+                statusIndicator.enabled = true;
                 statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
                 statusIndicator.material.color = Color.red; 
             }
-            else if (playerNearby) 
-            {
-                // 如果灯变绿了，说明【雷达测定你已经走到它旁边了】！
-                // 这可以直接诊断距离判定代码是否在干活！
-                statusIndicator.material.SetColor("_EmissionColor", Color.green * 2f);
-                statusIndicator.material.color = Color.green;
-            }
             else 
             {
-                statusIndicator.material.SetColor("_EmissionColor", Color.blue * 1f);
-                statusIndicator.material.color = Color.blue;
+                statusIndicator.enabled = false; // 平时不触发灯光就不亮
             }
         }
+    }
+
+    // 这两个方法必须是 public，因为我们的 CatTouchForwarder 信号快递员在外层（甚至子物体上）要调用它们！
+    public void OnTriggerEnter(Collider other)
+    {
+        if (!CatSceneSetup.IsValidPlayer(other, transform)) return;
+        if (Time.time - lastTouchTime < Cooldown) return;
+        TriggerCat();
+    }
+
+    public void OnTriggerStay(Collider other)
+    {
+        if (!CatSceneSetup.IsValidPlayer(other, transform)) return;
+        if (Time.time - lastTouchTime < Cooldown) return;
+        TriggerCat();
     }
 
     [ContextMenu(">>> CLICK ME: FORCE TRIGGER INTERACTION <<<")]
@@ -412,16 +486,18 @@ public class CatTouchReceiver : MonoBehaviour
 
         if (catRole == CatRole.Purr || catRole == CatRole.Aggressive)
         {
+            // --- 核心物理反馈：抛开坑人的骨骼动画器，强制执行完美可见的物理位移弹跳！---
+            if (jumpCoroutine != null) StopCoroutine(jumpCoroutine);
+            jumpCoroutine = StartCoroutine(CatJumpRoutine());
+
             Animator anim = GetComponentInChildren<Animator>();
             if (anim == null && transform.parent != null) anim = transform.parent.GetComponentInChildren<Animator>();
 
             if (anim != null)
             {
-                // 如果 FBX 没挂载 AnimatorController (裸模)，给个最原始的物理放大反馈！
                 if (anim.runtimeAnimatorController == null)
                 {
-                    transform.localScale = transform.localScale * 1.5f; // 瞬间放大 1.5 倍
-                    Invoke("ResetCatScale", 1.0f);
+                    Debug.LogWarning("[CatInteraction] 猫无 Animator Controller，只展示物理弹跳与红球反馈！");
                 }
                 else
                 {
@@ -435,11 +511,27 @@ public class CatTouchReceiver : MonoBehaviour
         }
     }
 
-    private Vector3 originalScale;
-    void ResetCatScale()
+    private Coroutine jumpCoroutine;
+    private Vector3? originalPos = null;
+
+    private System.Collections.IEnumerator CatJumpRoutine()
     {
-        // 缩放复原
-        transform.localScale = transform.localScale / 1.5f;
+        if (originalPos == null) originalPos = transform.position;
+        Vector3 startPos = originalPos.Value;
+
+        float elapsed = 0f;
+        float duration = 0.5f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            // 完美的半圆形跳跃轨迹，最高弹起 0.4 米
+            float yOffset = Mathf.Sin(t * Mathf.PI) * 0.4f; 
+            transform.position = startPos + Vector3.up * yOffset;
+            yield return null;
+        }
+        transform.position = startPos;
     }
 
     void ResetAnimSpeed()
@@ -525,8 +617,20 @@ public class CampfireInteraction : MonoBehaviour
         mat.color = Color.blue;
         mat.EnableKeyword("_EMISSION");
         statusIndicator.material = mat;
+
+        // 起步时强行把主火焰粒子发射率设为 0，彻底浇灭之前的“白色幽灵火”！
+        if (containerPs != null)
+        {
+            var em = containerPs.emission;
+            em.rateOverTime = 0f;
+        }
+
         if (fireplaceAudio != null) 
         {
+            fireplaceAudio.spatialBlend = 0.8f;
+            fireplaceAudio.minDistance = 1.5f;
+            fireplaceAudio.maxDistance = 15f;
+            fireplaceAudio.rolloffMode = AudioRolloffMode.Linear;
             fireplaceAudio.loop = true;
             fireplaceAudio.Play();
             fireplaceAudio.volume = 0f; // 初始静音，靠靠近变大
@@ -535,37 +639,38 @@ public class CampfireInteraction : MonoBehaviour
 
     void Update()
     {
-        // === 【极致退化：完全移除雷达！必须用手触碰】 ===
-        // 如果距离上次触摸在 2 秒内，火势就是 100%；否则火势渐渐变为 0%。
+        // 如果距离上次触摸在 2 秒内，火势就是 100%；否则火势渐渐熄灭为 0%。
         float targetIntensity = (Time.time - lastTouchTime < 2.0f) ? 1.0f : 0f;
         
         currentFireIntensity = Mathf.Lerp(currentFireIntensity, targetIntensity, Time.deltaTime * 3.5f);
 
-        // 1. 无缝控火星：越靠近，喷射越疯狂 (最高 50颗粒/秒)
+        // 1. 无缝控火星
         if (sparksPs != null)
         {
             var em = sparksPs.emission;
-            em.rateOverTime = currentFireIntensity * maxFireRate; // 动态最大密度
+            em.rateOverTime = currentFireIntensity * maxFireRate; 
         }
 
-        // 2. 无缝控颜色和底座：火苗由暗淡白逐渐烧红
+        // 2. 彻底控主火苗：不摸就不喷！一摸猛喷！
         if (containerPs != null)
         {
+            var em = containerPs.emission;
+            em.rateOverTime = currentFireIntensity * 35f; // 从 0 直接喷射到 35 颗/秒
+
             var main = containerPs.main;
-            Color baseColor = new Color(1.0f, 1.0f, 1.0f, 0.1f); // 平时完全幽灵白且半透明
-            Color fireColor = new Color(1f, 0.4f, 0f, 1f); // 炽热红
+            Color baseColor = new Color(1.0f, 0.6f, 0.2f, 0.5f); // 微弱预热橘色
+            Color fireColor = new Color(1f, 0.2f, 0f, 1f); // 炽热大火红
             main.startColor = Color.Lerp(baseColor, fireColor, currentFireIntensity);
 
             var noise = containerPs.noise;
             noise.enabled = true;
-            // 越近底部闪动越剧烈
             noise.strength = Mathf.Lerp(0f, 1.5f, currentFireIntensity); 
         }
 
         // 3. 声音由远及近
         if (fireplaceAudio != null)
         {
-            fireplaceAudio.volume = currentFireIntensity;
+            fireplaceAudio.volume = currentFireIntensity * 1.5f; // 确保音量足够大
         }
 
         // 4. 灯光反馈
@@ -586,7 +691,7 @@ public class CampfireInteraction : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == gameObject) return;
+        if (!CatSceneSetup.IsValidPlayer(other, transform)) return;
 
         // 如果火是熄灭的，给它一个爆炸火花效果！
         if (Time.time - lastTouchTime > 2.0f && sparksPs != null) sparksPs.Emit(40);
@@ -597,7 +702,7 @@ public class CampfireInteraction : MonoBehaviour
 
     void OnTriggerStay(Collider other)
     {
-        if (other.gameObject == gameObject) return;
+        if (!CatSceneSetup.IsValidPlayer(other, transform)) return;
         currentFireIntensity = 1.0f;
         lastTouchTime = Time.time;
     }

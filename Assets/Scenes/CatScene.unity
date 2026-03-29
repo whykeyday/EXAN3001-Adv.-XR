@@ -5146,10 +5146,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3709981
-  m_Height: 1.3392727
+  m_Radius: 0.67281294
+  m_Height: 1.3456259
   m_Direction: 1
-  m_Center: {x: -6.6889987, y: 3.7158923, z: 2.6499152}
+  m_Center: {x: -6.6872234, y: 3.6912365, z: 2.672902}
 --- !u!1001 &182852785
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -129515,7 +129515,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -134456,10 +134456,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blackCatModel: {fileID: 1854359415}
-  blackCatAggrAudio: {fileID: 0}
+  blackCatAggrAudio: {fileID: 8300000, guid: 6b0faa0ed0608a7498bb2a0edcd7830c, type: 3}
   murderedCatModel: {fileID: 1272770465}
   toonCatModel: {fileID: 1639619902}
-  toonCatPurrAudio: {fileID: 0}
+  toonCatPurrAudio: {fileID: 8300000, guid: dfc8ad80f328f544a95771a6c06c40e5, type: 3}
   fireSpeed: 0.1
   fireLifetime: 1
   fireGravity: -0.5
