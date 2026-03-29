@@ -245,7 +245,17 @@ public class CatSceneSetup : MonoBehaviour
 
     AudioSource CreateAudioSource(Transform parent, AudioClip clip)
     {
-        AudioSource src = parent.gameObject.AddComponent<AudioSource>();
+        // 【终极声音修复】：模型原点 Pivot 偏离百米不仅会导致红球偏离，也会导致 3D 喇叭偏离！
+        // 如果喇叭在百米开外，由于衰减距离只有 20 米，就算音量最大玩家也听不见！
+        // 因此我们要专门建一个独立的小喇叭节点，并把它强制塞进真实的网格中央！
+        GameObject audioEmitter = new GameObject("AudioEmitter_PerfectCenter");
+        audioEmitter.transform.SetParent(parent, false);
+
+        CatTouchReceiver rec = parent.GetComponent<CatTouchReceiver>();
+        if (rec != null) audioEmitter.transform.position = rec.GetTrueCenter();
+        else audioEmitter.transform.position = parent.position;
+
+        AudioSource src = audioEmitter.AddComponent<AudioSource>();
         src.clip = clip;
         // 保证音量穿透力：别设为完全 1.0 的纯 3D，保留 0.75 使得全屏都能隐约听到
         src.spatialBlend = 0.75f; 
@@ -486,9 +496,9 @@ public class CatTouchReceiver : MonoBehaviour
 
         if (catRole == CatRole.Purr || catRole == CatRole.Aggressive)
         {
-            // --- 核心物理反馈：抛开坑人的骨骼动画器，强制执行完美可见的物理位移弹跳！---
-            if (jumpCoroutine != null) StopCoroutine(jumpCoroutine);
-            jumpCoroutine = StartCoroutine(CatJumpRoutine());
+            // --- 核心视觉反馈：抛开坑人的骨骼动画器，强制执行完美的身体闪红！---
+            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+            flashCoroutine = StartCoroutine(CatFlashRoutine());
 
             Animator anim = GetComponentInChildren<Animator>();
             if (anim == null && transform.parent != null) anim = transform.parent.GetComponentInChildren<Animator>();
@@ -511,13 +521,19 @@ public class CatTouchReceiver : MonoBehaviour
         }
     }
 
-    private Coroutine jumpCoroutine;
-    private Vector3? originalPos = null;
+    private Coroutine flashCoroutine;
 
-    private System.Collections.IEnumerator CatJumpRoutine()
+    private System.Collections.IEnumerator CatFlashRoutine()
     {
-        if (originalPos == null) originalPos = transform.position;
-        Vector3 startPos = originalPos.Value;
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        System.Collections.Generic.Dictionary<Renderer, Color> origColors = new System.Collections.Generic.Dictionary<Renderer, Color>();
+        
+        // 记录原始颜色
+        foreach (var r in renderers) 
+        {
+            if (r.material.HasProperty("_Color")) 
+                origColors[r] = r.material.color;
+        }
 
         float elapsed = 0f;
         float duration = 0.5f;
@@ -526,12 +542,23 @@ public class CatTouchReceiver : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
-            // 完美的半圆形跳跃轨迹，最高弹起 0.4 米
-            float yOffset = Mathf.Sin(t * Mathf.PI) * 0.4f; 
-            transform.position = startPos + Vector3.up * yOffset;
+            
+            // 材质颜色从红色平滑褪回原始颜色
+            foreach (var r in renderers) 
+            {
+                if (origColors.ContainsKey(r))
+                {
+                    r.material.color = Color.Lerp(Color.red, origColors[r], t);
+                }
+            }
             yield return null;
         }
-        transform.position = startPos;
+
+        // 确保完美复原
+        foreach (var r in renderers) 
+        {
+            if (origColors.ContainsKey(r)) r.material.color = origColors[r];
+        }
     }
 
     void ResetAnimSpeed()
