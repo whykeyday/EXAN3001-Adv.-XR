@@ -239,15 +239,20 @@ public class CatSceneSetup : MonoBehaviour
     {
         if (target == null) return;
         
-        // 终极绝杀方案：直接在模型“最根部”凭空捏一个直径接近 2 米的绝对空气球！
-        // 彻底绕过所有隐形缩放塌陷的 MeshCollider！
+        // 【终极物理修复】：
+        // 1. 无视所有缩放：确保触发球在世界里恰好只有半米大，防止 FBX 放大 100 倍后包住了整个白模房间！
         SphereCollider sc = target.gameObject.GetComponent<SphereCollider>();
         if (sc == null) sc = target.gameObject.AddComponent<SphereCollider>();
         sc.isTrigger = true;
-        sc.radius = 0.8f; // 半径高达 0.8 米，确保瞎子也能摸到！
+        float maxScale = Mathf.Max(target.lossyScale.x, Mathf.Max(target.lossyScale.y, target.lossyScale.z));
+        sc.radius = 0.5f / (maxScale == 0 ? 1f : maxScale);
 
+        // 2. 致命大坑：珊瑚（Coral）没有 Rigidbody，所以是静态碰撞体，你的手能触发它！
+        // 如果我们画蛇添足给猫加了 Kinematic Rigidbody，手也是 Kinematic，
+        // 在某些项目的物理设置中，Kinematic 撞 Kinematic 会被物理引擎直接无视抛弃！
+        // 所以我们现在“倒退”回和珊瑚一样的纯净配置：果断删掉可能存在的刚体！
         Rigidbody rb = target.GetComponent<Rigidbody>();
-        if (rb == null) { rb = target.gameObject.AddComponent<Rigidbody>(); rb.isKinematic = true; }
+        if (rb != null) Destroy(rb);
     }
 }
 
@@ -412,13 +417,29 @@ public class CatTouchReceiver : MonoBehaviour
 
             if (anim != null)
             {
-                // 记忆原始速度，给动画提速到 2.0 倍持续两秒！
-                baseAnimSpeed = anim.speed;
-                anim.speed = 2.0f;
-                Invoke("ResetAnimSpeed", 2.0f);
-                anim.Play(0, -1, 0f); // 重播当前动画
+                // 如果 FBX 没挂载 AnimatorController (裸模)，给个最原始的物理放大反馈！
+                if (anim.runtimeAnimatorController == null)
+                {
+                    transform.localScale = transform.localScale * 1.5f; // 瞬间放大 1.5 倍
+                    Invoke("ResetCatScale", 1.0f);
+                }
+                else
+                {
+                    // 记忆原始速度，给动画提速到 2.0 倍持续两秒！
+                    baseAnimSpeed = anim.speed;
+                    anim.speed = 2.0f;
+                    Invoke("ResetAnimSpeed", 2.0f);
+                    anim.Play(0, -1, 0f); // 重播当前动画
+                }
             }
         }
+    }
+
+    private Vector3 originalScale;
+    void ResetCatScale()
+    {
+        // 缩放复原
+        transform.localScale = transform.localScale / 1.5f;
     }
 
     void ResetAnimSpeed()
@@ -514,23 +535,11 @@ public class CampfireInteraction : MonoBehaviour
 
     void Update()
     {
-        Vector3 center = GetTrueCenter();
-        Camera playerCam = Camera.main;
+        // === 【极致退化：完全移除雷达！必须用手触碰】 ===
+        // 如果距离上次触摸在 2 秒内，火势就是 100%；否则火势渐渐变为 0%。
+        float targetIntensity = (Time.time - lastTouchTime < 2.0f) ? 1.0f : 0f;
         
-        float dist = 10f; // 默认很远
-        if (playerCam != null)
-        {
-            Vector2 firePlane = new Vector2(center.x, center.z);
-            Vector2 camPlane = new Vector2(playerCam.transform.position.x, playerCam.transform.position.z);
-            dist = Vector2.Distance(firePlane, camPlane);
-        }
-
-        // === 【核心重构：连绵涌动 与 渐隐熄灭】 ===
-        // 在 2 米处火势达到 100% (最猛)；退到 6 米外火势减弱到 0%。
-        float targetIntensity = Mathf.Clamp01(1.0f - (dist - 2.0f) / 4.0f);
-        
-        // 我们利用插值让火星增减变得像呼吸一样自然平滑
-        currentFireIntensity = Mathf.Lerp(currentFireIntensity, targetIntensity, Time.deltaTime * 2.5f);
+        currentFireIntensity = Mathf.Lerp(currentFireIntensity, targetIntensity, Time.deltaTime * 3.5f);
 
         // 1. 无缝控火星：越靠近，喷射越疯狂 (最高 50颗粒/秒)
         if (sparksPs != null)
@@ -543,7 +552,7 @@ public class CampfireInteraction : MonoBehaviour
         if (containerPs != null)
         {
             var main = containerPs.main;
-            Color baseColor = new Color(1f, 1f, 1f, 0.4f); // 幽灵白
+            Color baseColor = new Color(1.0f, 1.0f, 1.0f, 0.1f); // 平时完全幽灵白且半透明
             Color fireColor = new Color(1f, 0.4f, 0f, 1f); // 炽热红
             main.startColor = Color.Lerp(baseColor, fireColor, currentFireIntensity);
 
@@ -562,14 +571,26 @@ public class CampfireInteraction : MonoBehaviour
         // 4. 灯光反馈
         if (statusIndicator != null)
         {
-            statusIndicator.material.SetColor("_EmissionColor", Color.Lerp(Color.blue, Color.red, currentFireIntensity) * 2f);
-            statusIndicator.material.color = Color.Lerp(Color.blue, Color.red, currentFireIntensity);
+            if (targetIntensity > 0)
+            {
+                statusIndicator.enabled = true;
+                statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
+                statusIndicator.material.color = Color.red;
+            }
+            else
+            {
+                statusIndicator.enabled = false;
+            }
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject == gameObject) return;
+
+        // 如果火是熄灭的，给它一个爆炸火花效果！
+        if (Time.time - lastTouchTime > 2.0f && sparksPs != null) sparksPs.Emit(40);
+
         currentFireIntensity = 1.0f;
         lastTouchTime = Time.time;
     }
@@ -578,6 +599,7 @@ public class CampfireInteraction : MonoBehaviour
     {
         if (other.gameObject == gameObject) return;
         currentFireIntensity = 1.0f;
+        lastTouchTime = Time.time;
     }
 
     [ContextMenu(">>> CLICK ME: FORCE IGNITE FIREPLACE <<<")]
