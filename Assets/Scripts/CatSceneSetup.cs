@@ -16,6 +16,14 @@ public class CatSceneSetup : MonoBehaviour
     public AudioSource catPurrAudio;
     public AudioSource catMeowAudio;
 
+    [Header("Real Asset References (Optional)")]
+    [Tooltip("拖入你真正的篝火模型，这样火星就会附着在它上面")]
+    public Transform fireplaceModel; 
+    [Tooltip("如果你已经摆好了沙发，拖进来可以关掉占位白块")]
+    public Transform sofaModel;
+    [Tooltip("真实的猫咪模型")]
+    public Transform catModel;
+
     void Start()
     {
         CreateRoomPlaceholder();
@@ -57,14 +65,24 @@ public class CatSceneSetup : MonoBehaviour
     /// </summary>
     void CreateFireplacePlaceholder()
     {
-        GameObject fireplace = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        fireplace.name = "Fireplace_Placeholder";
-        fireplace.transform.position = new Vector3(0, 0.5f, 2.4f);
-        fireplace.transform.localScale = new Vector3(1.5f, 1f, 0.5f);
+        Transform sparkParent;
+
+        if (fireplaceModel != null) 
+        {
+            sparkParent = fireplaceModel;
+        }
+        else 
+        {
+            GameObject fireplace = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            fireplace.name = "Fireplace_Placeholder";
+            fireplace.transform.position = new Vector3(0, 0.5f, 2.4f);
+            fireplace.transform.localScale = new Vector3(1.5f, 1f, 0.5f);
+            sparkParent = fireplace.transform;
+        }
         
         // 创建壁炉火星特效
         GameObject sparks = new GameObject("FireSparksParticles");
-        sparks.transform.SetParent(fireplace.transform);
+        sparks.transform.SetParent(sparkParent);
         sparks.transform.localPosition = Vector3.up * 0.5f;
 
         ParticleSystem ps = sparks.AddComponent<ParticleSystem>();
@@ -109,30 +127,43 @@ public class CatSceneSetup : MonoBehaviour
     /// </summary>
     void CreateSofaAndCatPlaceholder()
     {
-        // 沙发占位
-        GameObject sofa = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        sofa.name = "Sofa_Placeholder";
-        sofa.transform.position = new Vector3(0, 0.4f, 0);
-        sofa.transform.localScale = new Vector3(2f, 0.6f, 1f);
+        if (sofaModel == null)
+        {
+            // 沙发占位
+            GameObject sofa = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            sofa.name = "Sofa_Placeholder";
+            sofa.transform.position = new Vector3(0, 0.4f, 0);
+            sofa.transform.localScale = new Vector3(2f, 0.6f, 1f);
+        }
+
+        Transform catParent;
         
-        // 猫咪主容器体
-        GameObject catContainer = new GameObject("Cat_Container_Placeholder");
-        catContainer.transform.position = new Vector3(0, 0.85f, 0);
+        if (catModel != null)
+        {
+            catParent = catModel;
+        }
+        else
+        {
+            // 猫咪主容器体
+            GameObject catContainer = new GameObject("Cat_Container_Placeholder");
+            catContainer.transform.position = new Vector3(0, 0.85f, 0);
+            catParent = catContainer.transform;
 
-        // 绑定材质：给猫咪创建一个白橘混合的发光粒子系统。真实模型到位后，可以通过 ParticleContainerTool 生成基于具体身型的粒子表面。
-        ParticleSystem catPs = catContainer.AddComponent<ParticleSystem>();
-        var main = catPs.main;
-        main.startSize = 0.05f;
-        main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.6f, 0f, 1f), Color.white); // 白橘相间
-        var shape = catPs.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.4f; // 猫咪大致大小
+            // 绑定材质：给猫咪创建一个白橘混合的发光粒子系统。真实模型到位后，可以通过 ParticleContainerTool 生成基于具体身型的粒子表面。
+            ParticleSystem catPs = catContainer.AddComponent<ParticleSystem>();
+            var main = catPs.main;
+            main.startSize = 0.05f;
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.6f, 0f, 1f), Color.white); // 白橘相间
+            var shape = catPs.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.4f; // 猫咪大致大小
 
-        catPs.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+            catPs.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+        }
 
         // 头部碰撞与互动逻辑
         GameObject catHead = new GameObject("Cat_Head_Trigger");
-        catHead.transform.SetParent(catContainer.transform);
+        catHead.transform.SetParent(catParent);
         catHead.transform.localPosition = new Vector3(0, 0.2f, -0.3f);
         
         SphereCollider headCol = catHead.AddComponent<SphereCollider>();
@@ -148,7 +179,7 @@ public class CatSceneSetup : MonoBehaviour
 
         // 身体碰撞与互动逻辑
         GameObject catBody = new GameObject("Cat_Body_Trigger");
-        catBody.transform.SetParent(catContainer.transform);
+        catBody.transform.SetParent(catParent);
         catBody.transform.localPosition = new Vector3(0, 0, 0);
         
         SphereCollider bodyCol = catBody.AddComponent<SphereCollider>();
