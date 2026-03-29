@@ -332,7 +332,7 @@ public class SceneUpgradeTool
                     }
                     
                     CatTouchReceiver recv = bodyTrigger.gameObject.AddComponent<CatTouchReceiver>();
-                    recv.bodyPart = CatPart.Body;
+                    recv.catRole = CatTouchReceiver.CatRole.Purr;
                     
                     fixed_count++;
                     Debug.Log("[Upgrade] Added body touch receiver to cat Body part.");

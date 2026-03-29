@@ -11,24 +11,29 @@ using UnityEngine;
 /// </summary>
 public class CatSceneSetup : MonoBehaviour
 {
-    [Header("Audio Placeholders")]
-    public AudioSource fireplaceAudio;
-    public AudioSource catPurrAudio;
-    public AudioSource catMeowAudio;
+    [Header("1. Black Cat (Aggr Sound on Touch)")]
+    public Transform blackCatModel;
+    public AudioClip blackCatAggrAudio;
+
+    [Header("2. Murdered Soul Suspect Cat (Auto 5s Anim)")]
+    public Transform murderedCatModel;
+
+    [Header("3. Toon Cat Free (Purr + Anim on Touch)")]
+    public Transform toonCatModel;
+    public AudioClip toonCatPurrAudio;
 
     [Header("Real Asset References (Optional)")]
     [Tooltip("拖入你真正的篝火模型，这样火星就会附着在它上面")]
     public Transform fireplaceModel; 
     [Tooltip("如果你已经摆好了沙发，拖进来可以关掉占位白块")]
     public Transform sofaModel;
-    [Tooltip("真实的猫咪模型")]
-    public Transform catModel;
+    public AudioSource fireplaceAudio;
 
     void Start()
     {
         CreateRoomPlaceholder();
         CreateFireplacePlaceholder();
-        CreateSofaAndCatPlaceholder();
+        SetupFurnitureAndCats();
         
         // 进入场景伴随壁炉炸裂声
         if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
@@ -101,13 +106,15 @@ public class CatSceneSetup : MonoBehaviour
             fireScript.fireplaceAudio = fireplaceAudio;
         }
         
-        // 创建壁炉火星特效
+        // 创建壁炉火星特效 (脱离父物体，绝对防止 FBX 的变态缩放把特效缩成 0.0001 毫米导致看不见)
         GameObject sparks = new GameObject("FireSparksParticles");
-        sparks.transform.SetParent(sparkParent);
-        sparks.transform.localPosition = Vector3.up * 0.5f;
+        sparks.transform.position = sparkParent.position + Vector3.up * 0.5f;
+        sparks.transform.localScale = Vector3.one;
 
         ParticleSystem ps = sparks.AddComponent<ParticleSystem>();
         var main = ps.main;
+        // 强制特效使用绝对世界大小，不随父物体畸变
+        main.scalingMode = ParticleSystemScalingMode.Hierarchy;
         main.loop = true;
         main.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 3.0f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(1.0f, 2.5f);
@@ -134,8 +141,8 @@ public class CatSceneSetup : MonoBehaviour
         var vel = ps.velocityOverLifetime;
         vel.enabled = true;
         vel.space = ParticleSystemSimulationSpace.World;
-        vel.y = new ParticleSystem.MinMaxCurve(1.0f, 2.0f); // 向上漂浮
-        vel.x = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); // 左右摇摆
+        vel.y = new ParticleSystem.MinMaxCurve(2.0f, 5.0f); // 向上漂浮
+        vel.x = new ParticleSystem.MinMaxCurve(-1.0f, 1.0f); // 左右摇摆
         
         var colorOL = ps.colorOverLifetime;
         colorOL.enabled = true;
@@ -152,92 +159,125 @@ public class CatSceneSetup : MonoBehaviour
     /// <summary>
     /// 生成沙发及粒子橘白猫占位，并分配分别挂载不同播放逻辑的碰触接收器
     /// </summary>
-    void CreateSofaAndCatPlaceholder()
+    void SetupFurnitureAndCats()
     {
+        // ================= 沙发处理 =================
         if (sofaModel == null)
         {
-            // 沙发占位
             GameObject sofa = GameObject.CreatePrimitive(PrimitiveType.Cube);
             sofa.name = "Sofa_Placeholder";
             sofa.transform.position = new Vector3(0, 0.4f, 0);
             sofa.transform.localScale = new Vector3(2f, 0.6f, 1f);
         }
 
-        Transform catParent;
-        
-        if (catModel != null)
+        // ================= 三只猫专属业务逻辑分发 =================
+        // 1. 黑猫 (遇人发出凶狠叫声)
+        if (blackCatModel != null)
         {
-            catParent = catModel;
-        }
-        else
-        {
-            // 猫咪主容器体
-            GameObject catContainer = new GameObject("Cat_Container_Placeholder");
-            catContainer.transform.position = new Vector3(0, 0.85f, 0);
-            catParent = catContainer.transform;
-
-            // 绑定材质：给猫咪创建一个白橘混合的发光粒子系统。真实模型到位后，可以通过 ParticleContainerTool 生成基于具体身型的粒子表面。
-            ParticleSystem catPs = catContainer.AddComponent<ParticleSystem>();
-            var main = catPs.main;
-            main.startSize = 0.05f;
-            main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.6f, 0f, 1f), Color.white); // 白橘相间
-            var shape = catPs.shape;
-            shape.shapeType = ParticleSystemShapeType.Sphere;
-            shape.radius = 0.4f; // 猫咪大致大小
-
-            catPs.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+            EnsureColliderAndRigidBody(blackCatModel, new Vector3(0.6f, 0.6f, 0.6f));
+            CatTouchReceiver rec = blackCatModel.gameObject.AddComponent<CatTouchReceiver>();
+            rec.catRole = CatTouchReceiver.CatRole.Aggressive;
+            if (blackCatAggrAudio != null) rec.audioSource = CreateAudioSource(blackCatModel, blackCatAggrAudio);
         }
 
-        // 头部碰撞与互动逻辑
-        GameObject catHead = new GameObject("Cat_Head_Trigger");
-        catHead.transform.SetParent(catParent);
-        catHead.transform.localPosition = new Vector3(0, 0.2f, -0.3f);
-        
-        SphereCollider headCol = catHead.AddComponent<SphereCollider>();
-        headCol.isTrigger = true;
-        headCol.radius = 0.25f;
-        
-        Rigidbody headRb = catHead.AddComponent<Rigidbody>();
-        headRb.isKinematic = true;
-        
-        CatTouchReceiver headReceiver = catHead.AddComponent<CatTouchReceiver>();
-        headReceiver.bodyPart = CatPart.Head;
-        headReceiver.audioSource = catPurrAudio;
+        // 2. 灵魂疑犯猫 (天然纯动画猫，已经设置了 Loop Time，所以不要加任何额外脚本干扰它)
+        if (murderedCatModel != null)
+        {
+            // 你已经在 Unity 勾选了 Loop Time，它天然就是无限死循环播放的！
+            // 所以我们彻底拔掉这只猫身上的全部干扰代码，让它原生态活下去。
+        }
 
-        // 身体碰撞与互动逻辑
-        GameObject catBody = new GameObject("Cat_Body_Trigger");
-        catBody.transform.SetParent(catParent);
-        catBody.transform.localPosition = new Vector3(0, 0, 0);
-        
-        SphereCollider bodyCol = catBody.AddComponent<SphereCollider>();
-        bodyCol.isTrigger = true;
-        bodyCol.radius = 0.4f;
-        
-        Rigidbody bodyRb = catBody.AddComponent<Rigidbody>();
-        bodyRb.isKinematic = true;
-        
-        CatTouchReceiver bodyReceiver = catBody.AddComponent<CatTouchReceiver>();
-        bodyReceiver.bodyPart = CatPart.Body;
-        bodyReceiver.audioSource = catMeowAudio;
+        // 3. 卡通猫 (摸一下以后呼噜噜，并触发动画)
+        if (toonCatModel != null)
+        {
+            EnsureColliderAndRigidBody(toonCatModel, new Vector3(0.5f, 0.5f, 0.5f));
+            CatTouchReceiver rec = toonCatModel.gameObject.AddComponent<CatTouchReceiver>();
+            rec.catRole = CatTouchReceiver.CatRole.Purr;
+            if (toonCatPurrAudio != null) rec.audioSource = CreateAudioSource(toonCatModel, toonCatPurrAudio);
+        }
+    }
+
+    AudioSource CreateAudioSource(Transform parent, AudioClip clip)
+    {
+        AudioSource src = parent.gameObject.AddComponent<AudioSource>();
+        src.clip = clip;
+        src.spatialBlend = 1f; // 3D 立体声
+        src.playOnAwake = false;
+        return src;
+    }
+
+    void EnsureColliderAndRigidBody(Transform target, Vector3 colSize)
+    {
+        Collider col = target.GetComponentInChildren<Collider>();
+        if (col == null)
+        {
+            BoxCollider bc = target.gameObject.AddComponent<BoxCollider>();
+            bc.isTrigger = true;
+            bc.size = colSize;
+        }
+        else { col.isTrigger = true; }
+
+        Rigidbody rb = target.GetComponent<Rigidbody>();
+        if (rb == null) { rb = target.gameObject.AddComponent<Rigidbody>(); rb.isKinematic = true; }
     }
 }
 
-public enum CatPart { Head, Body }
+public class AutoCatAnimator : MonoBehaviour
+{
+    public float interval = 5.0f;
+    private Animator anim;
+    private Animation legacyAnim;
+
+    void Start()
+    {
+        anim = GetComponentInChildren<Animator>();
+        legacyAnim = GetComponentInChildren<Animation>();
+        InvokeRepeating(nameof(TriggerAnimation), interval, interval);
+    }
+
+    void TriggerAnimation()
+    {
+        // 彻底解决直接导入的 FBX 没有 Animator Controller 的问题
+        if (anim != null)
+        {
+            if (anim.runtimeAnimatorController != null)
+            {
+                int stateHash = anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                anim.Play(stateHash, -1, 0f);
+                Debug.Log($"[AutoCatAnimator] {gameObject.name} played Animator state.");
+            }
+            else
+            {
+                // 如果没有挂载 Controller, 尝试暴力拿所有自带的 AnimationClip，用 Playables API 播放它是黑科技，
+                // 但为了简单，如果用户没配 Controller，我们尝试去找 legacyAnim
+                Debug.LogWarning($"[AutoCatAnimator] ⚠️ {gameObject.name} 缺少 Animator Controller! 请在 Unity 里点右键 Create->Animator Controller，然后配上它的动画并拖给这个组件！");
+            }
+        }
+        
+        if (legacyAnim != null)
+        {
+            legacyAnim.Stop();
+            legacyAnim.Play();
+            Debug.Log($"[AutoCatAnimator] {gameObject.name} played Legacy Animation clip.");
+        }
+    }
+}
 
 /// <summary>
-/// 猫咪触摸感应器：分别响应头部（呼噜声）和身体（喵叫声）
+/// 猫咪触摸感应器：分别响应不同设定的猫咪（暴躁凶神、呼噜动画）
 /// </summary>
 public class CatTouchReceiver : MonoBehaviour
 {
-    public CatPart bodyPart;
-    public AudioSource audioSource;
+    public enum CatRole { Aggressive, Purr }
+    public CatRole catRole;
     
+    public AudioSource audioSource;
     private float lastTouchTime = -999f;
-    private const float Cooldown = 1.0f; // 避免疯狂手抖重复触发
+    private const float Cooldown = 3.0f; // 防止连叫
 
     void OnTriggerEnter(Collider other)
     {
-        // 忽略父物体的内部穿插
+        // 忽略自身
         if (other.transform.IsChildOf(transform.root)) return; 
         
         if (Time.time - lastTouchTime < Cooldown) return;
@@ -253,59 +293,81 @@ public class CatTouchReceiver : MonoBehaviour
 
     void Update()
     {
-        // ================= 无敌距离检测（彻底绕过碰撞体Bug） =================
-        // 防御性搜索：如果 VR 摄像机没有加 MainCamera 的 tag，就暴力搜全场唯一的 Camera
-        Camera cam = Camera.main;
-        if (cam == null) cam = FindObjectOfType<Camera>();
+        // ================= 终极雷达检测（遍历所有摄像机防止找错对象） =================
+        bool playerNearby = false;
         
-        if (Time.time - lastTouchTime >= Cooldown && cam != null)
+        // 我们遍历当前世界上正在渲染的“所有”摄像机（XR双眼相机、主相机）
+        foreach (Camera c in Camera.allCameras)
         {
-            // 只要玩家只要戴着头显走近到 0.8 米以内，就算作身体触碰！
-            float dist = Vector3.Distance(transform.position, cam.transform.position);
-            if (dist < 0.8f) 
+            Vector2 catPlane = new Vector2(transform.position.x, transform.position.z);
+            Vector2 camPlane = new Vector2(c.transform.position.x, c.transform.position.z);
+            
+            // XR头显因为安全边界和 Offset 的问题，它的坐标可能不是真实脑袋，我们把雷达开到 3.0 米死区！
+            if (Vector2.Distance(catPlane, camPlane) < 3.0f)
             {
-                Debug.Log($"[CatInteraction] Player body/head walked into {bodyPart}!");
-                TriggerCat();
+                playerNearby = true;
+                break;
             }
+        }
+
+        // 神级后门：直接按键盘上的 E 键，强制触发互动！
+        bool forceInteract = Input.GetKeyDown(KeyCode.E);
+
+        if (Time.time - lastTouchTime >= Cooldown && (playerNearby || forceInteract))
+        {
+            Debug.Log($"[CatInteraction] Player interacted with {gameObject.name}! (Plane Dist or E Key)");
+            TriggerCat();
         }
     }
 
+    [ContextMenu(">>> CLICK ME: FORCE TRIGGER INTERACTION <<<")]
     private void TriggerCat()
     {
         lastTouchTime = Time.time;
         
-        Debug.Log($"[CatInteraction] Player touched {bodyPart}");
+        Debug.Log($"[CatInteraction] Player interacted with {catRole} cat!");
 
+        // 【终极瞎子可见测试】如果你没挂载声音，或者没有控制器，你根本不知道交互触发了没有！
+        // 我给你砸出一个巨大的半透明红球，停留 3 秒，只要大红球出现了，就说明系统代码全部顺畅触发成功！！
+        GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        debugIndicator.transform.position = transform.position + Vector3.up * 1.5f; // 飘在猫头上
+        debugIndicator.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f); // 绝对够大的警告球
+        Destroy(debugIndicator.GetComponent<Collider>());
+        
+        Material redMat = new Material(Shader.Find("Standard"));
+        redMat.color = Color.red;
+        redMat.EnableKeyword("_EMISSION");
+        redMat.SetColor("_EmissionColor", Color.red * 2f);
+        debugIndicator.GetComponent<Renderer>().material = redMat;
+        Destroy(debugIndicator, 3.0f); // 3秒后销毁
+
+        // 1. 发出对应的声音（如果你加了的话）
         if (audioSource != null && audioSource.clip != null)
         {
             audioSource.PlayOneShot(audioSource.clip);
         }
         else
         {
-            Debug.LogWarning($"[Placeholder] No AudioClip attached for Cat {bodyPart}!");
+            Debug.LogWarning($"[Placeholder] No AudioClip attached for Cat ({catRole})!");
         }
 
-        // ================= 新增：自动获取并触发 FBX 动画 =================
-        Animator anim = transform.root.GetComponentInChildren<Animator>();
-        if (anim != null)
+        // 2. 如果是呼噜卡通猫，互动后还要配合播放动画！
+        if (catRole == CatRole.Purr)
         {
-            if (anim.runtimeAnimatorController == null)
+            Animator anim = transform.root.GetComponentInChildren<Animator>();
+            if (anim != null)
             {
-                Debug.LogWarning("⚠️ 猫咪身上的 Animator 没有分配 Controller！所以它没法播放动画。请在 Unity 里右键 Create -> Animator Controller，配好动画后拖给猫咪！");
+                if (anim.runtimeAnimatorController != null)
+                {
+                    int stateHash = anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                    anim.Play(stateHash, 0, 0f);
+                    Debug.Log("[CatInteraction] Toon Cat played purring animation!");
+                }
             }
             else
             {
-                anim.Play(0, 0, 0f);
-                Debug.Log("[CatInteraction] Triggered Animator play!");
-            }
-        }
-        else
-        {
-            Animation legacyAnim = transform.root.GetComponentInChildren<Animation>();
-            if (legacyAnim != null)
-            {
-                legacyAnim.Play();
-                Debug.Log("[CatInteraction] Triggered Legacy Animation play!");
+                Animation legacyAnim = transform.root.GetComponentInChildren<Animation>();
+                if (legacyAnim != null) legacyAnim.Play();
             }
         }
     }
@@ -327,29 +389,37 @@ public class CampfireInteraction : MonoBehaviour
 
     void Start()
     {
-        // 尝试获取全息容器系统（由 ParticleContainerTool 生成的贴脸粒子）
-        containerPs = GetComponent<ParticleSystem>();
+        containerPs = GetComponent<ParticleSystem>(); 
         
-        // 查找向上的那团喷发火星
-        Transform sparks = transform.Find("FireSparksParticles");
+        // 查找世界里的特效名字（因为我们把它脱离父级防止了变态缩放）
+        GameObject sparks = GameObject.Find("FireSparksParticles");
         if (sparks != null) sparksPs = sparks.GetComponent<ParticleSystem>();
     }
 
     void Update()
     {
-        // ================= 无敌距离检测（彻底绕过碰撞体Bug） =================
-        Camera cam = Camera.main;
-        if (cam == null) cam = FindObjectOfType<Camera>();
-        
-        if (!isIgnited && cam != null)
+        if (isIgnited) return;
+
+        bool playerNearby = false;
+        foreach (Camera c in Camera.allCameras)
         {
-            // 只要玩家身体（头显摄像机）走近到 1.5 米以内，篝火自动感知并点燃！
-            float dist = Vector3.Distance(transform.position, cam.transform.position);
-            if (dist < 1.5f)
+            Vector2 firePlane = new Vector2(transform.position.x, transform.position.z);
+            Vector2 camPlane = new Vector2(c.transform.position.x, c.transform.position.z);
+            
+            // XR 空间放宽到恐怖的 4 米半径雷达！只要你在房间里基本上必触发。
+            if (Vector2.Distance(firePlane, camPlane) < 4.0f) 
             {
-                Debug.Log("[CampfireInteraction] Player body walked near the campfire!");
-                IgniteFireplace();
+                playerNearby = true;
+                break;
             }
+        }
+
+        bool forceInteract = Input.GetKeyDown(KeyCode.E);
+
+        if (playerNearby || forceInteract)
+        {
+            Debug.Log("[CampfireInteraction] Player body or E Key triggered the campfire!");
+            IgniteFireplace();
         }
     }
 
@@ -370,6 +440,7 @@ public class CampfireInteraction : MonoBehaviour
         }
     }
 
+    [ContextMenu(">>> CLICK ME: FORCE IGNITE FIREPLACE <<<")]
     void IgniteFireplace()
     {
         if (!isIgnited)
@@ -397,14 +468,16 @@ public class CampfireInteraction : MonoBehaviour
                 // 开启 Noise 扰动模块，让附着的粒子像真正的火焰一样翻滚、升腾
                 var noise = containerPs.noise;
                 noise.enabled = true;
-                noise.strength = 0.4f; // 扭曲幅度
-                noise.frequency = 1.0f; // 扭曲频率
-                noise.scrollSpeed = 1.2f; // 火焰向上升腾的滚动感
+                noise.strength = 1.0f; // 更加剧烈的扭曲幅度（火从下往上涌）
+                noise.frequency = 1.5f; // 更加剧烈的高频扭曲
+                noise.scrollSpeed = 2.5f; // 极速火焰向上升腾的滚动感
 
-                // 赋予生命周期内向上飘升的热气流速度
+                // 赋予生命周期内向上飘升的巨量热气流速度！！！
                 var vel = containerPs.velocityOverLifetime;
                 vel.enabled = true;
-                vel.y = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
+                vel.y = new ParticleSystem.MinMaxCurve(2.0f, 4.5f); // 极其暴躁地从下往上涌出
+                vel.z = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); // 微微向外扩散
+                vel.x = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); 
                 vel.space = ParticleSystemSimulationSpace.World;
             }
 
