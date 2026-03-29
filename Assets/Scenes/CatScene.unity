@@ -148,7 +148,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 338561782}
+  - {fileID: 702172238}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -390,8 +390,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.6150943, g: 0.38962704, b: 0.031334944, a: 0.5}
-      maxColor: {r: 0.024219347, g: 0.01655392, b: 0.2830189, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5050,6 +5050,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -5058,12 +5059,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -5097,7 +5095,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -5112,7 +5110,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -5235,7 +5233,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 702172238}
+  - {fileID: 384961244}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5477,8 +5475,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.89433956, g: 0.5717172, b: 0.065809794, a: 0.5}
-      maxColor: {r: 0.8415094, g: 0.03651824, b: 0.03651824, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -10137,6 +10135,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -10145,12 +10144,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -10184,7 +10180,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -10199,7 +10195,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -10216,6 +10212,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -10224,12 +10221,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -10263,7 +10257,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -10278,86 +10272,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
-    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
-  m_BuildTextureStacks: []
---- !u!21 &214421455
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: GlowingSphereParticle
-  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _SURFACE_TYPE_TRANSPARENT
-  m_InvalidKeywords:
-  - SOFTPARTICLES_ON
-  - _ALPHABLEND_ON
-  - _FLIPBOOKBLENDING_OFF
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 1945855553}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Blend: 0
-    - _BlendOp: 0
-    - _CameraFadingEnabled: 0
-    - _CameraFarFadeDistance: 2
-    - _CameraNearFadeDistance: 1
-    - _ColorMode: 0
-    - _Cull: 2
-    - _Cutoff: 0.5
-    - _DistortionBlend: 0.5
-    - _DistortionEnabled: 0
-    - _DistortionStrength: 1
-    - _DistortionStrengthScaled: 0.1
-    - _DstBlend: 10
-    - _DstBlendAlpha: 10
-    - _FlipbookBlending: 0
-    - _FlipbookMode: 0
-    - _Mode: 0
-    - _QueueOffset: 0
-    - _SoftParticlesEnabled: 0
-    - _SoftParticlesFarFadeDistance: 1
-    - _SoftParticlesNearFadeDistance: 0
-    - _SrcBlend: 5
-    - _SrcBlendAlpha: 1
-    - _Surface: 1
-    - _ZWrite: 0
-    m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -10374,6 +10289,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -10382,12 +10298,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -10421,7 +10334,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -10436,7 +10349,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -10467,7 +10380,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1984568630}
+  - {fileID: 1703960411}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10709,8 +10622,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.3962264, g: 0.25941616, b: 0.25941616, a: 0.5}
-      maxColor: {r: 0.08951936, g: 0.13329118, b: 0.3735848, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -15444,6 +15357,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -15452,12 +15366,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -15491,7 +15402,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -15506,7 +15417,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -15523,6 +15434,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -15531,12 +15443,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -15570,7 +15479,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -15585,7 +15494,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -15724,6 +15633,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -15732,12 +15642,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -15771,7 +15678,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -15786,7 +15693,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -16021,6 +15928,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -16029,18 +15937,15 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 1945855553}
+        m_Texture: {fileID: 294740769}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -16068,7 +15973,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -16083,7 +15988,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -16114,7 +16019,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1565035662}
+  - {fileID: 1945855553}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16242,7 +16147,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 2
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -16356,8 +16261,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.6754716, g: 0.41152805, b: 0.03950868, a: 0.5}
-      maxColor: {r: 0.7132075, g: 0.052481227, b: 0.13489841, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -16421,8 +16326,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.000014459226
-      minScalar: 0.000009639484
+      scalar: 0.06
+      minScalar: 0.04
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -16872,7 +16777,7 @@ ParticleSystem:
     m_Sprite: {fileID: 0}
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
-    m_UseMeshColors: 1
+    m_UseMeshColors: 0
     alignToDirection: 0
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
@@ -20939,7 +20844,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1159794458}
+  - {fileID: 1090539544}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -25851,7 +25756,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 732142318}
+  - {fileID: 1984568630}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -26093,8 +25998,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.2981131, g: 0.02643643, b: 0.10383859, a: 0.5}
-      maxColor: {r: 0.3735848, g: 0.21991952, b: 0.12335344, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -30828,6 +30733,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -30836,18 +30742,15 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 1945855553}
+        m_Texture: {fileID: 294740769}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -30875,7 +30778,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -30890,7 +30793,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -30907,6 +30810,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -30915,12 +30819,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -30954,7 +30855,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -30969,7 +30870,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -30986,6 +30887,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -30994,12 +30896,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -31033,7 +30932,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -31048,7 +30947,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -31079,7 +30978,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1724057365}
+  - {fileID: 608945563}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -31321,8 +31220,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.03513704, g: 0.34613916, b: 0.3962264, a: 0.5}
-      maxColor: {r: 0.1363179, g: 0.4037736, b: 0.020569567, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -31703,7 +31602,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 80000
+    maxNumParticles: 35000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
@@ -35890,6 +35789,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -35898,12 +35798,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -35937,7 +35834,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -35952,7 +35849,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -35983,7 +35880,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 608945563}
+  - {fileID: 1724057365}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -36111,7 +36008,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 2
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -36225,8 +36122,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.7584905, g: 0.027191062, b: 0.1709795, a: 0.5}
-      maxColor: {r: 0.41852897, g: 0.05008889, b: 0.7584905, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -36290,8 +36187,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.000018245955
-      minScalar: 0.0000121639705
+      scalar: 0.06
+      minScalar: 0.04
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -36741,7 +36638,7 @@ ParticleSystem:
     m_Sprite: {fileID: 0}
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
-    m_UseMeshColors: 1
+    m_UseMeshColors: 0
     alignToDirection: 0
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
@@ -40794,6 +40691,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -40802,12 +40700,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -40841,7 +40736,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -40856,7 +40751,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -40998,6 +40893,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -41006,12 +40902,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -41045,7 +40938,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -41060,7 +40953,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -41091,7 +40984,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1125473650}
+  - {fileID: 742741895}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -41333,8 +41226,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.06384291, g: 0.019188296, b: 0.18490559, a: 0.5}
-      maxColor: {r: 0.03570663, g: 0.08091399, b: 0.3207547, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -45916,7 +45809,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 384961244}
+  - {fileID: 2090570682}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -50715,6 +50608,83 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 8578503693723678561, guid: 7176d5a9ae5a9c34bbe077d999f54391, type: 3}
   m_PrefabInstance: {fileID: 1330353868}
   m_PrefabAsset: {fileID: 0}
+--- !u!21 &904958589
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GlowingSphereParticle
+  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _EMISSION
+  - _SURFACE_TYPE_TRANSPARENT
+  m_InvalidKeywords:
+  - SOFTPARTICLES_ON
+  - _ALPHABLEND_ON
+  - _FLIPBOOKBLENDING_OFF
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 294740769}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _BlendOp: 0
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 2
+    - _CameraNearFadeDistance: 1
+    - _ColorMode: 0
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DistortionBlend: 0.5
+    - _DistortionEnabled: 0
+    - _DistortionStrength: 1
+    - _DistortionStrengthScaled: 0.1
+    - _DstBlend: 10
+    - _DstBlendAlpha: 0
+    - _FlipbookBlending: 0
+    - _FlipbookMode: 0
+    - _Mode: 0
+    - _QueueOffset: 0
+    - _SoftParticlesEnabled: 0
+    - _SoftParticlesFarFadeDistance: 1
+    - _SoftParticlesNearFadeDistance: 0
+    - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
+    - _Surface: 1
+    - _ZWrite: 0
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
+    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1001 &977228990
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50897,85 +50867,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 473820415}
   m_SourcePrefab: {fileID: 100100000, guid: 2664559f9801e7443870d4e617c55423, type: 3}
---- !u!21 &1024835946
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: GlowingSphereParticle
-  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _SURFACE_TYPE_TRANSPARENT
-  m_InvalidKeywords:
-  - SOFTPARTICLES_ON
-  - _ALPHABLEND_ON
-  - _FLIPBOOKBLENDING_OFF
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 1945855553}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Blend: 0
-    - _BlendOp: 0
-    - _CameraFadingEnabled: 0
-    - _CameraFarFadeDistance: 2
-    - _CameraNearFadeDistance: 1
-    - _ColorMode: 0
-    - _Cull: 2
-    - _Cutoff: 0.5
-    - _DistortionBlend: 0.5
-    - _DistortionEnabled: 0
-    - _DistortionStrength: 1
-    - _DistortionStrengthScaled: 0.1
-    - _DstBlend: 10
-    - _DstBlendAlpha: 10
-    - _FlipbookBlending: 0
-    - _FlipbookMode: 0
-    - _Mode: 0
-    - _QueueOffset: 0
-    - _SoftParticlesEnabled: 0
-    - _SoftParticlesFarFadeDistance: 1
-    - _SoftParticlesNearFadeDistance: 0
-    - _SrcBlend: 5
-    - _SrcBlendAlpha: 1
-    - _Surface: 1
-    - _ZWrite: 0
-    m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
-    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
-  m_BuildTextureStacks: []
 --- !u!21 &1087767134
 Material:
   serializedVersion: 8
@@ -50988,6 +50879,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -50996,12 +50888,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -51035,7 +50924,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -51050,7 +50939,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -51067,6 +50956,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -51075,12 +50965,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -51114,7 +51001,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -51129,7 +51016,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -51146,6 +51033,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -51154,12 +51042,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -51193,7 +51078,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -51208,7 +51093,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -51225,6 +51110,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -51233,12 +51119,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -51272,7 +51155,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -51287,7 +51170,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -51318,7 +51201,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 247266105}
+  - {fileID: 1983283519}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -51560,8 +51443,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.22033803, g: 0.3433962, b: 0.035635415, a: 0.5}
-      maxColor: {r: 0.4339623, g: 0.254776, b: 0.015557078, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -56143,7 +56026,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 214421455}
+  - {fileID: 212493089}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -56271,7 +56154,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 2
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -56385,8 +56268,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.4113207, g: 0.24798563, b: 0.0147454, a: 0.5}
-      maxColor: {r: 0.2088321, g: 0.4264151, b: 0.028159427, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -56450,8 +56333,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.000031515912
-      minScalar: 0.00002101061
+      scalar: 0.06
+      minScalar: 0.04
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -56901,7 +56784,7 @@ ParticleSystem:
     m_Sprite: {fileID: 0}
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
-    m_UseMeshColors: 1
+    m_UseMeshColors: 0
     alignToDirection: 0
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
@@ -61145,7 +61028,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 683322487}
+  - {fileID: 760547791}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -61388,7 +61271,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 0.8113208, g: 0.44917744, b: 0.053577673, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -65965,7 +65848,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1759545210}
+  - {fileID: 136710356}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -66207,8 +66090,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.4339623, g: 0.38638625, b: 0.058134574, a: 0.5}
-      maxColor: {r: 0.4264151, g: 0.17675993, b: 0.015286518, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -70790,7 +70673,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 760547791}
+  - {fileID: 1490480426}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -71032,8 +70915,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.009006741, g: 0.07407832, b: 0.20754719, a: 0.5}
-      maxColor: {r: 0.381132, g: 0.27829826, b: 0.27829826, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -75601,6 +75484,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -75609,12 +75493,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -75648,7 +75529,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -75663,7 +75544,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -75694,7 +75575,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1459260882}
+  - {fileID: 1087767134}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -75936,8 +75817,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.033798087, g: 0.023090048, b: 0.2603773, a: 0.5}
-      maxColor: {r: 0.4188679, g: 0.22167043, b: 0.01817724, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -80505,6 +80386,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -80513,12 +80395,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -80552,7 +80431,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -80567,7 +80446,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -80598,7 +80477,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 343799590}
+  - {fileID: 683322487}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85469,7 +85348,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1024835946}
+  - {fileID: 247266105}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85597,7 +85476,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 2
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -85711,8 +85590,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.014902061, g: 0.3433962, b: 0.1605727, a: 0.5}
-      maxColor: {r: 0.030922, g: 0.27089715, b: 0.381132, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -85776,8 +85655,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.000031515912
-      minScalar: 0.00002101061
+      scalar: 0.06
+      minScalar: 0.04
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -86227,7 +86106,7 @@ ParticleSystem:
     m_Sprite: {fileID: 0}
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
-    m_UseMeshColors: 1
+    m_UseMeshColors: 0
     alignToDirection: 0
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
@@ -90376,6 +90255,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -90384,18 +90264,15 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 1945855553}
+        m_Texture: {fileID: 294740769}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -90423,7 +90300,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -90438,7 +90315,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -90469,7 +90346,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1090539544}
+  - {fileID: 732142318}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -95429,7 +95306,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1983283519}
+  - {fileID: 343799590}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -100259,7 +100136,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2090570682}
+  - {fileID: 446071961}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -100501,8 +100378,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.8490566, g: 0.39575857, b: 0.04966176, a: 0.5}
-      maxColor: {r: 0.6679245, g: 0.06931285, b: 0.06931285, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -105070,6 +104947,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -105078,91 +104956,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 1945855553}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Blend: 0
-    - _BlendOp: 0
-    - _CameraFadingEnabled: 0
-    - _CameraFarFadeDistance: 2
-    - _CameraNearFadeDistance: 1
-    - _ColorMode: 0
-    - _Cull: 2
-    - _Cutoff: 0.5
-    - _DistortionBlend: 0.5
-    - _DistortionEnabled: 0
-    - _DistortionStrength: 1
-    - _DistortionStrengthScaled: 0.1
-    - _DstBlend: 10
-    - _DstBlendAlpha: 10
-    - _FlipbookBlending: 0
-    - _FlipbookMode: 0
-    - _Mode: 0
-    - _QueueOffset: 0
-    - _SoftParticlesEnabled: 0
-    - _SoftParticlesFarFadeDistance: 1
-    - _SoftParticlesNearFadeDistance: 0
-    - _SrcBlend: 5
-    - _SrcBlendAlpha: 1
-    - _Surface: 1
-    - _ZWrite: 0
-    m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
-    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
-  m_BuildTextureStacks: []
---- !u!21 &1724057365
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: GlowingSphereParticle
-  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _SURFACE_TYPE_TRANSPARENT
-  m_InvalidKeywords:
-  - SOFTPARTICLES_ON
-  - _ALPHABLEND_ON
-  - _FLIPBOOKBLENDING_OFF
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -105196,7 +104992,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -105211,7 +105007,84 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
+    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
+--- !u!21 &1724057365
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GlowingSphereParticle
+  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _EMISSION
+  - _SURFACE_TYPE_TRANSPARENT
+  m_InvalidKeywords:
+  - SOFTPARTICLES_ON
+  - _ALPHABLEND_ON
+  - _FLIPBOOKBLENDING_OFF
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 294740769}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _BlendOp: 0
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 2
+    - _CameraNearFadeDistance: 1
+    - _ColorMode: 0
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DistortionBlend: 0.5
+    - _DistortionEnabled: 0
+    - _DistortionStrength: 1
+    - _DistortionStrengthScaled: 0.1
+    - _DstBlend: 10
+    - _DstBlendAlpha: 0
+    - _FlipbookBlending: 0
+    - _FlipbookMode: 0
+    - _Mode: 0
+    - _QueueOffset: 0
+    - _SoftParticlesEnabled: 0
+    - _SoftParticlesFarFadeDistance: 1
+    - _SoftParticlesNearFadeDistance: 0
+    - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
+    - _Surface: 1
+    - _ZWrite: 0
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -105242,7 +105115,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 204203391}
+  - {fileID: 1904838143}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110067,7 +109940,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1904838143}
+  - {fileID: 1759545210}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -114878,6 +114751,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -114886,12 +114760,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -114925,7 +114796,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -114940,7 +114811,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -114971,7 +114842,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 136710356}
+  - {fileID: 1565035662}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -115213,8 +115084,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.3962264, g: 0.25941616, b: 0.25941616, a: 0.5}
-      maxColor: {r: 0.08951936, g: 0.13329118, b: 0.3735848, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -119796,7 +119667,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1490480426}
+  - {fileID: 1125473650}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -120038,8 +119909,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.3962264, g: 0.25941616, b: 0.25941616, a: 0.5}
-      maxColor: {r: 0.08951936, g: 0.13329118, b: 0.3735848, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -124621,7 +124492,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1703960411}
+  - {fileID: 338561782}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -124749,7 +124620,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 2
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -124863,8 +124734,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.82955325, g: 0.83396226, b: 0.04877888, a: 0.5}
-      maxColor: {r: 0.5471698, g: 0.2817638, b: 0.032004245, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -124928,8 +124799,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.000014459226
-      minScalar: 0.000009639484
+      scalar: 0.06
+      minScalar: 0.04
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -125379,7 +125250,7 @@ ParticleSystem:
     m_Sprite: {fileID: 0}
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
-    m_UseMeshColors: 1
+    m_UseMeshColors: 0
     alignToDirection: 0
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
@@ -129446,7 +129317,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 446071961}
+  - {fileID: 1459260882}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -129574,7 +129445,7 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 0
+  scalingMode: 2
   randomSeed: 0
   InitialModule:
     serializedVersion: 3
@@ -129688,8 +129559,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.7509433, g: 0.32030618, b: 0.038255543, a: 0.5}
-      maxColor: {r: 0.7433963, g: 0.03226051, b: 0.49281996, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -129753,8 +129624,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.000018245955
-      minScalar: 0.0000121639705
+      scalar: 0.06
+      minScalar: 0.04
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -130204,7 +130075,7 @@ ParticleSystem:
     m_Sprite: {fileID: 0}
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
-    m_UseMeshColors: 1
+    m_UseMeshColors: 0
     alignToDirection: 0
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
@@ -134257,6 +134128,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -134265,12 +134137,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -134304,7 +134173,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -134319,7 +134188,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -134390,54 +134259,83 @@ MonoBehaviour:
   nightFogColor: {r: 0.01, g: 0.04, b: 0.12, a: 1}
   fogDensity: 0.04
   nightAmbientIntensity: 0.2
---- !u!28 &1945855553
-Texture2D:
+--- !u!21 &1945855553
+Material:
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ProceduralSoftCircle
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 2
-  m_Width: 64
-  m_Height: 64
-  m_CompleteImageSize: 16384
-  m_MipsStripped: 0
-  m_TextureFormat: 4
-  m_MipCount: 1
-  m_IsReadable: 1
-  m_IsPreProcessed: 0
-  m_IgnoreMipmapLimit: 0
-  m_MipmapLimitGroupName: 
-  m_StreamingMipmaps: 0
-  m_StreamingMipmapsPriority: 0
-  m_VTOnly: 0
-  m_AlphaIsTransparency: 0
-  m_ImageCount: 1
-  m_TextureDimension: 2
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_LightmapFormat: 0
-  m_ColorSpace: 1
-  m_PlatformBlob: 
-  image data: 16384
-  _typelessdata: ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff01ffffff01ffffff01ffffff01ffffff02ffffff02ffffff02ffffff02ffffff01ffffff01ffffff01ffffff01ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff01ffffff02ffffff02ffffff02ffffff02ffffff03ffffff03ffffff03ffffff03ffffff03ffffff03ffffff03ffffff03ffffff02ffffff02ffffff02ffffff02ffffff01ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff02ffffff03ffffff03ffffff03ffffff04ffffff04ffffff05ffffff05ffffff05ffffff05ffffff05ffffff05ffffff05ffffff05ffffff04ffffff04ffffff03ffffff03ffffff03ffffff02ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff02ffffff03ffffff04ffffff04ffffff05ffffff06ffffff06ffffff07ffffff07ffffff07ffffff07ffffff08ffffff08ffffff07ffffff07ffffff07ffffff07ffffff06ffffff06ffffff05ffffff04ffffff04ffffff03ffffff02ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff02ffffff03ffffff04ffffff05ffffff06ffffff07ffffff07ffffff08ffffff09ffffff09ffffff0affffff0affffff0affffff0bffffff0bffffff0affffff0affffff0affffff09ffffff09ffffff08ffffff07ffffff07ffffff06ffffff05ffffff04ffffff03ffffff02ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff02ffffff03ffffff04ffffff05ffffff06ffffff07ffffff08ffffff09ffffff0affffff0bffffff0cffffff0dffffff0dffffff0effffff0effffff0effffff0effffff0effffff0effffff0dffffff0dffffff0cffffff0bffffff0affffff09ffffff08ffffff07ffffff06ffffff05ffffff04ffffff03ffffff02ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff04ffffff05ffffff06ffffff07ffffff08ffffff0affffff0bffffff0cffffff0dffffff0effffff0fffffff10ffffff11ffffff11ffffff12ffffff12ffffff12ffffff12ffffff11ffffff11ffffff10ffffff0fffffff0effffff0dffffff0cffffff0bffffff0affffff08ffffff07ffffff06ffffff05ffffff04ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff04ffffff05ffffff07ffffff08ffffff0affffff0bffffff0dffffff0effffff10ffffff11ffffff12ffffff13ffffff14ffffff15ffffff16ffffff16ffffff16ffffff16ffffff16ffffff16ffffff15ffffff14ffffff13ffffff12ffffff11ffffff10ffffff0effffff0dffffff0bffffff0affffff08ffffff07ffffff05ffffff04ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff05ffffff06ffffff08ffffff09ffffff0bffffff0dffffff0effffff10ffffff12ffffff14ffffff15ffffff17ffffff18ffffff19ffffff1affffff1bffffff1bffffff1bffffff1bffffff1bffffff1bffffff1affffff19ffffff18ffffff17ffffff15ffffff14ffffff12ffffff10ffffff0effffff0dffffff0bffffff09ffffff08ffffff06ffffff05ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff05ffffff06ffffff08ffffff0affffff0cffffff0effffff10ffffff12ffffff14ffffff16ffffff18ffffff1affffff1bffffff1dffffff1effffff1fffffff20ffffff21ffffff21ffffff21ffffff21ffffff20ffffff1fffffff1effffff1dffffff1bffffff1affffff18ffffff16ffffff14ffffff12ffffff10ffffff0effffff0cffffff0affffff08ffffff06ffffff05ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff05ffffff07ffffff08ffffff0affffff0dffffff0fffffff11ffffff13ffffff16ffffff18ffffff1affffff1dffffff1fffffff21ffffff22ffffff24ffffff25ffffff26ffffff27ffffff27ffffff27ffffff27ffffff26ffffff25ffffff24ffffff22ffffff21ffffff1fffffff1dffffff1affffff18ffffff16ffffff13ffffff11ffffff0fffffff0dffffff0affffff08ffffff07ffffff05ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff08ffffff0bffffff0dffffff0fffffff12ffffff15ffffff17ffffff1affffff1dffffff1fffffff22ffffff24ffffff26ffffff28ffffff2affffff2bffffff2cffffff2dffffff2dffffff2dffffff2dffffff2cffffff2bffffff2affffff28ffffff26ffffff24ffffff22ffffff1fffffff1dffffff1affffff17ffffff15ffffff12ffffff0fffffff0dffffff0bffffff08ffffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff06ffffff08ffffff0bffffff0dffffff10ffffff13ffffff15ffffff18ffffff1bffffff1effffff21ffffff24ffffff27ffffff2affffff2cffffff2effffff30ffffff32ffffff33ffffff34ffffff34ffffff34ffffff34ffffff33ffffff32ffffff30ffffff2effffff2cffffff2affffff27ffffff24ffffff21ffffff1effffff1bffffff18ffffff15ffffff13ffffff10ffffff0dffffff0bffffff08ffffff06ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff04ffffff06ffffff08ffffff0affffff0dffffff10ffffff13ffffff16ffffff19ffffff1cffffff20ffffff23ffffff27ffffff2affffff2dffffff30ffffff33ffffff35ffffff37ffffff39ffffff3affffff3bffffff3cffffff3cffffff3bffffff3affffff39ffffff37ffffff35ffffff33ffffff30ffffff2dffffff2affffff27ffffff23ffffff20ffffff1cffffff19ffffff16ffffff13ffffff10ffffff0dffffff0affffff08ffffff06ffffff04ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff05ffffff08ffffff0affffff0dffffff0fffffff13ffffff16ffffff19ffffff1dffffff21ffffff24ffffff28ffffff2cffffff30ffffff33ffffff36ffffff39ffffff3cffffff3fffffff41ffffff42ffffff43ffffff44ffffff44ffffff43ffffff42ffffff41ffffff3fffffff3cffffff39ffffff36ffffff33ffffff30ffffff2cffffff28ffffff24ffffff21ffffff1dffffff19ffffff16ffffff13ffffff0fffffff0dffffff0affffff08ffffff05ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff09ffffff0cffffff0fffffff12ffffff15ffffff19ffffff1dffffff21ffffff25ffffff29ffffff2dffffff31ffffff36ffffff39ffffff3dffffff41ffffff44ffffff46ffffff49ffffff4affffff4cffffff4cffffff4cffffff4cffffff4affffff49ffffff46ffffff44ffffff41ffffff3dffffff39ffffff36ffffff31ffffff2dffffff29ffffff25ffffff21ffffff1dffffff19ffffff15ffffff12ffffff0fffffff0cffffff09ffffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff08ffffff0bffffff0effffff11ffffff15ffffff18ffffff1cffffff21ffffff25ffffff29ffffff2effffff33ffffff37ffffff3cffffff40ffffff44ffffff48ffffff4cffffff4fffffff51ffffff53ffffff54ffffff55ffffff55ffffff54ffffff53ffffff51ffffff4fffffff4cffffff48ffffff44ffffff40ffffff3cffffff37ffffff33ffffff2effffff29ffffff25ffffff21ffffff1cffffff18ffffff15ffffff11ffffff0effffff0bffffff08ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0dffffff10ffffff13ffffff17ffffff1bffffff20ffffff24ffffff29ffffff2effffff33ffffff38ffffff3dffffff42ffffff47ffffff4cffffff50ffffff54ffffff57ffffff5affffff5cffffff5effffff5fffffff5fffffff5effffff5cffffff5affffff57ffffff54ffffff50ffffff4cffffff47ffffff42ffffff3dffffff38ffffff33ffffff2effffff29ffffff24ffffff20ffffff1bffffff17ffffff13ffffff10ffffff0dffffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff08ffffff0bffffff0effffff12ffffff16ffffff1affffff1effffff23ffffff28ffffff2dffffff33ffffff38ffffff3effffff43ffffff49ffffff4effffff53ffffff58ffffff5cffffff60ffffff63ffffff66ffffff68ffffff69ffffff69ffffff68ffffff66ffffff63ffffff60ffffff5cffffff58ffffff53ffffff4effffff49ffffff43ffffff3effffff38ffffff33ffffff2dffffff28ffffff23ffffff1effffff1affffff16ffffff12ffffff0effffff0bffffff08ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0dffffff10ffffff14ffffff18ffffff1dffffff21ffffff27ffffff2cffffff31ffffff37ffffff3dffffff43ffffff49ffffff4fffffff55ffffff5bffffff60ffffff65ffffff69ffffff6dffffff70ffffff72ffffff73ffffff73ffffff72ffffff70ffffff6dffffff69ffffff65ffffff60ffffff5bffffff55ffffff4fffffff49ffffff43ffffff3dffffff37ffffff31ffffff2cffffff27ffffff21ffffff1dffffff18ffffff14ffffff10ffffff0dffffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff08ffffff0bffffff0effffff12ffffff16ffffff1affffff1fffffff24ffffff2affffff30ffffff36ffffff3cffffff42ffffff49ffffff4fffffff56ffffff5cffffff63ffffff69ffffff6effffff73ffffff77ffffff7affffff7dffffff7effffff7effffff7dffffff7affffff77ffffff73ffffff6effffff69ffffff63ffffff5cffffff56ffffff4fffffff49ffffff42ffffff3cffffff36ffffff30ffffff2affffff24ffffff1fffffff1affffff16ffffff12ffffff0effffff0bffffff08ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff03ffffff04ffffff07ffffff09ffffff0cffffff10ffffff14ffffff18ffffff1dffffff22ffffff27ffffff2dffffff33ffffff39ffffff40ffffff47ffffff4effffff55ffffff5cffffff63ffffff6affffff71ffffff77ffffff7dffffff82ffffff85ffffff88ffffff89ffffff89ffffff88ffffff85ffffff82ffffff7dffffff77ffffff71ffffff6affffff63ffffff5cffffff55ffffff4effffff47ffffff40ffffff39ffffff33ffffff2dffffff27ffffff22ffffff1dffffff18ffffff14ffffff10ffffff0cffffff09ffffff07ffffff04ffffff03ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0dffffff11ffffff15ffffff1affffff1fffffff24ffffff2affffff30ffffff36ffffff3dffffff44ffffff4cffffff53ffffff5bffffff63ffffff6affffff72ffffff79ffffff80ffffff87ffffff8cffffff91ffffff94ffffff95ffffff95ffffff94ffffff91ffffff8cffffff87ffffff80ffffff79ffffff72ffffff6affffff63ffffff5bffffff53ffffff4cffffff44ffffff3dffffff36ffffff30ffffff2affffff24ffffff1fffffff1affffff15ffffff11ffffff0dffffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff06ffffff08ffffff0bffffff0effffff12ffffff17ffffff1bffffff21ffffff26ffffff2cffffff33ffffff39ffffff41ffffff48ffffff50ffffff58ffffff60ffffff69ffffff71ffffff79ffffff82ffffff89ffffff91ffffff97ffffff9cffffffa0ffffffa2ffffffa2ffffffa0ffffff9cffffff97ffffff91ffffff89ffffff82ffffff79ffffff71ffffff69ffffff60ffffff58ffffff50ffffff48ffffff41ffffff39ffffff33ffffff2cffffff26ffffff21ffffff1bffffff17ffffff12ffffff0effffff0bffffff08ffffff06ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff09ffffff0cffffff0fffffff13ffffff18ffffff1dffffff22ffffff28ffffff2effffff35ffffff3cffffff44ffffff4cffffff54ffffff5cffffff65ffffff6effffff77ffffff80ffffff89ffffff92ffffff9affffffa2ffffffa8ffffffacffffffafffffffafffffffacffffffa8ffffffa2ffffff9affffff92ffffff89ffffff80ffffff77ffffff6effffff65ffffff5cffffff54ffffff4cffffff44ffffff3cffffff35ffffff2effffff28ffffff22ffffff1dffffff18ffffff13ffffff0fffffff0cffffff09ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff07ffffff09ffffff0dffffff10ffffff14ffffff19ffffff1effffff24ffffff2affffff30ffffff37ffffff3fffffff46ffffff4fffffff57ffffff60ffffff69ffffff73ffffff7dffffff87ffffff91ffffff9affffffa4ffffffacffffffb4ffffffb9ffffffbcffffffbcffffffb9ffffffb4ffffffacffffffa4ffffff9affffff91ffffff87ffffff7dffffff73ffffff69ffffff60ffffff57ffffff4fffffff46ffffff3fffffff37ffffff30ffffff2affffff24ffffff1effffff19ffffff14ffffff10ffffff0dffffff09ffffff07ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff03ffffff05ffffff07ffffff0affffff0dffffff11ffffff15ffffff1affffff1fffffff25ffffff2bffffff32ffffff39ffffff41ffffff49ffffff51ffffff5affffff63ffffff6dffffff77ffffff82ffffff8cffffff97ffffffa2ffffffacffffffb6ffffffbfffffffc6ffffffcaffffffcaffffffc6ffffffbfffffffb6ffffffacffffffa2ffffff97ffffff8cffffff82ffffff77ffffff6dffffff63ffffff5affffff51ffffff49ffffff41ffffff39ffffff32ffffff2bffffff25ffffff1fffffff1affffff15ffffff11ffffff0dffffff0affffff07ffffff05ffffff03ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff03ffffff05ffffff07ffffff0affffff0effffff11ffffff16ffffff1bffffff20ffffff26ffffff2cffffff33ffffff3affffff42ffffff4affffff53ffffff5cffffff66ffffff70ffffff7affffff85ffffff91ffffff9cffffffa8ffffffb4ffffffbfffffffcaffffffd3ffffffd8ffffffd8ffffffd3ffffffcaffffffbfffffffb4ffffffa8ffffff9cffffff91ffffff85ffffff7affffff70ffffff66ffffff5cffffff53ffffff4affffff42ffffff3affffff33ffffff2cffffff26ffffff20ffffff1bffffff16ffffff11ffffff0effffff0affffff07ffffff05ffffff03ffffff01ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0effffff12ffffff16ffffff1bffffff21ffffff27ffffff2dffffff34ffffff3bffffff43ffffff4cffffff54ffffff5effffff68ffffff72ffffff7dffffff88ffffff94ffffffa0ffffffacffffffb9ffffffc6ffffffd3ffffffdeffffffe6ffffffe6ffffffdeffffffd3ffffffc6ffffffb9ffffffacffffffa0ffffff94ffffff88ffffff7dffffff72ffffff68ffffff5effffff54ffffff4cffffff43ffffff3bffffff34ffffff2dffffff27ffffff21ffffff1bffffff16ffffff12ffffff0effffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff08ffffff0bffffff0effffff12ffffff16ffffff1bffffff21ffffff27ffffff2dffffff34ffffff3cffffff44ffffff4cffffff55ffffff5fffffff69ffffff73ffffff7effffff89ffffff95ffffffa2ffffffafffffffbcffffffcaffffffd8ffffffe6fffffff4fffffff4ffffffe6ffffffd8ffffffcaffffffbcffffffafffffffa2ffffff95ffffff89ffffff7effffff73ffffff69ffffff5fffffff55ffffff4cffffff44ffffff3cffffff34ffffff2dffffff27ffffff21ffffff1bffffff16ffffff12ffffff0effffff0bffffff08ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff08ffffff0bffffff0effffff12ffffff16ffffff1bffffff21ffffff27ffffff2dffffff34ffffff3cffffff44ffffff4cffffff55ffffff5fffffff69ffffff73ffffff7effffff89ffffff95ffffffa2ffffffafffffffbcffffffcaffffffd8ffffffe6fffffff4fffffff4ffffffe6ffffffd8ffffffcaffffffbcffffffafffffffa2ffffff95ffffff89ffffff7effffff73ffffff69ffffff5fffffff55ffffff4cffffff44ffffff3cffffff34ffffff2dffffff27ffffff21ffffff1bffffff16ffffff12ffffff0effffff0bffffff08ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0effffff12ffffff16ffffff1bffffff21ffffff27ffffff2dffffff34ffffff3bffffff43ffffff4cffffff54ffffff5effffff68ffffff72ffffff7dffffff88ffffff94ffffffa0ffffffacffffffb9ffffffc6ffffffd3ffffffdeffffffe6ffffffe6ffffffdeffffffd3ffffffc6ffffffb9ffffffacffffffa0ffffff94ffffff88ffffff7dffffff72ffffff68ffffff5effffff54ffffff4cffffff43ffffff3bffffff34ffffff2dffffff27ffffff21ffffff1bffffff16ffffff12ffffff0effffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff01ffffff03ffffff05ffffff07ffffff0affffff0effffff11ffffff16ffffff1bffffff20ffffff26ffffff2cffffff33ffffff3affffff42ffffff4affffff53ffffff5cffffff66ffffff70ffffff7affffff85ffffff91ffffff9cffffffa8ffffffb4ffffffbfffffffcaffffffd3ffffffd8ffffffd8ffffffd3ffffffcaffffffbfffffffb4ffffffa8ffffff9cffffff91ffffff85ffffff7affffff70ffffff66ffffff5cffffff53ffffff4affffff42ffffff3affffff33ffffff2cffffff26ffffff20ffffff1bffffff16ffffff11ffffff0effffff0affffff07ffffff05ffffff03ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff03ffffff05ffffff07ffffff0affffff0dffffff11ffffff15ffffff1affffff1fffffff25ffffff2bffffff32ffffff39ffffff41ffffff49ffffff51ffffff5affffff63ffffff6dffffff77ffffff82ffffff8cffffff97ffffffa2ffffffacffffffb6ffffffbfffffffc6ffffffcaffffffcaffffffc6ffffffbfffffffb6ffffffacffffffa2ffffff97ffffff8cffffff82ffffff77ffffff6dffffff63ffffff5affffff51ffffff49ffffff41ffffff39ffffff32ffffff2bffffff25ffffff1fffffff1affffff15ffffff11ffffff0dffffff0affffff07ffffff05ffffff03ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff07ffffff09ffffff0dffffff10ffffff14ffffff19ffffff1effffff24ffffff2affffff30ffffff37ffffff3fffffff46ffffff4fffffff57ffffff60ffffff69ffffff73ffffff7dffffff87ffffff91ffffff9affffffa4ffffffacffffffb4ffffffb9ffffffbcffffffbcffffffb9ffffffb4ffffffacffffffa4ffffff9affffff91ffffff87ffffff7dffffff73ffffff69ffffff60ffffff57ffffff4fffffff46ffffff3fffffff37ffffff30ffffff2affffff24ffffff1effffff19ffffff14ffffff10ffffff0dffffff09ffffff07ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff09ffffff0cffffff0fffffff13ffffff18ffffff1dffffff22ffffff28ffffff2effffff35ffffff3cffffff44ffffff4cffffff54ffffff5cffffff65ffffff6effffff77ffffff80ffffff89ffffff92ffffff9affffffa2ffffffa8ffffffacffffffafffffffafffffffacffffffa8ffffffa2ffffff9affffff92ffffff89ffffff80ffffff77ffffff6effffff65ffffff5cffffff54ffffff4cffffff44ffffff3cffffff35ffffff2effffff28ffffff22ffffff1dffffff18ffffff13ffffff0fffffff0cffffff09ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff06ffffff08ffffff0bffffff0effffff12ffffff17ffffff1bffffff21ffffff26ffffff2cffffff33ffffff39ffffff41ffffff48ffffff50ffffff58ffffff60ffffff69ffffff71ffffff79ffffff82ffffff89ffffff91ffffff97ffffff9cffffffa0ffffffa2ffffffa2ffffffa0ffffff9cffffff97ffffff91ffffff89ffffff82ffffff79ffffff71ffffff69ffffff60ffffff58ffffff50ffffff48ffffff41ffffff39ffffff33ffffff2cffffff26ffffff21ffffff1bffffff17ffffff12ffffff0effffff0bffffff08ffffff06ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0dffffff11ffffff15ffffff1affffff1fffffff24ffffff2affffff30ffffff36ffffff3dffffff44ffffff4cffffff53ffffff5bffffff63ffffff6affffff72ffffff79ffffff80ffffff87ffffff8cffffff91ffffff94ffffff95ffffff95ffffff94ffffff91ffffff8cffffff87ffffff80ffffff79ffffff72ffffff6affffff63ffffff5bffffff53ffffff4cffffff44ffffff3dffffff36ffffff30ffffff2affffff24ffffff1fffffff1affffff15ffffff11ffffff0dffffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff03ffffff04ffffff07ffffff09ffffff0cffffff10ffffff14ffffff18ffffff1dffffff22ffffff27ffffff2dffffff33ffffff39ffffff40ffffff47ffffff4effffff55ffffff5cffffff63ffffff6affffff71ffffff77ffffff7dffffff82ffffff85ffffff88ffffff89ffffff89ffffff88ffffff85ffffff82ffffff7dffffff77ffffff71ffffff6affffff63ffffff5cffffff55ffffff4effffff47ffffff40ffffff39ffffff33ffffff2dffffff27ffffff22ffffff1dffffff18ffffff14ffffff10ffffff0cffffff09ffffff07ffffff04ffffff03ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff08ffffff0bffffff0effffff12ffffff16ffffff1affffff1fffffff24ffffff2affffff30ffffff36ffffff3cffffff42ffffff49ffffff4fffffff56ffffff5cffffff63ffffff69ffffff6effffff73ffffff77ffffff7affffff7dffffff7effffff7effffff7dffffff7affffff77ffffff73ffffff6effffff69ffffff63ffffff5cffffff56ffffff4fffffff49ffffff42ffffff3cffffff36ffffff30ffffff2affffff24ffffff1fffffff1affffff16ffffff12ffffff0effffff0bffffff08ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0dffffff10ffffff14ffffff18ffffff1dffffff21ffffff27ffffff2cffffff31ffffff37ffffff3dffffff43ffffff49ffffff4fffffff55ffffff5bffffff60ffffff65ffffff69ffffff6dffffff70ffffff72ffffff73ffffff73ffffff72ffffff70ffffff6dffffff69ffffff65ffffff60ffffff5bffffff55ffffff4fffffff49ffffff43ffffff3dffffff37ffffff31ffffff2cffffff27ffffff21ffffff1dffffff18ffffff14ffffff10ffffff0dffffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff08ffffff0bffffff0effffff12ffffff16ffffff1affffff1effffff23ffffff28ffffff2dffffff33ffffff38ffffff3effffff43ffffff49ffffff4effffff53ffffff58ffffff5cffffff60ffffff63ffffff66ffffff68ffffff69ffffff69ffffff68ffffff66ffffff63ffffff60ffffff5cffffff58ffffff53ffffff4effffff49ffffff43ffffff3effffff38ffffff33ffffff2dffffff28ffffff23ffffff1effffff1affffff16ffffff12ffffff0effffff0bffffff08ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff0affffff0dffffff10ffffff13ffffff17ffffff1bffffff20ffffff24ffffff29ffffff2effffff33ffffff38ffffff3dffffff42ffffff47ffffff4cffffff50ffffff54ffffff57ffffff5affffff5cffffff5effffff5fffffff5fffffff5effffff5cffffff5affffff57ffffff54ffffff50ffffff4cffffff47ffffff42ffffff3dffffff38ffffff33ffffff2effffff29ffffff24ffffff20ffffff1bffffff17ffffff13ffffff10ffffff0dffffff0affffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff06ffffff08ffffff0bffffff0effffff11ffffff15ffffff18ffffff1cffffff21ffffff25ffffff29ffffff2effffff33ffffff37ffffff3cffffff40ffffff44ffffff48ffffff4cffffff4fffffff51ffffff53ffffff54ffffff55ffffff55ffffff54ffffff53ffffff51ffffff4fffffff4cffffff48ffffff44ffffff40ffffff3cffffff37ffffff33ffffff2effffff29ffffff25ffffff21ffffff1cffffff18ffffff15ffffff11ffffff0effffff0bffffff08ffffff06ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff09ffffff0cffffff0fffffff12ffffff15ffffff19ffffff1dffffff21ffffff25ffffff29ffffff2dffffff31ffffff36ffffff39ffffff3dffffff41ffffff44ffffff46ffffff49ffffff4affffff4cffffff4cffffff4cffffff4cffffff4affffff49ffffff46ffffff44ffffff41ffffff3dffffff39ffffff36ffffff31ffffff2dffffff29ffffff25ffffff21ffffff1dffffff19ffffff15ffffff12ffffff0fffffff0cffffff09ffffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff04ffffff05ffffff08ffffff0affffff0dffffff0fffffff13ffffff16ffffff19ffffff1dffffff21ffffff24ffffff28ffffff2cffffff30ffffff33ffffff36ffffff39ffffff3cffffff3fffffff41ffffff42ffffff43ffffff44ffffff44ffffff43ffffff42ffffff41ffffff3fffffff3cffffff39ffffff36ffffff33ffffff30ffffff2cffffff28ffffff24ffffff21ffffff1dffffff19ffffff16ffffff13ffffff0fffffff0dffffff0affffff08ffffff05ffffff04ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff04ffffff06ffffff08ffffff0affffff0dffffff10ffffff13ffffff16ffffff19ffffff1cffffff20ffffff23ffffff27ffffff2affffff2dffffff30ffffff33ffffff35ffffff37ffffff39ffffff3affffff3bffffff3cffffff3cffffff3bffffff3affffff39ffffff37ffffff35ffffff33ffffff30ffffff2dffffff2affffff27ffffff23ffffff20ffffff1cffffff19ffffff16ffffff13ffffff10ffffff0dffffff0affffff08ffffff06ffffff04ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff06ffffff08ffffff0bffffff0dffffff10ffffff13ffffff15ffffff18ffffff1bffffff1effffff21ffffff24ffffff27ffffff2affffff2cffffff2effffff30ffffff32ffffff33ffffff34ffffff34ffffff34ffffff34ffffff33ffffff32ffffff30ffffff2effffff2cffffff2affffff27ffffff24ffffff21ffffff1effffff1bffffff18ffffff15ffffff13ffffff10ffffff0dffffff0bffffff08ffffff06ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff03ffffff05ffffff07ffffff08ffffff0bffffff0dffffff0fffffff12ffffff15ffffff17ffffff1affffff1dffffff1fffffff22ffffff24ffffff26ffffff28ffffff2affffff2bffffff2cffffff2dffffff2dffffff2dffffff2dffffff2cffffff2bffffff2affffff28ffffff26ffffff24ffffff22ffffff1fffffff1dffffff1affffff17ffffff15ffffff12ffffff0fffffff0dffffff0bffffff08ffffff07ffffff05ffffff03ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff05ffffff07ffffff08ffffff0affffff0dffffff0fffffff11ffffff13ffffff16ffffff18ffffff1affffff1dffffff1fffffff21ffffff22ffffff24ffffff25ffffff26ffffff27ffffff27ffffff27ffffff27ffffff26ffffff25ffffff24ffffff22ffffff21ffffff1fffffff1dffffff1affffff18ffffff16ffffff13ffffff11ffffff0fffffff0dffffff0affffff08ffffff07ffffff05ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff05ffffff06ffffff08ffffff0affffff0cffffff0effffff10ffffff12ffffff14ffffff16ffffff18ffffff1affffff1bffffff1dffffff1effffff1fffffff20ffffff21ffffff21ffffff21ffffff21ffffff20ffffff1fffffff1effffff1dffffff1bffffff1affffff18ffffff16ffffff14ffffff12ffffff10ffffff0effffff0cffffff0affffff08ffffff06ffffff05ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff05ffffff06ffffff08ffffff09ffffff0bffffff0dffffff0effffff10ffffff12ffffff14ffffff15ffffff17ffffff18ffffff19ffffff1affffff1bffffff1bffffff1bffffff1bffffff1bffffff1bffffff1affffff19ffffff18ffffff17ffffff15ffffff14ffffff12ffffff10ffffff0effffff0dffffff0bffffff09ffffff08ffffff06ffffff05ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff04ffffff05ffffff07ffffff08ffffff0affffff0bffffff0dffffff0effffff10ffffff11ffffff12ffffff13ffffff14ffffff15ffffff16ffffff16ffffff16ffffff16ffffff16ffffff16ffffff15ffffff14ffffff13ffffff12ffffff11ffffff10ffffff0effffff0dffffff0bffffff0affffff08ffffff07ffffff05ffffff04ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff03ffffff04ffffff05ffffff06ffffff07ffffff08ffffff0affffff0bffffff0cffffff0dffffff0effffff0fffffff10ffffff11ffffff11ffffff12ffffff12ffffff12ffffff12ffffff11ffffff11ffffff10ffffff0fffffff0effffff0dffffff0cffffff0bffffff0affffff08ffffff07ffffff06ffffff05ffffff04ffffff03ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff02ffffff02ffffff03ffffff04ffffff05ffffff06ffffff07ffffff08ffffff09ffffff0affffff0bffffff0cffffff0dffffff0dffffff0effffff0effffff0effffff0effffff0effffff0effffff0dffffff0dffffff0cffffff0bffffff0affffff09ffffff08ffffff07ffffff06ffffff05ffffff04ffffff03ffffff02ffffff02ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff02ffffff03ffffff04ffffff05ffffff06ffffff07ffffff07ffffff08ffffff09ffffff09ffffff0affffff0affffff0affffff0bffffff0bffffff0affffff0affffff0affffff09ffffff09ffffff08ffffff07ffffff07ffffff06ffffff05ffffff04ffffff03ffffff02ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff02ffffff03ffffff04ffffff04ffffff05ffffff06ffffff06ffffff07ffffff07ffffff07ffffff07ffffff08ffffff08ffffff07ffffff07ffffff07ffffff07ffffff06ffffff06ffffff05ffffff04ffffff04ffffff03ffffff02ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff02ffffff02ffffff03ffffff03ffffff03ffffff04ffffff04ffffff05ffffff05ffffff05ffffff05ffffff05ffffff05ffffff05ffffff05ffffff04ffffff04ffffff03ffffff03ffffff03ffffff02ffffff02ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff01ffffff02ffffff02ffffff02ffffff02ffffff03ffffff03ffffff03ffffff03ffffff03ffffff03ffffff03ffffff03ffffff02ffffff02ffffff02ffffff02ffffff01ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff01ffffff01ffffff01ffffff01ffffff02ffffff02ffffff02ffffff02ffffff01ffffff01ffffff01ffffff01ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff01ffffff01ffffff01ffffff01ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00ffffff00
-  m_StreamData:
-    serializedVersion: 2
-    offset: 0
-    size: 0
-    path: 
+  m_Name: GlowingSphereParticle
+  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _EMISSION
+  - _SURFACE_TYPE_TRANSPARENT
+  m_InvalidKeywords:
+  - SOFTPARTICLES_ON
+  - _ALPHABLEND_ON
+  - _FLIPBOOKBLENDING_OFF
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 294740769}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _BlendOp: 0
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 2
+    - _CameraNearFadeDistance: 1
+    - _ColorMode: 0
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DistortionBlend: 0.5
+    - _DistortionEnabled: 0
+    - _DistortionStrength: 1
+    - _DistortionStrengthScaled: 0.1
+    - _DstBlend: 10
+    - _DstBlendAlpha: 0
+    - _FlipbookBlending: 0
+    - _FlipbookMode: 0
+    - _Mode: 0
+    - _QueueOffset: 0
+    - _SoftParticlesEnabled: 0
+    - _SoftParticlesFarFadeDistance: 1
+    - _SoftParticlesNearFadeDistance: 0
+    - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
+    - _Surface: 1
+    - _ZWrite: 0
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
+    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1001 &1954708470
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -134630,6 +134528,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -134638,12 +134537,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -134677,7 +134573,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -134692,7 +134588,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -134897,6 +134793,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -134905,12 +134802,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -134944,7 +134838,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -134959,7 +134853,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -135090,7 +134984,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 212493089}
+  - {fileID: 204203391}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -135333,7 +135227,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 0.6830188, g: 0.4198154, b: 0.04510492, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -139896,6 +139790,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - SOFTPARTICLES_ON
@@ -139904,12 +139799,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
-  disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -139943,7 +139835,7 @@ Material:
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlendAlpha: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
     - _Mode: 0
@@ -139958,7 +139850,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _CameraFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 3, g: 3, b: 3, a: 3}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -140172,7 +140064,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1087767134}
+  - {fileID: 1159794458}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -140415,7 +140307,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 0.2981131, g: 0.28742602, b: 0.28742602, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -144992,7 +144884,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 742741895}
+  - {fileID: 904958589}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -145234,8 +145126,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.090957604, g: 0.2754717, b: 0.17980482, a: 0.5}
-      maxColor: {r: 0.02804552, g: 0.16947907, b: 0.381132, a: 1}
+      minColor: {r: 1, g: 1, b: 1, a: 0.5}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}

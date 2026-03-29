@@ -29,9 +29,11 @@ public class ParticleContainerTool
             transparentMat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             transparentMat.EnableKeyword("_ALPHABLEND_ON");
             transparentMat.renderQueue = 3000;
-            transparentMat.SetColor("_BaseColor", new Color(1f, 1f, 1f, 0.05f)); 
             AssetDatabase.CreateAsset(transparentMat, "Assets/Materials/HoloTransparentUnlit.mat");
         }
+        
+        // 强制把已经存在于硬盘里的那个旧 5% 材质的 Alpha 属性刷成完全透明！
+        transparentMat.SetColor("_BaseColor", new Color(0f, 0f, 0f, 0f));
 
         System.Collections.Generic.HashSet<GameObject> processed = new System.Collections.Generic.HashSet<GameObject>();
 
@@ -65,11 +67,14 @@ public class ParticleContainerTool
                 if (processed.Contains(obj)) continue;
                 processed.Add(obj);
 
-                // 统一替换所有副材质
+                // 统一替换所有副材质，并且强制让 Unity 的相机忽略渲染它的肉身
                 Undo.RecordObject(renderer, "Change Material to Glass");
                 Material[] newMats = new Material[renderer.sharedMaterials.Length];
                 for (int i = 0; i < newMats.Length; i++) newMats[i] = transparentMat;
                 renderer.sharedMaterials = newMats;
+                
+                // 终极绝杀：直接让 Unity 引擎在画图时彻底跳过这个包围盒（还能节省极大地性能损耗），只渲染它生成的粒子！
+                renderer.forceRenderingOff = true;
 
                 // 智能计算物体的表面积来决定粒子密度
                 Bounds bounds = renderer.bounds;

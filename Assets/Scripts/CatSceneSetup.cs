@@ -241,35 +241,62 @@ public class CatTouchReceiver : MonoBehaviour
         // 简易判断：只要接触物是玩家手柄/手
         if (other.CompareTag("PlayerHand") || other.name.ToLower().Contains("hand") || other.name.ToLower().Contains("controller"))
         {
-            lastTouchTime = Time.time;
-            
-            Debug.Log($"[CatInteraction] Player touched {bodyPart}");
+            TriggerCat();
+        }
+    }
 
-            if (audioSource != null && audioSource.clip != null)
+    void Update()
+    {
+        // ================= PC端快速测试 =================
+        // 按下键盘上对应的字母可以不用戴头显直接测试！
+        if (bodyPart == CatPart.Head && Input.GetKeyDown(KeyCode.H))
+        {
+            Debug.Log("[CatInteraction] PC Keyboard triggered Head.");
+            TriggerCat();
+        }
+        else if (bodyPart == CatPart.Body && Input.GetKeyDown(KeyCode.B))
+        {
+            Debug.Log("[CatInteraction] PC Keyboard triggered Body.");
+            TriggerCat();
+        }
+    }
+
+    private void TriggerCat()
+    {
+        lastTouchTime = Time.time;
+        
+        Debug.Log($"[CatInteraction] Player touched {bodyPart}");
+
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.PlayOneShot(audioSource.clip);
+        }
+        else
+        {
+            Debug.LogWarning($"[Placeholder] No AudioClip attached for Cat {bodyPart}!");
+        }
+
+        // ================= 新增：自动获取并触发 FBX 动画 =================
+        Animator anim = transform.root.GetComponentInChildren<Animator>();
+        if (anim != null)
+        {
+            if (anim.runtimeAnimatorController == null)
             {
-                audioSource.PlayOneShot(audioSource.clip);
+                Debug.LogWarning("⚠️ 猫咪身上的 Animator 没有分配 Controller！所以它没法播放动画。请在 Unity 里右键 Create -> Animator Controller，配好动画后拖给猫咪！");
             }
             else
             {
-                Debug.LogWarning($"[Placeholder] No AudioClip attached for Cat {bodyPart}!");
-            }
-
-            // ================= 新增：自动获取并触发 FBX 动画 =================
-            Animator anim = transform.root.GetComponentInChildren<Animator>();
-            if (anim != null)
-            {
-                // Play(0) 会强制从头播放 Animator 里的默认第一个动画片段
                 anim.Play(0, 0, 0f);
                 Debug.Log("[CatInteraction] Triggered Animator play!");
             }
-            else
+        }
+        else
+        {
+            Animation legacyAnim = transform.root.GetComponentInChildren<Animation>();
+            if (legacyAnim != null)
             {
-                Animation legacyAnim = transform.root.GetComponentInChildren<Animation>();
-                if (legacyAnim != null)
-                {
-                    legacyAnim.Play();
-                    Debug.Log("[CatInteraction] Triggered Legacy Animation play!");
-                }
+                legacyAnim.Play();
+                Debug.Log("[CatInteraction] Triggered Legacy Animation play!");
             }
         }
     }
@@ -297,6 +324,15 @@ public class CampfireInteraction : MonoBehaviour
         // 查找向上的那团喷发火星
         Transform sparks = transform.Find("FireSparksParticles");
         if (sparks != null) sparksPs = sparks.GetComponent<ParticleSystem>();
+    }
+
+    void Update()
+    {
+        // 按下空格键强制触发点火，方便在电脑上不用戴头显直接看特效
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            IgniteFireplace();
+        }
     }
 
     void OnTriggerEnter(Collider other)
