@@ -74,7 +74,9 @@ public class CatSceneSetup : MonoBehaviour
 
         if (fireplaceModel != null) 
         {
-            sparkParent = fireplaceModel;
+            sparkParent = ValidateSceneObject(fireplaceModel, "壁炉篝火 (Fireplace)");
+            if (sparkParent == null) return; // 被拦截了
+            
             
             // 自动为真实的篝火模型添加抓取/触碰碰撞盒
             Collider col = sparkParent.gameObject.GetComponentInChildren<Collider>();
@@ -106,37 +108,42 @@ public class CatSceneSetup : MonoBehaviour
             fireScript.fireplaceAudio = fireplaceAudio;
         }
         
-        // 创建壁炉火星特效 (脱离父物体，绝对防止 FBX 的变态缩放把特效缩成 0.0001 毫米导致看不见)
+        // 获取视觉中心（破除原点偏移）
+        Renderer[] rs = sparkParent.GetComponentsInChildren<Renderer>();
+        Vector3 trueCenter = sparkParent.position;
+        if (rs.Length > 0)
+        {
+            Bounds b = rs[0].bounds;
+            foreach (Renderer r in rs) b.Encapsulate(r.bounds);
+            trueCenter = b.center;
+        }
+
+        // 创建壁炉火星特效 
         GameObject sparks = new GameObject("FireSparksParticles");
-        sparks.transform.position = sparkParent.position + Vector3.up * 0.5f;
-        sparks.transform.localScale = Vector3.one;
+        sparks.transform.SetParent(sparkParent, false); 
+        // 强制把特效生成在真实的网格几何中心附近
+        sparks.transform.position = trueCenter - Vector3.up * 0.2f;
+        sparks.transform.localScale = Vector3.one; // 强行拉回 1:1
 
         ParticleSystem ps = sparks.AddComponent<ParticleSystem>();
         var main = ps.main;
-        // 强制特效使用绝对世界大小，不随父物体畸变
-        main.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        main.loop = true;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(1.5f, 3.0f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(1.0f, 2.5f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.06f);
+        main.scalingMode = ParticleSystemScalingMode.Shape; // 使用 Shape 抵消父级变态缩放
+        main.loop = false; // 严禁自动循环！变成珊瑚那种单次爆发
+        main.playOnAwake = false;
+        
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.3f, 0f, 1f), // 非常红
-            new Color(1f, 0.6f, 0.1f, 1f)  // 橘色
+            new Color(1f, 0.8f, 0.1f, 0.9f), // 黄金色
+            new Color(1f, 0.3f, 0.05f, 0.9f) // 炽红色
         );
         main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = -0.05f; 
 
         var emission = ps.emission;
-        emission.rateOverTime = 40f;
-        
-        // 初始关闭：等玩家碰到了再爆发！
-        if (fireplaceModel != null)
-        {
-            emission.rateOverTime = 0f; 
-        }
+        emission.rateOverTime = 0f; 
 
         var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Box;
-        shape.scale = new Vector3(1.2f, 0.1f, 0.3f);
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.2f; // 缩小范围，让它从火堆中心喷出
 
         var vel = ps.velocityOverLifetime;
         vel.enabled = true;
@@ -169,8 +176,17 @@ public class CatSceneSetup : MonoBehaviour
             sofa.transform.position = new Vector3(0, 0.4f, 0);
             sofa.transform.localScale = new Vector3(2f, 0.6f, 1f);
         }
+        else
+        {
+            sofaModel = ValidateSceneObject(sofaModel, "沙发 (Sofa)");
+        }
 
         // ================= 三只猫专属业务逻辑分发 =================
+        // 防御性检修：防止小白错将底部的 Prefab 文件拖进槽位导致游戏直接崩溃！
+        blackCatModel = ValidateSceneObject(blackCatModel, "黑猫 (Black Cat)");
+        murderedCatModel = ValidateSceneObject(murderedCatModel, "幽灵猫 (Soul Suspect)");
+        toonCatModel = ValidateSceneObject(toonCatModel, "卡通猫 (Toon Cat)");
+
         // 1. 黑猫 (遇人发出凶狠叫声)
         if (blackCatModel != null)
         {
@@ -180,11 +196,10 @@ public class CatSceneSetup : MonoBehaviour
             if (blackCatAggrAudio != null) rec.audioSource = CreateAudioSource(blackCatModel, blackCatAggrAudio);
         }
 
-        // 2. 灵魂疑犯猫 (天然纯动画猫，已经设置了 Loop Time，所以不要加任何额外脚本干扰它)
+        // 2. 灵魂疑犯猫 (暴力死循环脚本注入，保证它至死不渝地动下去)
         if (murderedCatModel != null)
         {
-            // 你已经在 Unity 勾选了 Loop Time，它天然就是无限死循环播放的！
-            // 所以我们彻底拔掉这只猫身上的全部干扰代码，让它原生态活下去。
+            murderedCatModel.gameObject.AddComponent<SofaCatForeverLooper>();
         }
 
         // 3. 卡通猫 (摸一下以后呼噜噜，并触发动画)
@@ -208,6 +223,8 @@ public class CatSceneSetup : MonoBehaviour
 
     void EnsureColliderAndRigidBody(Transform target, Vector3 colSize)
     {
+        if (target == null) return;
+        
         Collider col = target.GetComponentInChildren<Collider>();
         if (col == null)
         {
@@ -219,6 +236,21 @@ public class CatSceneSetup : MonoBehaviour
 
         Rigidbody rb = target.GetComponent<Rigidbody>();
         if (rb == null) { rb = target.gameObject.AddComponent<Rigidbody>(); rb.isKinematic = true; }
+    }
+
+    // 专属校验：阻止跨次元修改 Prefab 文件造成的静默崩溃！
+    Transform ValidateSceneObject(Transform target, string logicName)
+    {
+        if (target == null) return null;
+        
+        // 如果物体不属于任何存在的场景（即属于底层资产文件夹），直接拦截！
+        if (string.IsNullOrEmpty(target.gameObject.scene.name) || target.gameObject.scene.buildIndex < 0)
+        {
+            Debug.LogError($"[极度危险错误] 槽位 {logicName} 拖入了最下方的『文件系统 Prefab』！你不能在运行时修改文件！！！" +
+                           $"【解决方法】：去左边 Hierarchy 清单里，把你之前拉到场景里的模型拖进这个槽位，而不是拖底部文件夹里的图标！");
+            return null; 
+        }
+        return target;
     }
 }
 
@@ -275,48 +307,79 @@ public class CatTouchReceiver : MonoBehaviour
     private float lastTouchTime = -999f;
     private const float Cooldown = 3.0f; // 防止连叫
 
-    void OnTriggerEnter(Collider other)
-    {
-        // 忽略自身
-        if (other.transform.IsChildOf(transform.root)) return; 
-        
-        if (Time.time - lastTouchTime < Cooldown) return;
+    private Renderer statusIndicator; // 状态指示灯
 
-        // 简易判断：避免报错，直接用名字检测
-        string n = other.name.ToLower();
-        if (other.CompareTag("Player") || other.CompareTag("MainCamera") || 
-            n.Contains("hand") || n.Contains("controller") || n.Contains("player") || n.Contains("xr") || n.Contains("vr"))
-        {
-            TriggerCat();
-        }
+    // 获取真实的网格中心，无视模型原点的偏离
+    public Vector3 GetTrueCenter()
+    {
+        Renderer[] rs = GetComponentsInChildren<Renderer>();
+        if (rs.Length == 0) return transform.position;
+        Bounds b = rs[0].bounds;
+        for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
+        return b.center;
+    }
+
+    void Start()
+    {
+        GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        indicator.name = "StatusLight_" + gameObject.name;
+        // 把指示灯挂在网格真正的重心偏上
+        indicator.transform.position = GetTrueCenter() + Vector3.up * 0.8f;
+        indicator.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
+        Destroy(indicator.GetComponent<Collider>());
+        indicator.transform.SetParent(transform, true);
+        
+        statusIndicator = indicator.GetComponent<Renderer>();
+        Material mat = new Material(Shader.Find("Standard"));
+        mat.color = Color.blue; 
+        mat.EnableKeyword("_EMISSION");
+        statusIndicator.material = mat;
     }
 
     void Update()
     {
-        // ================= 终极雷达检测（遍历所有摄像机防止找错对象） =================
         bool playerNearby = false;
         
-        // 我们遍历当前世界上正在渲染的“所有”摄像机（XR双眼相机、主相机）
+        Vector3 center = GetTrueCenter();
+
         foreach (Camera c in Camera.allCameras)
         {
-            Vector2 catPlane = new Vector2(transform.position.x, transform.position.z);
+            Vector2 catPlane = new Vector2(center.x, center.z);
             Vector2 camPlane = new Vector2(c.transform.position.x, c.transform.position.z);
-            
-            // XR头显因为安全边界和 Offset 的问题，它的坐标可能不是真实脑袋，我们把雷达开到 3.0 米死区！
-            if (Vector2.Distance(catPlane, camPlane) < 3.0f)
+            if (Vector2.Distance(catPlane, camPlane) < 4.0f) // 雷达测试：4米
             {
                 playerNearby = true;
                 break;
             }
         }
 
-        // 神级后门：直接按键盘上的 E 键，强制触发互动！
         bool forceInteract = Input.GetKeyDown(KeyCode.E);
 
         if (Time.time - lastTouchTime >= Cooldown && (playerNearby || forceInteract))
         {
-            Debug.Log($"[CatInteraction] Player interacted with {gameObject.name}! (Plane Dist or E Key)");
             TriggerCat();
+        }
+
+        // --- 状态灯反馈：有人靠近变绿，互动中变红，待命蓝 ---
+        if (statusIndicator != null)
+        {
+            if (Time.time - lastTouchTime < Cooldown) 
+            {
+                statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
+                statusIndicator.material.color = Color.red; 
+            }
+            else if (playerNearby) 
+            {
+                // 如果灯变绿了，说明【雷达测定你已经走到它旁边了】！
+                // 这可以直接诊断距离判定代码是否在干活！
+                statusIndicator.material.SetColor("_EmissionColor", Color.green * 2f);
+                statusIndicator.material.color = Color.green;
+            }
+            else 
+            {
+                statusIndicator.material.SetColor("_EmissionColor", Color.blue * 1f);
+                statusIndicator.material.color = Color.blue;
+            }
         }
     }
 
@@ -324,50 +387,50 @@ public class CatTouchReceiver : MonoBehaviour
     private void TriggerCat()
     {
         lastTouchTime = Time.time;
+        if (statusIndicator != null) statusIndicator.material.color = Color.red;
         
         Debug.Log($"[CatInteraction] Player interacted with {catRole} cat!");
 
-        // 【终极瞎子可见测试】如果你没挂载声音，或者没有控制器，你根本不知道交互触发了没有！
-        // 我给你砸出一个巨大的半透明红球，停留 3 秒，只要大红球出现了，就说明系统代码全部顺畅触发成功！！
+        // 【终极可见测试】砸出巨大红球
         GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        debugIndicator.transform.position = transform.position + Vector3.up * 1.5f; // 飘在猫头上
-        debugIndicator.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f); // 绝对够大的警告球
+        debugIndicator.transform.position = transform.position + Vector3.up * 1.5f; 
+        debugIndicator.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f); 
         Destroy(debugIndicator.GetComponent<Collider>());
-        
         Material redMat = new Material(Shader.Find("Standard"));
         redMat.color = Color.red;
-        redMat.EnableKeyword("_EMISSION");
-        redMat.SetColor("_EmissionColor", Color.red * 2f);
         debugIndicator.GetComponent<Renderer>().material = redMat;
-        Destroy(debugIndicator, 3.0f); // 3秒后销毁
+        Destroy(debugIndicator, 2.0f); 
 
-        // 1. 发出对应的声音（如果你加了的话）
-        if (audioSource != null && audioSource.clip != null)
-        {
-            audioSource.PlayOneShot(audioSource.clip);
-        }
-        else
-        {
-            Debug.LogWarning($"[Placeholder] No AudioClip attached for Cat ({catRole})!");
-        }
+        // 播声音、播动画
+        if (audioSource != null && audioSource.clip != null) audioSource.PlayOneShot(audioSource.clip);
 
-        // 2. 如果是呼噜卡通猫，互动后还要配合播放动画！
         if (catRole == CatRole.Purr)
         {
             Animator anim = transform.root.GetComponentInChildren<Animator>();
-            if (anim != null)
+            if (anim != null && anim.runtimeAnimatorController != null)
             {
-                if (anim.runtimeAnimatorController != null)
-                {
-                    int stateHash = anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
-                    anim.Play(stateHash, 0, 0f);
-                    Debug.Log("[CatInteraction] Toon Cat played purring animation!");
-                }
+                anim.Play(0, -1, 0f);
             }
-            else
+        }
+    }
+}
+
+/// <summary>
+/// 专为沙发猫设计的“死不悔改循环脚本”
+/// </summary>
+public class SofaCatForeverLooper : MonoBehaviour
+{
+    private Animator anim;
+    void Start() { anim = GetComponentInChildren<Animator>(); }
+    void Update()
+    {
+        if (anim != null && anim.runtimeAnimatorController != null)
+        {
+            // 如果动画播到了结尾或者没在动，暴力重启！
+            var state = anim.GetCurrentAnimatorStateInfo(0);
+            if (state.normalizedTime >= 0.99f || !anim.enabled)
             {
-                Animation legacyAnim = transform.root.GetComponentInChildren<Animation>();
-                if (legacyAnim != null) legacyAnim.Play();
+                anim.Play(state.fullPathHash, 0, 0f);
             }
         }
     }
@@ -387,27 +450,57 @@ public class CampfireInteraction : MonoBehaviour
 
     private bool isIgnited = false;
 
+    private Renderer statusIndicator; 
+
+    public Vector3 GetTrueCenter()
+    {
+        Renderer[] rs = GetComponentsInChildren<Renderer>();
+        if (rs.Length == 0) return transform.position;
+        Bounds b = rs[0].bounds;
+        for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
+        return b.center;
+    }
+
     void Start()
     {
         containerPs = GetComponent<ParticleSystem>(); 
-        
-        // 查找世界里的特效名字（因为我们把它脱离父级防止了变态缩放）
-        GameObject sparks = GameObject.Find("FireSparksParticles");
+        Transform sparks = transform.Find("FireSparksParticles");
         if (sparks != null) sparksPs = sparks.GetComponent<ParticleSystem>();
+
+        GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        indicator.name = "StatusLight_Campfire";
+        indicator.transform.position = GetTrueCenter() + Vector3.up * 1.5f;
+        indicator.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+        Destroy(indicator.GetComponent<Collider>());
+        indicator.transform.SetParent(transform, true);
+        
+        statusIndicator = indicator.GetComponent<Renderer>();
+        Material mat = new Material(Shader.Find("Standard"));
+        mat.color = Color.blue;
+        mat.EnableKeyword("_EMISSION");
+        statusIndicator.material = mat;
     }
 
     void Update()
     {
-        if (isIgnited) return;
+        if (isIgnited)
+        {
+            if (statusIndicator != null)
+            {
+                statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
+                statusIndicator.material.color = Color.red; 
+            }
+            return;
+        }
 
         bool playerNearby = false;
+        Vector3 center = GetTrueCenter();
         foreach (Camera c in Camera.allCameras)
         {
-            Vector2 firePlane = new Vector2(transform.position.x, transform.position.z);
+            Vector2 firePlane = new Vector2(center.x, center.z);
             Vector2 camPlane = new Vector2(c.transform.position.x, c.transform.position.z);
             
-            // XR 空间放宽到恐怖的 4 米半径雷达！只要你在房间里基本上必触发。
-            if (Vector2.Distance(firePlane, camPlane) < 4.0f) 
+            if (Vector2.Distance(firePlane, camPlane) < 6.0f) // 雷达距离验证：6米
             {
                 playerNearby = true;
                 break;
@@ -416,37 +509,58 @@ public class CampfireInteraction : MonoBehaviour
 
         bool forceInteract = Input.GetKeyDown(KeyCode.E);
 
+        if (statusIndicator != null)
+        {
+            if (playerNearby)
+            {
+                statusIndicator.material.SetColor("_EmissionColor", Color.yellow * 2f);
+                statusIndicator.material.color = Color.yellow;
+            }
+            else
+            {
+                statusIndicator.material.SetColor("_EmissionColor", Color.blue * 1f);
+                statusIndicator.material.color = Color.blue;
+            }
+        }
+
         if (playerNearby || forceInteract)
         {
-            Debug.Log("[CampfireInteraction] Player body or E Key triggered the campfire!");
             IgniteFireplace();
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        // 忽略自身
         if (other.transform.IsChildOf(transform.root)) return; 
-        
         if (Time.time - lastTouchTime < Cooldown) return;
+        
+        Debug.Log($"[CampfireInteraction] 物理碰撞触发！接触者: {other.name}");
+        lastTouchTime = Time.time;
+        IgniteFireplace();
+    }
 
-        // 判断是否是玩家手柄
-        string n = other.name.ToLower();
-        if (other.CompareTag("Player") || other.CompareTag("MainCamera") || 
-            n.Contains("hand") || n.Contains("controller") || n.Contains("player") || n.Contains("xr") || n.Contains("vr"))
-        {
-            lastTouchTime = Time.time;
-            IgniteFireplace();
-        }
+    void OnTriggerStay(Collider other)
+    {
+        if (other.transform.IsChildOf(transform.root)) return; 
+        if (Time.time - lastTouchTime < Cooldown) return;
+        
+        lastTouchTime = Time.time;
+        IgniteFireplace();
     }
 
     [ContextMenu(">>> CLICK ME: FORCE IGNITE FIREPLACE <<<")]
     void IgniteFireplace()
     {
+        // 彻底复刻 Coral 的瞬间爆燃喷射（黄金/黄色粒子效果）
+        if (sparksPs != null)
+        {
+            sparksPs.Emit(40); // 瞬间喷出40颗像珊瑚交互一样的高速粒子
+        }
+
         if (!isIgnited)
         {
             isIgnited = true;
-            Debug.Log("[CampfireInteraction] Fireplace Ignited by Player!");
+            Debug.Log("[CampfireInteraction] Fireplace fully Ignited by Player!");
 
             // 1. 播放柴火燃烧立体声（可循环播放）
             if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
@@ -455,38 +569,27 @@ public class CampfireInteraction : MonoBehaviour
                 fireplaceAudio.Play();
             }
 
-            // 2. 燃烧篝火本身表面的粒子容器：让粒子变成炽热的红黄，并疯狂波动！
+            // 2. 燃烧篝火本身表面的粒子容器：立刻让下方的基础色变成热烈的红黄相间
             if (containerPs != null)
             {
                 var main = containerPs.main;
-                // 色彩瞬间变为赤红与亮黄的混合
                 main.startColor = new ParticleSystem.MinMaxGradient(
-                    new Color(1f, 0.1f, 0f, 1f), // 炽红
-                    new Color(1f, 0.6f, 0f, 1f)  // 亮橘
+                    new Color(1f, 0.4f, 0f, 1f), // 炽红/橙
+                    new Color(1f, 0.9f, 0.1f, 1f)  // 黄金亮黄
                 );
 
-                // 开启 Noise 扰动模块，让附着的粒子像真正的火焰一样翻滚、升腾
                 var noise = containerPs.noise;
                 noise.enabled = true;
-                noise.strength = 1.0f; // 更加剧烈的扭曲幅度（火从下往上涌）
-                noise.frequency = 1.5f; // 更加剧烈的高频扭曲
-                noise.scrollSpeed = 2.5f; // 极速火焰向上升腾的滚动感
+                noise.strength = 1.0f; 
+                noise.frequency = 1.5f; 
+                noise.scrollSpeed = 2.5f; 
 
-                // 赋予生命周期内向上飘升的巨量热气流速度！！！
                 var vel = containerPs.velocityOverLifetime;
                 vel.enabled = true;
-                vel.y = new ParticleSystem.MinMaxCurve(2.0f, 4.5f); // 极其暴躁地从下往上涌出
-                vel.z = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); // 微微向外扩散
+                vel.y = new ParticleSystem.MinMaxCurve(2.0f, 4.5f); 
+                vel.z = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); 
                 vel.x = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); 
                 vel.space = ParticleSystemSimulationSpace.World;
-            }
-
-            // 3. 喷发出中心炽热的飞升火星碎片
-            if (sparksPs != null)
-            {
-                var emission = sparksPs.emission;
-                emission.rateOverTime = 60f; // 火焰爆发！
-                sparksPs.Play();
             }
         }
     }
