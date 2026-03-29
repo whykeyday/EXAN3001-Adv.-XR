@@ -245,9 +245,6 @@ public class CatSceneSetup : MonoBehaviour
 
     AudioSource CreateAudioSource(Transform parent, AudioClip clip)
     {
-        // 【终极声音修复】：模型原点 Pivot 偏离百米不仅会导致红球偏离，也会导致 3D 喇叭偏离！
-        // 如果喇叭在百米开外，由于衰减距离只有 20 米，就算音量最大玩家也听不见！
-        // 因此我们要专门建一个独立的小喇叭节点，并把它强制塞进真实的网格中央！
         GameObject audioEmitter = new GameObject("AudioEmitter_PerfectCenter");
         audioEmitter.transform.SetParent(parent, false);
 
@@ -257,12 +254,13 @@ public class CatSceneSetup : MonoBehaviour
 
         AudioSource src = audioEmitter.AddComponent<AudioSource>();
         src.clip = clip;
-        // 保证音量穿透力：别设为完全 1.0 的纯 3D，保留 0.75 使得全屏都能隐约听到
-        src.spatialBlend = 0.75f; 
-        src.volume = 1f;
-        src.minDistance = 2f;  // 贴脸 2 米内都是最大音量
-        src.maxDistance = 20f; // 20 米外才完全消失
-        src.rolloffMode = AudioRolloffMode.Linear; // 线性衰减更符合直观
+        
+        // 【究极查错：强制 2D 声音！】
+        // 如果你的 VR 相机（XR Rig）上没有挂载 AudioListener，
+        // 或者 AudioListener 的位置不在头部而在世界原点，所有的 3D 声音都会因为“距离过远”被系统强行消音！
+        // 设为 0（纯 2D），声音将无视任何距离或方向，直接在你的双耳耳机里用 100% 最大音量爆响！
+        src.spatialBlend = 0.0f; 
+        src.volume = 1.0f;
         src.playOnAwake = false;
         return src;
     }
@@ -475,6 +473,12 @@ public class CatTouchReceiver : MonoBehaviour
         
         Debug.Log($"[CatInteraction] Player interacted with {catRole} cat!");
 
+        // 声音反馈：之前竟然不小心把这行删掉了！必须补回来！
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play(); // 强制覆盖当前播放并重新播放，确保不会因为 isPlaying 锁死！
+        }
+
         // 【终极可见测试】砸出巨大红球
         GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         debugIndicator.transform.position = transform.position + Vector3.up * 1.5f; 
@@ -654,10 +658,7 @@ public class CampfireInteraction : MonoBehaviour
 
         if (fireplaceAudio != null) 
         {
-            fireplaceAudio.spatialBlend = 0.8f;
-            fireplaceAudio.minDistance = 1.5f;
-            fireplaceAudio.maxDistance = 15f;
-            fireplaceAudio.rolloffMode = AudioRolloffMode.Linear;
+            fireplaceAudio.spatialBlend = 0.0f; // 强制 2D 贴耳播放
             fireplaceAudio.loop = true;
             fireplaceAudio.Play();
             fireplaceAudio.volume = 0f; // 初始静音，靠靠近变大
