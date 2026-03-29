@@ -411,19 +411,7 @@ public class CatTouchReceiver : MonoBehaviour
 
     void Start()
     {
-        GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        indicator.name = "StatusLight_" + gameObject.name;
-        // 把指示灯挂在网格真正的重心偏上
-        indicator.transform.position = GetTrueCenter() + Vector3.up * 0.8f;
-        indicator.transform.localScale = new Vector3(0.15f, 0.15f, 0.15f);
-        Destroy(indicator.GetComponent<Collider>());
-        indicator.transform.SetParent(transform, true);
-        
-        statusIndicator = indicator.GetComponent<Renderer>();
-        Material mat = new Material(Shader.Find("Standard"));
-        mat.color = Color.blue; 
-        mat.EnableKeyword("_EMISSION");
-        statusIndicator.material = mat;
+        // 生产环境：移除所有丑陋的调试灯块
     }
 
     void Update()
@@ -432,21 +420,6 @@ public class CatTouchReceiver : MonoBehaviour
         if (forceInteract && Time.time - lastTouchTime >= Cooldown)
         {
             TriggerCat();
-        }
-
-        // --- 状态灯反馈：互动中变红，平时隐形 ---
-        if (statusIndicator != null)
-        {
-            if (Time.time - lastTouchTime < Cooldown) 
-            {
-                statusIndicator.enabled = true;
-                statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
-                statusIndicator.material.color = Color.red; 
-            }
-            else 
-            {
-                statusIndicator.enabled = false; // 平时不触发灯光就不亮
-            }
         }
     }
 
@@ -469,41 +442,17 @@ public class CatTouchReceiver : MonoBehaviour
     private void TriggerCat()
     {
         lastTouchTime = Time.time;
-        if (statusIndicator != null) statusIndicator.material.color = Color.red;
         
         Debug.Log($"[CatInteraction] Player interacted with {catRole} cat!");
 
-        // 声音反馈：之前竟然不小心把这行删掉了！必须补回来！
+        // 声音反馈
         if (audioSource != null && audioSource.clip != null)
         {
             audioSource.Play(); // 强制覆盖当前播放并重新播放，确保不会因为 isPlaying 锁死！
         }
 
-        // 【终极可见测试】砸出巨大红球
-        GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        debugIndicator.transform.position = transform.position + Vector3.up * 1.5f; 
-        debugIndicator.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f); 
-        Destroy(debugIndicator.GetComponent<Collider>());
-        Material redMat = new Material(Shader.Find("Standard"));
-        redMat.color = Color.red;
-        debugIndicator.GetComponent<Renderer>().material = redMat;
-        Destroy(debugIndicator, 2.0f); 
-
-        // 【终极防漏判定测试：爆炸的紫色小球！】
-        // 只要这个代码进来了，不管猫有没有绑定动画，必然会从中心弹出一个存在 2 秒的紫色小球！
-        GameObject burst = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        burst.transform.position = GetTrueCenter() + Vector3.up * 0.7f;
-        burst.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-        burst.GetComponent<Renderer>().material.color = Color.magenta;
-        Destroy(burst.GetComponent<Collider>());
-        Destroy(burst, 2.0f); // 2秒后自动消失
-
         if (catRole == CatRole.Purr || catRole == CatRole.Aggressive)
         {
-            // --- 核心视觉反馈：抛开坑人的骨骼动画器，强制执行完美的身体闪红！---
-            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
-            flashCoroutine = StartCoroutine(CatFlashRoutine());
-
             Animator anim = GetComponentInChildren<Animator>();
             if (anim == null && transform.parent != null) anim = transform.parent.GetComponentInChildren<Animator>();
 
@@ -522,46 +471,6 @@ public class CatTouchReceiver : MonoBehaviour
                     anim.Play(0, -1, 0f); // 重播当前动画
                 }
             }
-        }
-    }
-
-    private Coroutine flashCoroutine;
-
-    private System.Collections.IEnumerator CatFlashRoutine()
-    {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        System.Collections.Generic.Dictionary<Renderer, Color> origColors = new System.Collections.Generic.Dictionary<Renderer, Color>();
-        
-        // 记录原始颜色
-        foreach (var r in renderers) 
-        {
-            if (r.material.HasProperty("_Color")) 
-                origColors[r] = r.material.color;
-        }
-
-        float elapsed = 0f;
-        float duration = 0.5f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            
-            // 材质颜色从红色平滑褪回原始颜色
-            foreach (var r in renderers) 
-            {
-                if (origColors.ContainsKey(r))
-                {
-                    r.material.color = Color.Lerp(Color.red, origColors[r], t);
-                }
-            }
-            yield return null;
-        }
-
-        // 确保完美复原
-        foreach (var r in renderers) 
-        {
-            if (origColors.ContainsKey(r)) r.material.color = origColors[r];
         }
     }
 
@@ -636,19 +545,6 @@ public class CampfireInteraction : MonoBehaviour
         CatSceneSetup setup = FindObjectOfType<CatSceneSetup>();
         if (setup != null) maxFireRate = setup.fireRate;
 
-        GameObject indicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        indicator.name = "StatusLight_Campfire";
-        indicator.transform.position = GetTrueCenter() + Vector3.up * 1.5f;
-        indicator.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-        Destroy(indicator.GetComponent<Collider>());
-        indicator.transform.SetParent(transform, true);
-        
-        statusIndicator = indicator.GetComponent<Renderer>();
-        Material mat = new Material(Shader.Find("Standard"));
-        mat.color = Color.blue;
-        mat.EnableKeyword("_EMISSION");
-        statusIndicator.material = mat;
-
         // 起步时强行把主火焰粒子发射率设为 0，彻底浇灭之前的“白色幽灵火”！
         if (containerPs != null)
         {
@@ -699,21 +595,6 @@ public class CampfireInteraction : MonoBehaviour
         if (fireplaceAudio != null)
         {
             fireplaceAudio.volume = currentFireIntensity * 1.5f; // 确保音量足够大
-        }
-
-        // 4. 灯光反馈
-        if (statusIndicator != null)
-        {
-            if (targetIntensity > 0)
-            {
-                statusIndicator.enabled = true;
-                statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
-                statusIndicator.material.color = Color.red;
-            }
-            else
-            {
-                statusIndicator.enabled = false;
-            }
         }
     }
 

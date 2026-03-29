@@ -15876,6 +15876,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 202364687, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      propertyPath: m_TagString
+      value: GameController
+      objectReference: {fileID: 0}
+    - target: {fileID: 1670256624, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      propertyPath: m_TagString
+      value: GameController
+      objectReference: {fileID: 0}
     - target: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.y
       value: 10.3
@@ -134456,7 +134464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blackCatModel: {fileID: 1854359415}
-  blackCatAggrAudio: {fileID: 8300000, guid: 6b0faa0ed0608a7498bb2a0edcd7830c, type: 3}
+  blackCatAggrAudio: {fileID: 8300000, guid: dfc8ad80f328f544a95771a6c06c40e5, type: 3}
   murderedCatModel: {fileID: 1272770465}
   toonCatModel: {fileID: 1639619902}
   toonCatPurrAudio: {fileID: 8300000, guid: dfc8ad80f328f544a95771a6c06c40e5, type: 3}
