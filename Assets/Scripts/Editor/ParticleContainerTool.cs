@@ -74,13 +74,26 @@ public class ParticleContainerTool
                 // 智能计算物体的表面积来决定粒子密度
                 Bounds bounds = renderer.bounds;
                 float surfaceArea = 2f * (bounds.size.x * bounds.size.y + bounds.size.x * bounds.size.z + bounds.size.y * bounds.size.z);
-                if (surfaceArea < 0.01f) surfaceArea = 0.01f;
+                // --- 终极防御：判断网格是否允许粒子读取数据，如果不允许，强行修改导入设置并开启 ---
+                Mesh checkMesh = targetMesh != null ? targetMesh : (targetSmr != null ? targetSmr.sharedMesh : null);
+                if (checkMesh != null && !checkMesh.isReadable)
+                {
+                    string assetPath = AssetDatabase.GetAssetPath(checkMesh);
+                    if (!string.IsNullOrEmpty(assetPath))
+                    {
+                        ModelImporter importer = AssetImporter.GetAtPath(assetPath) as ModelImporter;
+                        if (importer != null)
+                        {
+                            importer.isReadable = true;
+                            importer.SaveAndReimport();
+                            Debug.Log($"[ParticleTool] 自动为 {obj.name} 开启了模型 Read/Write 权限（粒子引擎必需）。");
+                        }
+                    }
+                }
 
-                // 智能缩放：抵消 Transform 的极大缩放比例（例如FBX放大100倍），保证粒子恒定在 0.04 - 0.06 米大小
-                float scaleX = obj.transform.lossyScale.x;
-                if (scaleX == 0f) scaleX = 1f;
-                float desiredMin = 0.04f / scaleX;
-                float desiredMax = 0.06f / scaleX;
+                // 物理世界中，我们希望每个粒子恒定在 0.04~0.06 米左右。
+                float desiredMin = 0.04f;
+                float desiredMax = 0.06f;
 
                 // 智能发射率（树大则粒子多，猫小则粒子少）
                 float calculatedRate = Mathf.Clamp(surfaceArea * 800f, 100f, 10000f);
@@ -98,7 +111,7 @@ public class ParticleContainerTool
                 main.startSize = new ParticleSystem.MinMaxCurve(desiredMin, desiredMax); // 彻底解决巨型粒子
                 main.maxParticles = calculatedMax; 
                 main.simulationSpace = ParticleSystemSimulationSpace.Local;
-                main.scalingMode = ParticleSystemScalingMode.Hierarchy; 
+                main.scalingMode = ParticleSystemScalingMode.Shape; // 完美世界级常量比例：不管父级多大，粒子永远是设定的固定厘米级大小
                 
                 main.startColor = new ParticleSystem.MinMaxGradient(
                     new Color(1f, 1f, 1f, 0.5f), 
@@ -122,6 +135,7 @@ public class ParticleContainerTool
                     shape.meshRenderer = (MeshRenderer)renderer;
                 }
                 shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
+                shape.useMeshColors = false; // 严防有些FBX自带了全黑或透明顶点颜色导致粒子幽灵化隐形
 
                 var colorOverLife = ps.colorOverLifetime;
                 colorOverLife.enabled = true;
