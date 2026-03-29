@@ -74,9 +74,7 @@ public class CatSceneSetup : MonoBehaviour
 
         if (fireplaceModel != null) 
         {
-            sparkParent = ValidateSceneObject(fireplaceModel, "壁炉篝火 (Fireplace)");
-            if (sparkParent == null) return; // 被拦截了
-            
+            sparkParent = fireplaceModel;
             
             // 自动为真实的篝火模型添加抓取/触碰碰撞盒
             Collider col = sparkParent.gameObject.GetComponentInChildren<Collider>();
@@ -127,29 +125,33 @@ public class CatSceneSetup : MonoBehaviour
 
         ParticleSystem ps = sparks.AddComponent<ParticleSystem>();
         var main = ps.main;
-        main.scalingMode = ParticleSystemScalingMode.Shape; // 使用 Shape 抵消父级变态缩放
-        main.loop = false; // 严禁自动循环！变成珊瑚那种单次爆发
-        main.playOnAwake = false;
+        main.scalingMode = ParticleSystemScalingMode.Shape; 
+        main.loop = true; // 恢复常态连绵涌动！
+        main.playOnAwake = true;
         
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.8f, 0.1f, 0.9f), // 黄金色
-            new Color(1f, 0.3f, 0.05f, 0.9f) // 炽红色
+            new Color(1f, 0.6f, 0.1f, 0.8f), 
+            new Color(1f, 0.2f, 0.0f, 0.8f) 
         );
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.gravityModifier = -0.05f; 
+        // 【关键】将粒子调得非常细小，像真实的火苗而不是大光球！
+        main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.08f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.8f, 2.0f);
+        main.gravityModifier = -0.1f; 
 
         var emission = ps.emission;
-        emission.rateOverTime = 0f; 
+        emission.rateOverTime = 0f; // 初始为 0，靠脚本里的“靠近”来慢慢推高
 
         var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.2f; // 缩小范围，让它从火堆中心喷出
+        shape.shapeType = ParticleSystemShapeType.Cone; // 改为锥形，像真实的火舌一样往上涌！
+        shape.angle = 15f; 
+        shape.radius = 0.1f; 
 
         var vel = ps.velocityOverLifetime;
         vel.enabled = true;
         vel.space = ParticleSystemSimulationSpace.World;
-        vel.y = new ParticleSystem.MinMaxCurve(2.0f, 5.0f); // 向上漂浮
-        vel.x = new ParticleSystem.MinMaxCurve(-1.0f, 1.0f); // 左右摇摆
+        vel.y = new ParticleSystem.MinMaxCurve(1.5f, 3.5f); // 向上涌动
+        vel.x = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); // 微微摇摆
         
         var colorOL = ps.colorOverLifetime;
         colorOL.enabled = true;
@@ -176,16 +178,8 @@ public class CatSceneSetup : MonoBehaviour
             sofa.transform.position = new Vector3(0, 0.4f, 0);
             sofa.transform.localScale = new Vector3(2f, 0.6f, 1f);
         }
-        else
-        {
-            sofaModel = ValidateSceneObject(sofaModel, "沙发 (Sofa)");
-        }
-
         // ================= 三只猫专属业务逻辑分发 =================
-        // 防御性检修：防止小白错将底部的 Prefab 文件拖进槽位导致游戏直接崩溃！
-        blackCatModel = ValidateSceneObject(blackCatModel, "黑猫 (Black Cat)");
-        murderedCatModel = ValidateSceneObject(murderedCatModel, "幽灵猫 (Soul Suspect)");
-        toonCatModel = ValidateSceneObject(toonCatModel, "卡通猫 (Toon Cat)");
+        // 取消了“场景/文件夹”防呆验证，防止在 VR 真机 Build 里被误判拦截导致脚本挂不上！
 
         // 1. 黑猫 (遇人发出凶狠叫声)
         if (blackCatModel != null)
@@ -236,21 +230,6 @@ public class CatSceneSetup : MonoBehaviour
 
         Rigidbody rb = target.GetComponent<Rigidbody>();
         if (rb == null) { rb = target.gameObject.AddComponent<Rigidbody>(); rb.isKinematic = true; }
-    }
-
-    // 专属校验：阻止跨次元修改 Prefab 文件造成的静默崩溃！
-    Transform ValidateSceneObject(Transform target, string logicName)
-    {
-        if (target == null) return null;
-        
-        // 如果物体不属于任何存在的场景（即属于底层资产文件夹），直接拦截！
-        if (string.IsNullOrEmpty(target.gameObject.scene.name) || target.gameObject.scene.buildIndex < 0)
-        {
-            Debug.LogError($"[极度危险错误] 槽位 {logicName} 拖入了最下方的『文件系统 Prefab』！你不能在运行时修改文件！！！" +
-                           $"【解决方法】：去左边 Hierarchy 清单里，把你之前拉到场景里的模型拖进这个槽位，而不是拖底部文件夹里的图标！");
-            return null; 
-        }
-        return target;
     }
 }
 
@@ -339,18 +318,15 @@ public class CatTouchReceiver : MonoBehaviour
     void Update()
     {
         bool playerNearby = false;
-        
         Vector3 center = GetTrueCenter();
 
-        foreach (Camera c in Camera.allCameras)
+        // 使用 Camera.main 作为更稳妥的 VR 头显位置（如果 Camera.allCameras 获取的有问题）
+        Camera playerCam = Camera.main;
+        if (playerCam != null)
         {
             Vector2 catPlane = new Vector2(center.x, center.z);
-            Vector2 camPlane = new Vector2(c.transform.position.x, c.transform.position.z);
-            if (Vector2.Distance(catPlane, camPlane) < 4.0f) // 雷达测试：4米
-            {
-                playerNearby = true;
-                break;
-            }
+            Vector2 camPlane = new Vector2(playerCam.transform.position.x, playerCam.transform.position.z);
+            if (Vector2.Distance(catPlane, camPlane) < 4.0f) playerNearby = true;
         }
 
         bool forceInteract = Input.GetKeyDown(KeyCode.E);
@@ -445,10 +421,11 @@ public class CampfireInteraction : MonoBehaviour
     public AudioSource fireplaceAudio;
     private float lastTouchTime = -999f;
     private const float Cooldown = 2.0f;
-    private ParticleSystem containerPs; // 篝火表面的全息粒子
-    private ParticleSystem sparksPs; // 往天空飘升的火星粒子
-
-    private bool isIgnited = false;
+    private ParticleSystem containerPs; 
+    private ParticleSystem sparksPs; 
+    
+    // 平滑线性燃烧强度
+    private float currentFireIntensity = 0f;
 
     private Renderer statusIndicator; 
 
@@ -479,118 +456,79 @@ public class CampfireInteraction : MonoBehaviour
         mat.color = Color.blue;
         mat.EnableKeyword("_EMISSION");
         statusIndicator.material = mat;
+        if (fireplaceAudio != null) 
+        {
+            fireplaceAudio.loop = true;
+            fireplaceAudio.Play();
+            fireplaceAudio.volume = 0f; // 初始静音，靠靠近变大
+        }
     }
 
     void Update()
     {
-        if (isIgnited)
-        {
-            if (statusIndicator != null)
-            {
-                statusIndicator.material.SetColor("_EmissionColor", Color.red * 2f);
-                statusIndicator.material.color = Color.red; 
-            }
-            return;
-        }
-
-        bool playerNearby = false;
         Vector3 center = GetTrueCenter();
-        foreach (Camera c in Camera.allCameras)
+        Camera playerCam = Camera.main;
+        
+        float dist = 10f; // 默认很远
+        if (playerCam != null)
         {
             Vector2 firePlane = new Vector2(center.x, center.z);
-            Vector2 camPlane = new Vector2(c.transform.position.x, c.transform.position.z);
-            
-            if (Vector2.Distance(firePlane, camPlane) < 6.0f) // 雷达距离验证：6米
-            {
-                playerNearby = true;
-                break;
-            }
+            Vector2 camPlane = new Vector2(playerCam.transform.position.x, playerCam.transform.position.z);
+            dist = Vector2.Distance(firePlane, camPlane);
         }
 
-        bool forceInteract = Input.GetKeyDown(KeyCode.E);
+        // === 【核心重构：连绵涌动 与 渐隐熄灭】 ===
+        // 在 2 米处火势达到 100% (最猛)；退到 6 米外火势减弱到 0%。
+        float targetIntensity = Mathf.Clamp01(1.0f - (dist - 2.0f) / 4.0f);
+        
+        // 我们利用插值让火星增减变得像呼吸一样自然平滑
+        currentFireIntensity = Mathf.Lerp(currentFireIntensity, targetIntensity, Time.deltaTime * 2.5f);
 
+        // 1. 无缝控火星：越靠近，喷射越疯狂 (最高 50颗粒/秒)
+        if (sparksPs != null)
+        {
+            var em = sparksPs.emission;
+            em.rateOverTime = currentFireIntensity * 50f; 
+        }
+
+        // 2. 无缝控颜色和底座：火苗由暗淡白逐渐烧红
+        if (containerPs != null)
+        {
+            var main = containerPs.main;
+            Color baseColor = new Color(1f, 1f, 1f, 0.4f); // 幽灵白
+            Color fireColor = new Color(1f, 0.4f, 0f, 1f); // 炽热红
+            main.startColor = Color.Lerp(baseColor, fireColor, currentFireIntensity);
+
+            var noise = containerPs.noise;
+            noise.enabled = true;
+            // 越近底部闪动越剧烈
+            noise.strength = Mathf.Lerp(0f, 1.5f, currentFireIntensity); 
+        }
+
+        // 3. 声音由远及近
+        if (fireplaceAudio != null)
+        {
+            fireplaceAudio.volume = currentFireIntensity;
+        }
+
+        // 4. 灯光反馈
         if (statusIndicator != null)
         {
-            if (playerNearby)
-            {
-                statusIndicator.material.SetColor("_EmissionColor", Color.yellow * 2f);
-                statusIndicator.material.color = Color.yellow;
-            }
-            else
-            {
-                statusIndicator.material.SetColor("_EmissionColor", Color.blue * 1f);
-                statusIndicator.material.color = Color.blue;
-            }
-        }
-
-        if (playerNearby || forceInteract)
-        {
-            IgniteFireplace();
+            statusIndicator.material.SetColor("_EmissionColor", Color.Lerp(Color.blue, Color.red, currentFireIntensity) * 2f);
+            statusIndicator.material.color = Color.Lerp(Color.blue, Color.red, currentFireIntensity);
         }
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.transform.IsChildOf(transform.root)) return; 
-        if (Time.time - lastTouchTime < Cooldown) return;
-        
-        Debug.Log($"[CampfireInteraction] 物理碰撞触发！接触者: {other.name}");
-        lastTouchTime = Time.time;
-        IgniteFireplace();
-    }
-
+    // 依然响应纯物理触手抚摸 (按满强度瞬爆)
     void OnTriggerStay(Collider other)
     {
         if (other.transform.IsChildOf(transform.root)) return; 
-        if (Time.time - lastTouchTime < Cooldown) return;
-        
-        lastTouchTime = Time.time;
-        IgniteFireplace();
+        currentFireIntensity = 1.0f; // 只要手放进去，火烧最旺！
     }
 
     [ContextMenu(">>> CLICK ME: FORCE IGNITE FIREPLACE <<<")]
     void IgniteFireplace()
     {
-        // 彻底复刻 Coral 的瞬间爆燃喷射（黄金/黄色粒子效果）
-        if (sparksPs != null)
-        {
-            sparksPs.Emit(40); // 瞬间喷出40颗像珊瑚交互一样的高速粒子
-        }
-
-        if (!isIgnited)
-        {
-            isIgnited = true;
-            Debug.Log("[CampfireInteraction] Fireplace fully Ignited by Player!");
-
-            // 1. 播放柴火燃烧立体声（可循环播放）
-            if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
-            {
-                fireplaceAudio.loop = true;
-                fireplaceAudio.Play();
-            }
-
-            // 2. 燃烧篝火本身表面的粒子容器：立刻让下方的基础色变成热烈的红黄相间
-            if (containerPs != null)
-            {
-                var main = containerPs.main;
-                main.startColor = new ParticleSystem.MinMaxGradient(
-                    new Color(1f, 0.4f, 0f, 1f), // 炽红/橙
-                    new Color(1f, 0.9f, 0.1f, 1f)  // 黄金亮黄
-                );
-
-                var noise = containerPs.noise;
-                noise.enabled = true;
-                noise.strength = 1.0f; 
-                noise.frequency = 1.5f; 
-                noise.scrollSpeed = 2.5f; 
-
-                var vel = containerPs.velocityOverLifetime;
-                vel.enabled = true;
-                vel.y = new ParticleSystem.MinMaxCurve(2.0f, 4.5f); 
-                vel.z = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); 
-                vel.x = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f); 
-                vel.space = ParticleSystemSimulationSpace.World;
-            }
-        }
+        currentFireIntensity = 1.0f;
     }
 }
