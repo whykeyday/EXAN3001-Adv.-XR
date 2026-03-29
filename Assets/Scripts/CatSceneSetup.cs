@@ -95,6 +95,10 @@ public class CatSceneSetup : MonoBehaviour
             fireplace.transform.position = new Vector3(0, 0.5f, 2.4f);
             fireplace.transform.localScale = new Vector3(1.5f, 1f, 0.5f);
             sparkParent = fireplace.transform;
+            
+            // 确保没有分配模型时，互动依然挂载生效
+            CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
+            fireScript.fireplaceAudio = fireplaceAudio;
         }
         
         // 创建壁炉火星特效
@@ -238,8 +242,10 @@ public class CatTouchReceiver : MonoBehaviour
         
         if (Time.time - lastTouchTime < Cooldown) return;
 
-        // 简易判断：只要接触物是玩家手柄/手
-        if (other.CompareTag("PlayerHand") || other.name.ToLower().Contains("hand") || other.name.ToLower().Contains("controller"))
+        // 简易判断：避免报错，直接用名字检测
+        string n = other.name.ToLower();
+        if (other.CompareTag("Player") || other.CompareTag("MainCamera") || 
+            n.Contains("hand") || n.Contains("controller") || n.Contains("player") || n.Contains("xr") || n.Contains("vr"))
         {
             TriggerCat();
         }
@@ -247,17 +253,20 @@ public class CatTouchReceiver : MonoBehaviour
 
     void Update()
     {
-        // ================= PC端快速测试 =================
-        // 按下键盘上对应的字母可以不用戴头显直接测试！
-        if (bodyPart == CatPart.Head && Input.GetKeyDown(KeyCode.H))
+        // ================= 无敌距离检测（彻底绕过碰撞体Bug） =================
+        // 防御性搜索：如果 VR 摄像机没有加 MainCamera 的 tag，就暴力搜全场唯一的 Camera
+        Camera cam = Camera.main;
+        if (cam == null) cam = FindObjectOfType<Camera>();
+        
+        if (Time.time - lastTouchTime >= Cooldown && cam != null)
         {
-            Debug.Log("[CatInteraction] PC Keyboard triggered Head.");
-            TriggerCat();
-        }
-        else if (bodyPart == CatPart.Body && Input.GetKeyDown(KeyCode.B))
-        {
-            Debug.Log("[CatInteraction] PC Keyboard triggered Body.");
-            TriggerCat();
+            // 只要玩家只要戴着头显走近到 0.8 米以内，就算作身体触碰！
+            float dist = Vector3.Distance(transform.position, cam.transform.position);
+            if (dist < 0.8f) 
+            {
+                Debug.Log($"[CatInteraction] Player body/head walked into {bodyPart}!");
+                TriggerCat();
+            }
         }
     }
 
@@ -328,10 +337,19 @@ public class CampfireInteraction : MonoBehaviour
 
     void Update()
     {
-        // 按下空格键强制触发点火，方便在电脑上不用戴头显直接看特效
-        if (Input.GetKeyDown(KeyCode.Space))
+        // ================= 无敌距离检测（彻底绕过碰撞体Bug） =================
+        Camera cam = Camera.main;
+        if (cam == null) cam = FindObjectOfType<Camera>();
+        
+        if (!isIgnited && cam != null)
         {
-            IgniteFireplace();
+            // 只要玩家身体（头显摄像机）走近到 1.5 米以内，篝火自动感知并点燃！
+            float dist = Vector3.Distance(transform.position, cam.transform.position);
+            if (dist < 1.5f)
+            {
+                Debug.Log("[CampfireInteraction] Player body walked near the campfire!");
+                IgniteFireplace();
+            }
         }
     }
 
@@ -343,7 +361,9 @@ public class CampfireInteraction : MonoBehaviour
         if (Time.time - lastTouchTime < Cooldown) return;
 
         // 判断是否是玩家手柄
-        if (other.CompareTag("PlayerHand") || other.name.ToLower().Contains("hand") || other.name.ToLower().Contains("controller"))
+        string n = other.name.ToLower();
+        if (other.CompareTag("Player") || other.CompareTag("MainCamera") || 
+            n.Contains("hand") || n.Contains("controller") || n.Contains("player") || n.Contains("xr") || n.Contains("vr"))
         {
             lastTouchTime = Time.time;
             IgniteFireplace();
