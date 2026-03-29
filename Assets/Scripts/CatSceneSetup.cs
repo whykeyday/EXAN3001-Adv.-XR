@@ -209,7 +209,11 @@ public class CatSceneSetup : MonoBehaviour
         // 2. 灵魂疑犯猫 (死循环脚本)
         if (murderedCatModel != null)
         {
+            EnsureColliderAndRigidBody(murderedCatModel);
             murderedCatModel.gameObject.AddComponent<SofaCatForeverLooper>();
+            
+            CatTouchReceiver rec = murderedCatModel.gameObject.AddComponent<CatTouchReceiver>();
+            rec.catRole = CatTouchReceiver.CatRole.Purr; // 给它挂载一样的交互逻辑
         }
 
         // 3. 卡通猫
@@ -299,6 +303,7 @@ public class CatTouchReceiver : MonoBehaviour
     public AudioSource audioSource;
     private float lastTouchTime = -999f;
     private const float Cooldown = 3.0f; // 防止连叫
+    private float baseAnimSpeed = 1.0f; // 记忆猫猫本来的播放速度
 
     private Renderer statusIndicator; // 状态指示灯
 
@@ -407,7 +412,8 @@ public class CatTouchReceiver : MonoBehaviour
 
             if (anim != null)
             {
-                // 如果没有设置 Trigger 也不要紧，强行给它的动画速度加倍 2 秒！绝对产生视觉差异！
+                // 记忆原始速度，给动画提速到 2.0 倍持续两秒！
+                baseAnimSpeed = anim.speed;
                 anim.speed = 2.0f;
                 Invoke("ResetAnimSpeed", 2.0f);
                 anim.Play(0, -1, 0f); // 重播当前动画
@@ -419,7 +425,7 @@ public class CatTouchReceiver : MonoBehaviour
     {
         Animator anim = GetComponentInChildren<Animator>();
         if (anim == null && transform.parent != null) anim = transform.parent.GetComponentInChildren<Animator>();
-        if (anim != null) anim.speed = 1.0f;
+        if (anim != null) anim.speed = baseAnimSpeed;
     }
 }
 
@@ -429,7 +435,11 @@ public class CatTouchReceiver : MonoBehaviour
 public class SofaCatForeverLooper : MonoBehaviour
 {
     private Animator anim;
-    void Start() { anim = GetComponentInChildren<Animator>(); }
+    void Start() 
+    { 
+        anim = GetComponentInChildren<Animator>(); 
+        if (anim != null) anim.speed = 0.2f; // 你要求的放慢 5 倍 (1/5 的速度)
+    }
     void Update()
     {
         if (anim != null && anim.runtimeAnimatorController != null)

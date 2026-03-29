@@ -5505,8 +5505,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 0.5}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minColor: {r: 0.98490566, g: 0.7711997, b: 0.7711997, a: 0.5}
+      maxColor: {r: 0.93962264, g: 0.87872255, b: 0.6577358, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -30699,27 +30699,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalScale.x
-      value: 5.129404
+      value: 3.5697575
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalScale.y
-      value: 5.129404
+      value: 3.5697575
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalScale.z
-      value: 5.129404
+      value: 3.5697575
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16
+      value: 15.994
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.36379993
+      value: -0.046715
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 62.9
+      value: 62.901
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b6bbbe28242f2ad4bb93c19b4fa3be32, type: 3}
       propertyPath: m_LocalRotation.w
@@ -134465,6 +134465,8 @@ MonoBehaviour:
   fireGravity: -0.5
   fireSize: 0.04
   fireOffset: {x: 0, y: -0.5, z: 0}
+  fireRate: 100
+  fireRadius: 0.2
   fireplaceModel: {fileID: 143120998}
   sofaModel: {fileID: 1547890039}
   fireplaceAudio: {fileID: 0}
