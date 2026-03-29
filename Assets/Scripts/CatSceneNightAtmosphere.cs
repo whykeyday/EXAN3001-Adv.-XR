@@ -3,9 +3,9 @@ using UnityEngine;
 public class CatSceneNightAtmosphere : MonoBehaviour
 {
     [Header("Night Settings")]
-    public Color nightFogColor = new Color(0.01f, 0.04f, 0.12f); // 深色调（类似海洋场景）
-    public float fogDensity = 0.015f; // 调淡一些，防止把远处的树遮没
-    public float nightAmbientIntensity = 0.2f;
+    public Color nightFogColor = new Color(0.002f, 0.005f, 0.012f); // 极其深邃的纯黑/午夜蓝
+    public float fogDensity = 0.02f; // 浓度适中
+    public float nightAmbientIntensity = 0.05f; // 基本关掉所有的环境反射光
 
     void Start()
     {

@@ -70,6 +70,23 @@ public class CatSceneSetup : MonoBehaviour
         if (fireplaceModel != null) 
         {
             sparkParent = fireplaceModel;
+            
+            // 自动为真实的篝火模型添加抓取/触碰碰撞盒
+            Collider col = sparkParent.gameObject.GetComponentInChildren<Collider>();
+            if (col == null)
+            {
+                BoxCollider bc = sparkParent.gameObject.AddComponent<BoxCollider>();
+                bc.isTrigger = true;
+                bc.size = new Vector3(1.5f, 1f, 1.5f); // 范围给大一点，方便手摸到
+            }
+            else { col.isTrigger = true; } // 手能穿过去触发
+
+            Rigidbody rb = sparkParent.gameObject.GetComponent<Rigidbody>();
+            if (rb == null) { rb = sparkParent.gameObject.AddComponent<Rigidbody>(); rb.isKinematic = true; }
+
+            // 挂载我们新写的专属篝火互动脚本！
+            CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
+            fireScript.fireplaceAudio = fireplaceAudio;
         }
         else 
         {
@@ -92,13 +109,19 @@ public class CatSceneSetup : MonoBehaviour
         main.startSpeed = new ParticleSystem.MinMaxCurve(1.0f, 2.5f);
         main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.06f);
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.4f, 0f, 1f), // 橘红
-            new Color(1f, 0.8f, 0.2f, 1f)  // 黄色
+            new Color(1f, 0.3f, 0f, 1f), // 非常红
+            new Color(1f, 0.6f, 0.1f, 1f)  // 橘色
         );
         main.simulationSpace = ParticleSystemSimulationSpace.World;
 
         var emission = ps.emission;
         emission.rateOverTime = 40f;
+        
+        // 初始关闭：等玩家碰到了再爆发！
+        if (fireplaceModel != null)
+        {
+            emission.rateOverTime = 0f; 
+        }
 
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
@@ -229,6 +252,112 @@ public class CatTouchReceiver : MonoBehaviour
             else
             {
                 Debug.LogWarning($"[Placeholder] No AudioClip attached for Cat {bodyPart}!");
+            }
+
+            // ================= 新增：自动获取并触发 FBX 动画 =================
+            Animator anim = transform.root.GetComponentInChildren<Animator>();
+            if (anim != null)
+            {
+                // Play(0) 会强制从头播放 Animator 里的默认第一个动画片段
+                anim.Play(0, 0, 0f);
+                Debug.Log("[CatInteraction] Triggered Animator play!");
+            }
+            else
+            {
+                Animation legacyAnim = transform.root.GetComponentInChildren<Animation>();
+                if (legacyAnim != null)
+                {
+                    legacyAnim.Play();
+                    Debug.Log("[CatInteraction] Triggered Legacy Animation play!");
+                }
+            }
+        }
+    }
+}
+
+/// <summary>
+/// 篝火专属触摸交互系统
+/// 一旦玩家触碰，点燃自身包裹的粒子系统（颜色变红、开启波动）并喷发火星！
+/// </summary>
+public class CampfireInteraction : MonoBehaviour
+{
+    public AudioSource fireplaceAudio;
+    private float lastTouchTime = -999f;
+    private const float Cooldown = 2.0f;
+    private ParticleSystem containerPs; // 篝火表面的全息粒子
+    private ParticleSystem sparksPs; // 往天空飘升的火星粒子
+
+    private bool isIgnited = false;
+
+    void Start()
+    {
+        // 尝试获取全息容器系统（由 ParticleContainerTool 生成的贴脸粒子）
+        containerPs = GetComponent<ParticleSystem>();
+        
+        // 查找向上的那团喷发火星
+        Transform sparks = transform.Find("FireSparksParticles");
+        if (sparks != null) sparksPs = sparks.GetComponent<ParticleSystem>();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // 忽略自身
+        if (other.transform.IsChildOf(transform.root)) return; 
+        
+        if (Time.time - lastTouchTime < Cooldown) return;
+
+        // 判断是否是玩家手柄
+        if (other.CompareTag("PlayerHand") || other.name.ToLower().Contains("hand") || other.name.ToLower().Contains("controller"))
+        {
+            lastTouchTime = Time.time;
+            IgniteFireplace();
+        }
+    }
+
+    void IgniteFireplace()
+    {
+        if (!isIgnited)
+        {
+            isIgnited = true;
+            Debug.Log("[CampfireInteraction] Fireplace Ignited by Player!");
+
+            // 1. 播放柴火燃烧立体声（可循环播放）
+            if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
+            {
+                fireplaceAudio.loop = true;
+                fireplaceAudio.Play();
+            }
+
+            // 2. 燃烧篝火本身表面的粒子容器：让粒子变成炽热的红黄，并疯狂波动！
+            if (containerPs != null)
+            {
+                var main = containerPs.main;
+                // 色彩瞬间变为赤红与亮黄的混合
+                main.startColor = new ParticleSystem.MinMaxGradient(
+                    new Color(1f, 0.1f, 0f, 1f), // 炽红
+                    new Color(1f, 0.6f, 0f, 1f)  // 亮橘
+                );
+
+                // 开启 Noise 扰动模块，让附着的粒子像真正的火焰一样翻滚、升腾
+                var noise = containerPs.noise;
+                noise.enabled = true;
+                noise.strength = 0.4f; // 扭曲幅度
+                noise.frequency = 1.0f; // 扭曲频率
+                noise.scrollSpeed = 1.2f; // 火焰向上升腾的滚动感
+
+                // 赋予生命周期内向上飘升的热气流速度
+                var vel = containerPs.velocityOverLifetime;
+                vel.enabled = true;
+                vel.y = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
+                vel.space = ParticleSystemSimulationSpace.World;
+            }
+
+            // 3. 喷发出中心炽热的飞升火星碎片
+            if (sparksPs != null)
+            {
+                var emission = sparksPs.emission;
+                emission.rateOverTime = 60f; // 火焰爆发！
+                sparksPs.Play();
             }
         }
     }
