@@ -28,10 +28,48 @@ public class TreeSceneSetup : MonoBehaviour
 
     private GameObject treeRoot;
 
+    [Header("Atmosphere — 深棕森林色调")]
+    public Color forestFogColor = new Color(0.06f, 0.04f, 0.02f);
+    public Color forestSkyColor = new Color(0.03f, 0.02f, 0.01f);
+
     void Start()
     {
+        SetupAtmosphere();
         BuildTree();
         if (ambientAudio != null && !ambientAudio.isPlaying) ambientAudio.Play();
+    }
+
+    void SetupAtmosphere()
+    {
+        // 深棕色森林氛围（类似海洋的深蓝，但是棕色调）
+        RenderSettings.fog = true;
+        RenderSettings.fogMode = FogMode.ExponentialSquared;
+        RenderSettings.fogColor = forestFogColor;
+        RenderSettings.fogDensity = 0.025f;
+
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+        RenderSettings.ambientLight = new Color(0.05f, 0.03f, 0.02f); // 极微弱棕色环境光
+        RenderSettings.ambientIntensity = 0.2f;
+        RenderSettings.skybox = null;
+
+        // 方向光调暖色微弱
+        Light[] lights = FindObjectsOfType<Light>();
+        foreach (var l in lights)
+        {
+            if (l.type == LightType.Directional)
+            {
+                l.intensity = 0.08f;
+                l.color = new Color(0.8f, 0.6f, 0.3f); // 暖黄色月光
+            }
+        }
+
+        Camera cam = Camera.main;
+        if (cam == null) cam = FindObjectOfType<Camera>();
+        if (cam != null)
+        {
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = forestSkyColor;
+        }
     }
 
     private TreeHealer cachedHealer;

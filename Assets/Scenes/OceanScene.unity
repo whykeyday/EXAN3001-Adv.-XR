@@ -10388,8 +10388,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.1305304, g: 0.21908659, b: 0.23773581, a: 0.5}
-      maxColor: {r: 0.20642926, g: 0.2890333, b: 0.2981131, a: 1}
+      minColor: {r: 0.85660374, g: 0.55986, b: 0.030708315, a: 0.5}
+      maxColor: {r: 0.7882353, g: 0.20578781, b: 0.050980367, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -45678,6 +45678,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 441087508}
+    - targetCorrespondingSourceObject: {fileID: 1717954561962503725, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 441087509}
   m_SourcePrefab: {fileID: 100100000, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
 --- !u!1 &441087507 stripped
 GameObject:
@@ -45699,8 +45702,36 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
-  leftControllerVisual: {fileID: 0}
-  rightControllerVisual: {fileID: 0}
+  leftControllerVisual: {fileID: 441087511}
+  rightControllerVisual: {fileID: 441087510}
+--- !u!114 &441087509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441087507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2865b66cc0ac42c498c7454b48185b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 5
+  lightColor: {r: 1, g: 0.98, b: 0.95, a: 1}
+  intensity: 8
+  spotAngle: 45
+  range: 12
+  followTarget: {fileID: 0}
+--- !u!1 &441087510 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5895826684305351068, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 441087506}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &441087511 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9173983156334026967, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 441087506}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &444348892
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46116,7 +46147,7 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.31754506, g: 0.27137765, b: 0.4566037, a: 0.5}
+      minColor: {r: 0.59674823, g: 0.4584905, b: 1, a: 0.5}
       maxColor: {r: 0.89433956, g: 0.51804197, b: 0.86045355, a: 1}
       maxGradient:
         serializedVersion: 2
@@ -150246,6 +150277,7 @@ GameObject:
   - component: {fileID: 1249617919}
   - component: {fileID: 1249617918}
   - component: {fileID: 1249617922}
+  - component: {fileID: 1249617923}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -150335,7 +150367,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.34, z: 0}
-  m_LocalScale: {x: 209.6085, y: 516.03516, z: -182.25844}
+  m_LocalScale: {x: 5.9316583, y: 14.603149, z: -5.157686}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -150421,6 +150453,21 @@ MonoBehaviour:
   m_Teleporting:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1249617923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249617917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d7a1a52e0b7cf4aaf4c68765b5dd8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallHeight: 10
+  wallThickness: 1
+  makePlaneInvisible: 1
 --- !u!199 &1271400707
 ParticleSystemRenderer:
   serializedVersion: 6

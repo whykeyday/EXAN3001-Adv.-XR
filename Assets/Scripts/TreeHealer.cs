@@ -22,18 +22,20 @@ public class TreeHealer : MonoBehaviour
     public ParticleSystem soilParticles;
 
     [Header("Textures")]
-    [Tooltip("Drag Assets/tree/butterflies.png here")]
+    [Tooltip("Drag Assets/tree/butterflies.png here (optional, now uses glow particles)")]
     public Texture2D butterflyTexture;
 
-    [Header("Audio (Placeholders)")]
+    [Header("Audio")]
     public AudioSource birdAudio;
-    public AudioSource chimeAudio;
+    [Tooltip("Magic healing sound effect when touching tree")]
+    public AudioSource magicHealAudio;
 
     // ============ HEALING SETTINGS ============
     [Header("Healing Settings")]
     public float healingDistance = 0.5f;
-    public float healingRate = 0.05f; // SLOWED DOWN: ~20 seconds to fully heal
-    public float decayRate = 0.02f;
+    public float healingRate = 0.05f; // ~20 seconds to fully heal
+    [Tooltip("离开3秒变回枯树: 0.33 = ~3 seconds")]
+    public float decayRate = 0.33f; // FAST DECAY: ~3 seconds to fully wither
 
     // ============ TREE APPEARANCE ============
     [Header("Tree Appearance - Withered (Start)")]
@@ -42,8 +44,8 @@ public class TreeHealer : MonoBehaviour
     public float witheredSize = 0.04f;
 
     [Header("Tree Appearance - Alive (Healed)")]
-    public Color aliveColor = new Color(0.1f, 0.9f, 0.2f, 0.95f); // Bright Emerald Green
-    public Color goldHighlight = new Color(1f, 0.85f, 0.3f, 1f);  
+    public Color aliveColor = new Color(0.95f, 0.95f, 1f, 0.95f); // 白色粒子
+    public Color goldHighlight = new Color(1f, 1f, 1f, 1f);  // 纯白高光
     public float aliveEmissionRate = 120f;
     public float aliveSize = 0.08f;
 
@@ -63,6 +65,9 @@ public class TreeHealer : MonoBehaviour
     private void Start()
     {
         if (treeCenter == null) treeCenter = transform;
+
+        // 强制覆盖 Inspector 里的旧值！确保 3 秒衰变生效
+        decayRate = 0.33f;
 
         CreateMissingEffects();
 
@@ -84,10 +89,19 @@ public class TreeHealer : MonoBehaviour
             noise.strength = 0.15f;
             noise.frequency = 0.5f;
             noise.scrollSpeed = 0.2f;
+
+            // 白色粒子环绕上升效果
+            var vel = treeParticles.velocityOverLifetime;
+            vel.enabled = true;
+            vel.orbitalY = 2.0f; // 绕Y轴旋转上升
+            vel.y = new ParticleSystem.MinMaxCurve(0.15f, 0.4f); // 缓缓上升
         }
 
         energyLevel = 0f;
         ApplyTreeState(0f);
+
+        // 蝴蝶从一开始就作为环境生物（不需要等治愈完成）
+        if (butterflyParticles != null) butterflyParticles.Play();
     }
 
     private void CreateMissingEffects()
@@ -147,7 +161,18 @@ public class TreeHealer : MonoBehaviour
         {
             fullyHealedTriggered = false;
             if (pinkPetals != null) pinkPetals.Stop();
-            if (butterflyParticles != null) butterflyParticles.Stop();
+            // 蝴蝶不停止！它们是环境生物
+        }
+
+        // 蝴蝶始终跟随玩家头部位置（从头上往上飞）
+        if (butterflyParticles != null)
+        {
+            Camera cam = Camera.main;
+            if (cam == null) cam = FindObjectOfType<Camera>();
+            if (cam != null)
+            {
+                butterflyParticles.transform.position = cam.transform.position + Vector3.up * 0.3f;
+            }
         }
     }
 
@@ -158,19 +183,27 @@ public class TreeHealer : MonoBehaviour
         
         if (birdAudio != null) birdAudio.Play();
         else Debug.Log("[Placeholder] Bird Audio plays here. User: please attach AudioSource with bird clip.");
-
-        if (chimeAudio != null) chimeAudio.Play();
-        else Debug.Log("[Placeholder] Wind Chime Audio plays here. User: please attach AudioSource with chime clip.");
     }
 
     private void StartHealing()
     {
         if (energyParticles != null) { energyParticles.gameObject.SetActive(true); energyParticles.Play(); }
+        
+        // 播放治愈魔法音效
+        if (magicHealAudio != null && !magicHealAudio.isPlaying)
+        {
+            magicHealAudio.Play();
+        }
     }
 
     private void StopHealing()
     {
         if (energyParticles != null) energyParticles.Stop();
+        
+        if (magicHealAudio != null && magicHealAudio.isPlaying)
+        {
+            magicHealAudio.Stop();
+        }
     }
 
     private void ApplyTreeState(float energy)
@@ -248,7 +281,7 @@ public class TreeHealer : MonoBehaviour
     {
         GameObject scarf = new GameObject("YellowScarfParticles");
         scarf.transform.SetParent(transform);
-        scarf.transform.localPosition = Vector3.up * 0.5f; // Center of trunk
+        scarf.transform.localPosition = Vector3.up * 0.5f;
 
         yellowScarfParticles = scarf.AddComponent<ParticleSystem>();
         var main = yellowScarfParticles.main;
@@ -260,7 +293,7 @@ public class TreeHealer : MonoBehaviour
         main.simulationSpace = ParticleSystemSimulationSpace.World;
 
         var emission = yellowScarfParticles.emission;
-        emission.rateOverTime = 80f; // Dense to look like a scarf
+        emission.rateOverTime = 80f;
 
         var shape = yellowScarfParticles.shape;
         shape.shapeType = ParticleSystemShapeType.Circle;
@@ -269,8 +302,8 @@ public class TreeHealer : MonoBehaviour
         
         var vel = yellowScarfParticles.velocityOverLifetime;
         vel.enabled = true;
-        vel.orbitalY = 3.0f; // Spin around Y
-        vel.y = new ParticleSystem.MinMaxCurve(0.1f, 0.35f); // Float up
+        vel.orbitalY = 3.0f;
+        vel.y = new ParticleSystem.MinMaxCurve(0.1f, 0.35f);
         
         var colorOL = yellowScarfParticles.colorOverLifetime;
         colorOL.enabled = true;
@@ -289,7 +322,7 @@ public class TreeHealer : MonoBehaviour
     {
         GameObject petals = new GameObject("PinkPetals");
         petals.transform.SetParent(transform);
-        petals.transform.localPosition = Vector3.up * 1.5f; // Top of tree
+        petals.transform.localPosition = Vector3.up * 1.5f;
 
         pinkPetals = petals.AddComponent<ParticleSystem>();
         var main = pinkPetals.main;
@@ -297,7 +330,7 @@ public class TreeHealer : MonoBehaviour
         main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
         main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.06f);
-        main.startColor = new Color(1f, 0.6f, 0.8f, 0.9f); // Pinkish glowing
+        main.startColor = new Color(1f, 0.6f, 0.8f, 0.9f);
 
         var emission = pinkPetals.emission;
         emission.rateOverTime = 40f;
@@ -308,7 +341,7 @@ public class TreeHealer : MonoBehaviour
 
         var force = pinkPetals.forceOverLifetime;
         force.enabled = true;
-        force.y = -0.1f; // Gravity fall
+        force.y = -0.1f;
 
         var noise = pinkPetals.noise;
         noise.enabled = true;
@@ -319,46 +352,84 @@ public class TreeHealer : MonoBehaviour
         pinkPetals.Stop();
     }
 
+    /// <summary>
+    /// 蝴蝶改为发光粒子飞舞：
+    /// - 从玩家头顶高度出发
+    /// - 缓缓上升，慢慢消失
+    /// - 最多同时 1-3 只
+    /// - 随机间隔出现
+    /// </summary>
     private void CreateButterflies()
     {
         GameObject bf = new GameObject("ButterflyParticles");
         bf.transform.SetParent(transform);
-        bf.transform.localPosition = Vector3.up * 0.8f;
+        bf.transform.localPosition = Vector3.up * 1.7f; // 头顶高度
 
         butterflyParticles = bf.AddComponent<ParticleSystem>();
         var main = butterflyParticles.main;
         main.loop = true;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
-        main.startSize = 0.15f; 
-        
-        var emission = butterflyParticles.emission;
-        emission.rateOverTime = 3f;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(6f, 12f); // 长寿命，缓慢消失
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.05f, 0.15f); // 很慢
+        main.startSize = new ParticleSystem.MinMaxCurve(0.06f, 0.12f); // 小发光球
+        main.maxParticles = 3; // 最多同时 3 只
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
 
+        // 金色/暖白蝴蝶光粒
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(1f, 0.85f, 0.5f, 0.9f),  // 暖金
+            new Color(1f, 1f, 0.8f, 0.95f)       // 亮白
+        );
+
+        // 低发射率 → 随机稀疏出现
+        var emission = butterflyParticles.emission;
+        emission.rateOverTime = 0.3f; // 平均每 3 秒出一只
+
+        // 小范围发射（玩家周围）
         var shape = butterflyParticles.shape;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 1.5f;
+        shape.radius = 0.5f;
 
+        // 缓缓上升
         var vel = butterflyParticles.velocityOverLifetime;
         vel.enabled = true;
-        vel.orbitalY = new ParticleSystem.MinMaxCurve(-0.8f, 0.8f); // flutter
+        vel.y = new ParticleSystem.MinMaxCurve(0.08f, 0.2f); // 向上飘
+        vel.orbitalY = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f); // 轻微绕圈
 
-        var texAnim = butterflyParticles.textureSheetAnimation;
-        texAnim.enabled = true;
-        texAnim.numTilesX = 2; // Basic 2x2 sprite sheet assumption
-        texAnim.numTilesY = 2;
-        texAnim.animation = ParticleSystemAnimationType.WholeSheet;
+        // 飘动噪声，像蝴蝶一样忽左忽右
+        var noise = butterflyParticles.noise;
+        noise.enabled = true;
+        noise.strength = 0.15f;
+        noise.frequency = 0.8f;
+        noise.scrollSpeed = 0.3f;
+        noise.separateAxes = true;
+        noise.strengthX = 0.2f;
+        noise.strengthY = 0.05f;
+        noise.strengthZ = 0.2f;
 
+        // 渐变：出现 → 明亮 → 慢慢消失
+        var colorOL = butterflyParticles.colorOverLifetime;
+        colorOL.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(
+            new GradientColorKey[] {
+                new GradientColorKey(new Color(1f, 0.9f, 0.6f), 0f),
+                new GradientColorKey(new Color(1f, 1f, 0.85f), 0.4f),
+                new GradientColorKey(new Color(1f, 0.95f, 0.7f), 1f)
+            },
+            new GradientAlphaKey[] {
+                new GradientAlphaKey(0f, 0f),       // 淡入
+                new GradientAlphaKey(0.9f, 0.15f),  // 出现
+                new GradientAlphaKey(0.8f, 0.5f),   // 维持
+                new GradientAlphaKey(0.3f, 0.8f),   // 开始消失
+                new GradientAlphaKey(0f, 1f)         // 完全消失
+            }
+        );
+        colorOL.color = grad;
+
+        // 使用发光球体材质（不再用蝴蝶贴图）
         var psr = butterflyParticles.GetComponent<ParticleSystemRenderer>();
-        var mat = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit"));
-        mat.SetFloat("_Surface", 1.0f);
-        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        
-        if (butterflyTexture != null) mat.mainTexture = butterflyTexture;
-        else Debug.LogWarning("TreeHealer: Please assign 'butterflyTexture' in the inspector.");
-        
-        psr.material = mat;
+        psr.material = ParticleUtils.GetGlowingSphereMaterial();
+
         butterflyParticles.Stop();
     }
 
@@ -374,10 +445,10 @@ public class TreeHealer : MonoBehaviour
         main.startLifetime = 3f;
         main.startSpeed = 0f;
         main.startSize = new ParticleSystem.MinMaxCurve(0.04f, 0.08f);
-        main.startColor = new Color(0.25f, 0.15f, 0.05f, 0.8f);
+        main.startColor = new Color(0.15f, 0.08f, 0.02f, 0.6f); // 深棕色
 
         var emission = soilParticles.emission;
-        emission.rateOverTime = 30f;
+        emission.rateOverTime = 15f; // 稀疏
 
         var shape = soilParticles.shape;
         shape.shapeType = ParticleSystemShapeType.Circle;
@@ -385,7 +456,7 @@ public class TreeHealer : MonoBehaviour
 
         var vel = soilParticles.velocityOverLifetime;
         vel.enabled = true;
-        vel.y = new ParticleSystem.MinMaxCurve(-0.01f, 0.02f); // very slight float
+        vel.y = new ParticleSystem.MinMaxCurve(-0.01f, 0.02f);
 
         soilParticles.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
         soilParticles.Play(); 

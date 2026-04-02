@@ -9,6 +9,8 @@ using UnityEngine;
 ///   3. Create an AudioSource on OceanManager, assign your ocean ambient clip, enable Loop
 ///   4. Drag that AudioSource into the "Ocean Audio" slot in the Inspector
 ///   5. Optionally drag a coral-particle audio clip into "Coral Audio" for breath-driven volume
+///   6. Drag seagull AudioSource into "Seagull Audio" for random seagull calls
+///   7. Drag bubble AudioSource into "Bubble Audio" for random underwater bubble sounds
 /// </summary>
 [RequireComponent(typeof(BreathInputManager))]
 public class OceanSceneSetup : MonoBehaviour
@@ -21,11 +23,17 @@ public class OceanSceneSetup : MonoBehaviour
     [Range(0f, 0.1f)] public float minFog = 0.003f;
     [Range(0f, 0.1f)] public float maxFog  = 0.04f;
 
+    [Header("Deep Blue Environment")]
+    public Color deepBlueColor = new Color(0.0f, 0.04f, 0.12f, 1f); // 极深的深蓝
+    public Color fogColor = new Color(0.0f, 0.06f, 0.18f, 1f);
+
     [Header("Audio (breath-driven volume)")]
     [Tooltip("AudioSource with ocean/underwater ambient clip (Loop = true).")]
     public AudioSource oceanAudio;
     [Tooltip("AudioSource for seagulls when entering scene.")]
     public AudioSource seagullAudio;
+    [Tooltip("AudioSource for underwater bubble sounds.")]
+    public AudioSource bubbleAudio;
     [Range(0f, 1f)] public float minVolume = 0.15f;
     [Range(0f, 1f)] public float maxVolume = 1.0f;
 
@@ -35,8 +43,8 @@ public class OceanSceneSetup : MonoBehaviour
     public float bubbleScale = 1.6f;    // Larger bubbles than the shard inset version
 
     [Header("Float Animation (FloatBob component)")]
-    public float bobAmplitude = 0.04f;
-    public float bobPeriod    = 6f;
+    public float bobAmplitude = 0.025f;  // 更小幅度
+    public float bobPeriod    = 10f;     // 更慢的周期
 
     void Awake()
     {
@@ -45,12 +53,38 @@ public class OceanSceneSetup : MonoBehaviour
 
     void Start()
     {
+        // 深蓝色环境 — 四周都是深蓝而非白色
         if (enableFog)
         {
             RenderSettings.fog      = true;
             RenderSettings.fogMode  = FogMode.ExponentialSquared;
-            RenderSettings.fogColor = new Color(0f, 0.15f, 0.4f);
+            RenderSettings.fogColor = fogColor;
             RenderSettings.fogDensity = minFog;
+        }
+
+        // 设置全局光照和天空为深蓝
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+        RenderSettings.ambientLight = new Color(0.02f, 0.06f, 0.15f);
+        RenderSettings.ambientIntensity = 0.3f;
+        RenderSettings.skybox = null;
+
+        // 摄像机背景改为深蓝
+        Camera cam = Camera.main;
+        if (cam == null) cam = FindObjectOfType<Camera>();
+        if (cam != null)
+        {
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = deepBlueColor;
+        }
+
+        // 关闭方向光（避免照亮边缘变白）
+        Light[] lights = FindObjectsOfType<Light>();
+        foreach (var l in lights)
+        {
+            if (l.type == LightType.Directional)
+            {
+                l.intensity = 0.1f; // 保留极微弱光以免全黑看不见
+            }
         }
 
         BuildBubbles();
@@ -64,6 +98,15 @@ public class OceanSceneSetup : MonoBehaviour
         else 
         {
             Debug.Log("[Placeholder] Seagull audio missing. Please attach AudioSource.");
+        }
+
+        if (bubbleAudio != null)
+        {
+            StartCoroutine(RandomBubbleRoutine());
+        }
+        else
+        {
+            Debug.Log("[Placeholder] Bubble audio missing. Please attach AudioSource with bubble clip.");
         }
     }
 
@@ -83,6 +126,24 @@ public class OceanSceneSetup : MonoBehaviour
                 seagullAudio.pitch = Random.Range(0.9f, 1.1f); // Add variety to the sound
                 seagullAudio.Play();
             }
+        }
+    }
+
+    private System.Collections.IEnumerator RandomBubbleRoutine()
+    {
+        yield return new WaitForSeconds(Random.Range(3f, 8f)); // 初始等待
+
+        while (true)
+        {
+            if (bubbleAudio != null)
+            {
+                bubbleAudio.pitch = Random.Range(0.85f, 1.15f);
+                bubbleAudio.volume = Random.Range(0.3f, 0.7f);
+                bubbleAudio.Play();
+            }
+
+            float waitTime = Random.Range(8f, 20f);
+            yield return new WaitForSeconds(waitTime);
         }
     }
 
