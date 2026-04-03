@@ -25,10 +25,14 @@ public class TreeHealer : MonoBehaviour
     [Tooltip("Drag Assets/tree/butterflies.png here (optional, now uses glow particles)")]
     public Texture2D butterflyTexture;
 
-    [Header("Audio")]
-    public AudioSource birdAudio;
-    [Tooltip("Magic healing sound effect when touching tree")]
-    public AudioSource magicHealAudio;
+    [Header("Audio — 直接拖音频文件即可")]
+    [Tooltip("鸟叫声音频文件")]
+    public AudioClip birdAudioClip;
+    [Tooltip("触碰树的魔法治愈音效")]
+    public AudioClip magicHealClip;
+
+    private AudioSource birdAudio;
+    private AudioSource magicHealAudio;
 
     // ============ HEALING SETTINGS ============
     [Header("Healing Settings")]
@@ -68,6 +72,24 @@ public class TreeHealer : MonoBehaviour
 
         // 强制覆盖 Inspector 里的旧值！确保 3 秒衰变生效
         decayRate = 0.33f;
+
+        // 自动创建 AudioSource + 距离衰减（用户只需拖 AudioClip）
+        if (birdAudioClip != null)
+        {
+            birdAudio = gameObject.AddComponent<AudioSource>();
+            birdAudio.clip = birdAudioClip;
+            birdAudio.spatialBlend = 0f;
+            birdAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(birdAudio, 15f, 2f);
+        }
+        if (magicHealClip != null)
+        {
+            magicHealAudio = gameObject.AddComponent<AudioSource>();
+            magicHealAudio.clip = magicHealClip;
+            magicHealAudio.spatialBlend = 0f;
+            magicHealAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(magicHealAudio, 8f, 1f);
+        }
 
         CreateMissingEffects();
 

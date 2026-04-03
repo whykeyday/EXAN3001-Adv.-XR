@@ -43,23 +43,31 @@ public class CatSceneSetup : MonoBehaviour
     public Transform fireplaceModel; 
     [Tooltip("如果你已经摆好了沙发，拖进来可以关掉占位白块")]
     public Transform sofaModel;
-    public AudioSource fireplaceAudio;
+    [Tooltip("篝火噼啪声音频文件")]
+    public AudioClip fireplaceClip;
+
+    private AudioSource fireplaceAudio;
 
     void Start()
     {
-        CreateRoomPlaceholder();
+        // 自动创建壁炉 AudioSource + 距离衰减
+        if (fireplaceClip != null)
+        {
+            fireplaceAudio = gameObject.AddComponent<AudioSource>();
+            fireplaceAudio.clip = fireplaceClip;
+            fireplaceAudio.spatialBlend = 0f;
+            fireplaceAudio.loop = true;
+            fireplaceAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(fireplaceAudio, 10f, 1.5f);
+        }
+
         CreateFireplacePlaceholder();
         SetupFurnitureAndCats();
         
         // 进入场景伴随壁炉炸裂声
         if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
         {
-            fireplaceAudio.loop = true;
             fireplaceAudio.Play();
-        }
-        else if (fireplaceAudio == null)
-        {
-            Debug.Log("[Placeholder] Fireplace audio (crackling wood) missing. Please attach AudioSource.");
         }
     }
 

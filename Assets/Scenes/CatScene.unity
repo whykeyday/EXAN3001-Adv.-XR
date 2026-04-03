@@ -455,8 +455,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.04
+      scalar: 0.03
+      minScalar: 0.02
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -4957,27 +4957,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3288.4
+      value: 1869.9816
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3288.4
+      value: 1869.9816
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3288.4
+      value: 1869.9816
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 106.3
+      value: 57.4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 42
+      value: 19.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 140.3
+      value: 72.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10072,27 +10072,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1903.8
+      value: 1082.615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1903.8
+      value: 1082.615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1903.8
+      value: 1082.615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -18
+      value: 14.72
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2
+      value: -0.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 147
+      value: 90.38
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15981,11 +15981,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2865b66cc0ac42c498c7454b48185b4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 5
   lightColor: {r: 1, g: 0.98, b: 0.95, a: 1}
-  intensity: 8
+  glowRadius: 1.5
+  glowIntensity: 3
+  groundOffset: 0.02
+  useSpotLight: 1
+  spotHeight: 4
+  spotIntensity: 8
   spotAngle: 45
-  range: 12
+  spotRange: 10
   followTarget: {fileID: 0}
 --- !u!1 &441087510 stripped
 GameObject:
@@ -26149,8 +26153,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.04
+      scalar: 0.03
+      minScalar: 0.02
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -31383,8 +31387,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.04
+      scalar: 0.03
+      minScalar: 0.02
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -50807,27 +50811,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalScale.x
-      value: 4149.5996
+      value: 2359.7114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalScale.y
-      value: 4149.5996
+      value: 2359.7114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalScale.z
-      value: 4149.5996
+      value: 2359.7114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -114
+      value: -31.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 115
+      value: 93
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalRotation.w
@@ -50898,27 +50902,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalScale.x
-      value: 4149.5996
+      value: 2359.7114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalScale.y
-      value: 4149.5996
+      value: 2359.7114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalScale.z
-      value: 4149.5996
+      value: 2359.7114
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 112
+      value: 52.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -48
+      value: 15.4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2664559f9801e7443870d4e617c55423, type: 3}
       propertyPath: m_LocalRotation.w
@@ -51628,8 +51632,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.04
+      scalar: 0.006
+      minScalar: 0.004
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -66313,8 +66317,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.04
+      scalar: 0.03
+      minScalar: 0.02
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -66633,7 +66637,7 @@ ParticleSystem:
     maxNumParticles: 20000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
-    rotation3D: 0
+    rotation3D: 1
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
@@ -76042,8 +76046,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.06
-      minScalar: 0.04
+      scalar: 0.03
+      minScalar: 0.02
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -134495,10 +134499,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blackCatModel: {fileID: 1854359415}
-  blackCatAggrAudio: {fileID: 8300000, guid: dfc8ad80f328f544a95771a6c06c40e5, type: 3}
+  blackCatAggrAudio: {fileID: 8300000, guid: d7625e21157d45c4ba5064932564cca9, type: 3}
   murderedCatModel: {fileID: 1272770465}
   toonCatModel: {fileID: 1639619902}
-  toonCatPurrAudio: {fileID: 8300000, guid: dfc8ad80f328f544a95771a6c06c40e5, type: 3}
+  toonCatPurrAudio: {fileID: 8300000, guid: acbd758d3251b9e4faad40df6cb571ed, type: 3}
   fireSpeed: 0.1
   fireLifetime: 1
   fireGravity: -0.5
@@ -134508,7 +134512,7 @@ MonoBehaviour:
   fireRadius: 0.3
   fireplaceModel: {fileID: 143120998}
   sofaModel: {fileID: 1547890039}
-  fireplaceAudio: {fileID: 0}
+  fireplaceClip: {fileID: 8300000, guid: a90456ce8979316419d172474e19b619, type: 3}
 --- !u!4 &1941078026
 Transform:
   m_ObjectHideFlags: 0
@@ -134536,7 +134540,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0275ee80ba5997047a2cc31baf88bd2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nightFogColor: {r: 0.01, g: 0.04, b: 0.12, a: 1}
+  nightFogColor: {r: 0, g: 0.08773585, b: 0.3509434, a: 1}
+  skyColor: {r: 0, g: 0.1985932, b: 0.2754717, a: 1}
   fogDensity: 0.04
   nightAmbientIntensity: 0.2
   starCount: 200
@@ -134722,27 +134727,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1903.8
+      value: 1082.615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1903.8
+      value: 1082.615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1903.8
+      value: 1082.615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -36
+      value: -17.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2
+      value: -7.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -60
+      value: 8.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: eb186115ec7e9954bbcd5913d69dd6e0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -140174,27 +140179,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3288.4
+      value: 1869.9816
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3288.4
+      value: 1869.9816
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3288.4
+      value: 1869.9816
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -122
+      value: -51.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 42
+      value: 19.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -16
+      value: 51.2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aef25c15c1e25e14ea8e4e6f9e3c5cea, type: 3}
       propertyPath: m_LocalRotation.w

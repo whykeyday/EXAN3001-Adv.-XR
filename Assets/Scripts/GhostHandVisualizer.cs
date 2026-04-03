@@ -3,14 +3,24 @@ using UnityEngine.XR.Hands;
 using UnityEngine.XR.Management;
 using System.Collections.Generic;
 
+/// <summary>
+/// Ghost hand visualizer with PlayerHand tagged fingertip colliders.
+/// When controllers are put down, ghost hands appear and their fingertips
+/// have trigger colliders for scene interaction (trees, cats, fish etc.)
+/// </summary>
+
 public class GhostHandVisualizer : MonoBehaviour
 {
     public XRHandSubsystem handSubsystem;
     
     [Header("Visual Settings")]
-    public Material handMaterial; // Assign "ChalkGhost" material here
-    public float handRadius = 0.035f; // Radius of the tube (3.5cm base)
-    public float handScale = 1.8f;    // Global Scale Multiplier (1.8x)
+    public Material handMaterial; 
+    public float handRadius = 0.035f; 
+    public float handScale = 1.8f;    
+
+    [Header("Tracking")]
+    [Tooltip("If empty, auto-finds the object named 'XR Origin' or 'XR Rig'")]
+    public Transform xrOrigin;
 
     [Header("Controller Visuals (拿手柄时隐藏手)")]
     [Tooltip("把你的左手柄模型拖到这里")]
@@ -23,6 +33,7 @@ public class GhostHandVisualizer : MonoBehaviour
     {
         public GameObject root;
         public List<LineRenderer> fingers = new List<LineRenderer>();
+        public List<GameObject> fingertipColliders = new List<GameObject>(); // 指尖碰撞体
     }
 
     private HandVisuals leftHandVisuals;
@@ -98,6 +109,24 @@ public class GhostHandVisualizer : MonoBehaviour
             lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             
             visuals.fingers.Add(lr);
+
+            // 为每根手指的指尖创建碰撞体（用于触发交互）
+            GameObject tipObj = new GameObject($"Fingertip_{i}");
+            tipObj.transform.parent = fingerObj.transform;
+            
+            // 标记为 PlayerHand 以供 TreeBranchTrigger 等脚本识别
+            try { tipObj.tag = "PlayerHand"; } 
+            catch { /* Tag not defined yet - user needs to add it in Tag Manager */ }
+            
+            SphereCollider tipCol = tipObj.AddComponent<SphereCollider>();
+            tipCol.isTrigger = true;
+            tipCol.radius = handRadius * handScale * 1.5f; // 稍大一些方便触碰
+            
+            Rigidbody tipRb = tipObj.AddComponent<Rigidbody>();
+            tipRb.isKinematic = true;
+            tipRb.useGravity = false;
+            
+            visuals.fingertipColliders.Add(tipObj);
         }
 
         return visuals;
@@ -139,10 +168,13 @@ public class GhostHandVisualizer : MonoBehaviour
         if (leftControllerVisual != null) leftControllerVisual.SetActive(leftCtrlActive);
         if (rightControllerVisual != null) rightControllerVisual.SetActive(rightCtrlActive);
 
-        if (handSubsystem == null || !handSubsystem.running)
+        // Try finding XR Origin if not assigned
+        if (xrOrigin == null)
         {
-            GetHandSubsystem();
-            return;
+            GameObject originObj = GameObject.Find("XR Origin");
+            if (originObj == null) originObj = GameObject.Find("XR Rig");
+            if (originObj != null) xrOrigin = originObj.transform;
+            else xrOrigin = transform; // Fallback
         }
 
         // !leftCtrlActive 表示“只要没拿手柄”，才允许显示这只追踪手
@@ -186,12 +218,25 @@ public class GhostHandVisualizer : MonoBehaviour
                 var joint = hand.GetJoint(chain[k]);
                 if (joint.TryGetPose(out Pose pose))
                 {
-                    // Calculate Scaled World Position (Relative to Wrist)
-                    // This expands the skeleton outward from the wrist.
-                    Vector3 rawOffset = pose.position - wristPose.position;
-                    Vector3 scaledPos = wristPose.position + (rawOffset * handScale);
+                    // Poses from XR Hand Subsystem are relative to the XR Origin.
+                    // To follow the player in world space, we MUST transform them.
+                    Vector3 localRawPos = pose.position;
+                    Vector3 localWristPos = wristPose.position;
+
+                    // Apply hand scale relative to wrist
+                    Vector3 offset = localRawPos - localWristPos;
+                    Vector3 scaledLocalPos = localWristPos + (offset * handScale);
+
+                    // Convert to World Space using XR Origin's transform
+                    Vector3 worldPos = xrOrigin.TransformPoint(scaledLocalPos);
                     
-                    lr.SetPosition(k, scaledPos);
+                    lr.SetPosition(k, worldPos);
+
+                    // 更新指尖碰撞体位置
+                    if (k == chain.Length - 1 && i < visuals.fingertipColliders.Count)
+                    {
+                        visuals.fingertipColliders[i].transform.position = worldPos;
+                    }
                 }
             }
         }

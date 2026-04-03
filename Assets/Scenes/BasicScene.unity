@@ -329,6 +329,9 @@ MonoBehaviour:
   intensity: 8
   spotAngle: 45
   range: 12
+  discRadius: 1.2
+  discColor: {r: 1, g: 0.95, b: 0.85, a: 0.15}
+  discGroundOffset: 0.05
   followTarget: {fileID: 0}
 --- !u!1 &441087509 stripped
 GameObject:
@@ -607,6 +610,55 @@ MonoBehaviour:
   wallHeight: 10
   wallThickness: 1
   makePlaneInvisible: 1
+--- !u!1 &1595940218
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1595940220}
+  - component: {fileID: 1595940219}
+  m_Layer: 0
+  m_Name: GlobalAudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1595940219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595940218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29236ca4586d3df48b86059bd0261cb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meditationTracks:
+  - {fileID: 8300000, guid: 21a3cefedc51481479a35b1883a24bd6, type: 3}
+  - {fileID: 8300000, guid: 875d13dac6ca0844eb30fe7e2910066b, type: 3}
+  - {fileID: 8300000, guid: 39f19899e30196e48b3f1924ca0ab190, type: 3}
+  - {fileID: 8300000, guid: 3b037f0ec2ef82c48891dc7d3aeacb20, type: 3}
+--- !u!4 &1595940220
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595940218}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.284801, y: -0.66187453, z: 35.576424}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2092139007
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,3 +755,4 @@ SceneRoots:
   - {fileID: 756192408}
   - {fileID: 2092139010}
   - {fileID: 1249617921}
+  - {fileID: 1595940220}

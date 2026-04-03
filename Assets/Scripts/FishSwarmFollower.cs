@@ -2,70 +2,88 @@ using UnityEngine;
 
 /// <summary>
 /// Attach to the Fish Container (FBX model). 
-/// It slowly follows the player's hands.
+/// It slowly follows the player's hands (controllers OR ghost hand fingertips).
+/// Supports hand tracking — when controllers are put down, fish follow ghost hand instead.
 /// </summary>
 public class FishSwarmFollower : MonoBehaviour
 {
     public float followSpeed = 0.5f;
     public float rotationSpeed = 2f;
+    [Tooltip("鱼群悬浮在手前方的偏移距离")]
+    public float forwardOffset = 0.4f;
     
-    // Hand tracking logic
-    [Tooltip("If empty, it will auto-search for objects tagged 'PlayerHand'. You can also drag your Left/Right Controllers here manually.")]
-    public Transform[] hands;
+    private Transform[] hands;
+    private float searchInterval = 0.5f;
+    private float nextSearchTime = 0f;
 
     void Start()
     {
-        // Try to find player hands by tag
+        FindHands();
+    }
+
+    void FindHands()
+    {
+        // 搜索所有标记为 PlayerHand 的物体
+        // 包括：XR 手柄上的控制器、GhostHandVisualizer 创建的指尖碰撞体
         GameObject[] handObjs = GameObject.FindGameObjectsWithTag("PlayerHand");
-        hands = new Transform[handObjs.Length];
-        for(int i=0; i<handObjs.Length; i++) hands[i] = handObjs[i].transform;
         
-        // 建议用户在此模型上先用 ParticleContainerTool 生成粒子系统，再挂载本脚本，使其跟随
+        if (handObjs.Length > 0)
+        {
+            hands = new Transform[handObjs.Length];
+            for (int i = 0; i < handObjs.Length; i++)
+            {
+                hands[i] = handObjs[i].transform;
+            }
+        }
     }
 
     void Update()
     {
-        // If hands not found yet (spawned later/dynamically by XR Rig), try finding them
-        if (hands == null || hands.Length == 0)
+        // 周期性重新搜索手（手可能在手柄/手追踪之间切换）
+        if (Time.time > nextSearchTime)
         {
-            GameObject[] handObjs = GameObject.FindGameObjectsWithTag("PlayerHand");
-            if (handObjs.Length > 0)
+            FindHands();
+            nextSearchTime = Time.time + searchInterval;
+        }
+
+        if (hands == null || hands.Length == 0) return;
+
+        // 计算所有有效手的中心点
+        Vector3 targetPos = Vector3.zero;
+        int validCount = 0;
+        foreach (var h in hands)
+        {
+            if (h != null && h.gameObject.activeInHierarchy)
             {
-                hands = new Transform[handObjs.Length];
-                for(int i=0; i<handObjs.Length; i++) hands[i] = handObjs[i].transform;
+                targetPos += h.position;
+                validCount++;
             }
         }
 
-        if (hands != null && hands.Length > 0)
+        if (validCount > 0)
         {
-            // Calculate center point of all hands
-            Vector3 targetPos = Vector3.zero;
-            int validCount = 0;
-            foreach(var h in hands)
+            targetPos /= validCount;
+            
+            // 鱼群在手前方一点点游动
+            Camera cam = Camera.main;
+            if (cam != null)
             {
-                if (h != null)
-                {
-                    targetPos += h.position;
-                    validCount++;
-                }
+                targetPos += cam.transform.forward * forwardOffset;
             }
-            if (validCount > 0)
+            else
             {
-                targetPos /= validCount;
-                
-                // Add a little offset so fish swim around hands, not directly inside them
-                targetPos += Camera.main != null ? Camera.main.transform.forward * 0.4f : Vector3.forward * 0.4f;
+                targetPos += Vector3.forward * forwardOffset;
+            }
 
-                // Move slowly towards target
-                transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeed);
+            // 平滑跟随
+            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeed);
 
-                // Rotate towards movement direction smoothly
-                Vector3 dir = (targetPos - transform.position).normalized;
-                if (dir.sqrMagnitude > 0.01f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(dir);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotationSpeed);
-                }
+            // 朝移动方向旋转
+            Vector3 dir = (targetPos - transform.position).normalized;
+            if (dir.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotationSpeed);
             }
         }
     }

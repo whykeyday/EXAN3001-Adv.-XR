@@ -1,65 +1,58 @@
 using UnityEngine;
 
 /// <summary>
-/// TreeSceneSetup — Builds the procedural glowing tree in TreeScene at runtime.
+/// TreeSceneSetup — 只负责树场景氛围设置。
+/// 不创建任何树模型！由于用户已有 TransparentParticleTree。
 ///
-/// HOW TO SET UP in Unity Editor (TreeScene):
-///   1. Create an empty GameObject, name it "TreeManager"
-///   2. Add Component → TreeSceneSetup
-///   3. Optionally add an AudioSource with forest ambient audio and drag into "Ambient Audio"
+/// 功能：
+///   - 深棕色森林氛围（雾、天空、光照）
+///   - 棕色地面材质（移除白色 Plane）
+///   - 稀疏棕色地面粒子
+///   - 森林环境音设置
+///
+/// 用法：挂到 TreeManager 物体上（和 TreeHealer 在同一个物体）
 /// </summary>
 public class TreeSceneSetup : MonoBehaviour
 {
-    [Header("Position")]
-    [Tooltip("World-space centre of the tree.")]
-    public Vector3 treeCenter = new Vector3(0f, 1.0f, 1.5f);
-
-    [Header("Scale")]
-    [Tooltip("Overall size multiplier for the whole tree.")]
-    public float treeScale = 3.5f;
-
-    [Header("Audio")]
-    [Tooltip("Looping forest / wind ambient AudioSource.")]
-    public AudioSource ambientAudio;
-
-    [Header("Float/Sway Animation")]
-    public float swayAmplitude = 0.015f;
-    public float swaySpeed     = 0.6f;
-
-    private GameObject treeRoot;
-
     [Header("Atmosphere — 深棕森林色调")]
     public Color forestFogColor = new Color(0.06f, 0.04f, 0.02f);
     public Color forestSkyColor = new Color(0.03f, 0.02f, 0.01f);
 
+    [Header("Audio")]
+    [Tooltip("森林环境音频文件（循环）")]
+    public AudioClip ambientClip;
+
+    private AudioSource ambientAudio;
+
     void Start()
     {
         SetupAtmosphere();
-        BuildTree();
-        if (ambientAudio != null && !ambientAudio.isPlaying) ambientAudio.Play();
+        MakePlaneBrown();
+        CreateGroundParticles();
+        SetupAudio();
     }
 
     void SetupAtmosphere()
     {
-        // 深棕色森林氛围（类似海洋的深蓝，但是棕色调）
+        // 深棕色森林氛围
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogColor = forestFogColor;
         RenderSettings.fogDensity = 0.025f;
 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.05f, 0.03f, 0.02f); // 极微弱棕色环境光
+        RenderSettings.ambientLight = new Color(0.05f, 0.03f, 0.02f); 
         RenderSettings.ambientIntensity = 0.2f;
         RenderSettings.skybox = null;
 
-        // 方向光调暖色微弱
+        // 方向光调暖月光色
         Light[] lights = FindObjectsOfType<Light>();
         foreach (var l in lights)
         {
             if (l.type == LightType.Directional)
             {
                 l.intensity = 0.08f;
-                l.color = new Color(0.8f, 0.6f, 0.3f); // 暖黄色月光
+                l.color = new Color(0.8f, 0.6f, 0.3f); 
             }
         }
 
@@ -72,125 +65,113 @@ public class TreeSceneSetup : MonoBehaviour
         }
     }
 
-    private TreeHealer cachedHealer;
-
-    void Update()
+    /// <summary>
+    /// 把场景里已有的白色 Plane 变为半透明棕色
+    /// </summary>
+    void MakePlaneBrown()
     {
-        if (cachedHealer == null) cachedHealer = FindObjectOfType<TreeHealer>();
-
-        // Gentle whole-tree sway & Growth mechanics
-        if (treeRoot != null)
+        foreach (var mr in FindObjectsOfType<MeshRenderer>())
         {
-            float energy = cachedHealer != null ? cachedHealer.energyLevel : 0f;
-            
-            // Branch lateral extension: X & Z expand dramatically from 40% to 100%
-            Vector3 targetScale = new Vector3(
-                treeScale * Mathf.Lerp(0.4f, 1.0f, energy),
-                treeScale * Mathf.Lerp(0.6f, 1.0f, energy), // Y grows from 60% to 100%
-                treeScale * Mathf.Lerp(0.4f, 1.0f, energy)
-            );
+            if (mr.gameObject.name.Contains("Plane"))
+            {
+                Material brownMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                if (brownMat == null) brownMat = new Material(Shader.Find("Standard"));
 
-            float s = 1f + Mathf.Sin(Time.time * swaySpeed) * swayAmplitude;
-            treeRoot.transform.localScale = targetScale * s;
-            
-            // Rise up from the ground slightly as it heals (starts -0.8m underground, goes to 0)
-            treeRoot.transform.position = treeCenter + Vector3.up * Mathf.Lerp(-0.8f, 0f, energy);
+                Color brownColor = new Color(0.18f, 0.12f, 0.06f, 0.7f);
+                brownMat.SetFloat("_Surface", 1f); 
+                brownMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                brownMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                brownMat.SetInt("_ZWrite", 0);
+                brownMat.renderQueue = 3000;
+                brownMat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                brownMat.SetColor("_BaseColor", brownColor);
+                brownMat.color = brownColor;
+
+                mr.material = brownMat;
+                mr.enabled = true;
+            }
         }
     }
 
-    // ── Geometry (matches GlassShardsSceneSetup.CreateTreeWorld exactly) ─────────────────
-    void BuildTree()
+    /// <summary>
+    /// 稀疏深棕色地面粒子 — 在地面微微漂浮
+    /// </summary>
+    void CreateGroundParticles()
     {
-        treeRoot = new GameObject("TreeRoot");
-        treeRoot.transform.position = treeCenter;
-        treeRoot.transform.localScale = Vector3.one * treeScale;
+        GameObject psObj = new GameObject("GroundDustParticles");
+        psObj.transform.position = new Vector3(0f, 0.1f, 0f);
 
-        // Fixed seed for consistent branching (same as GlassShardsSceneSetup)
-        Random.InitState(12345);
+        ParticleSystem ps = psObj.AddComponent<ParticleSystem>();
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
-        var container = new GameObject("TreeContainer");
-        container.transform.SetParent(treeRoot.transform, false);
-        container.transform.localRotation = Quaternion.Euler(0, 30, 0);
+        var main = ps.main;
+        main.loop = true;
+        main.prewarm = true;
+        main.duration = 30f;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(8f, 15f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.01f, 0.04f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.06f);
+        main.maxParticles = 80; 
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = 0f;
 
-        Color darkGreen = new Color(0.25f, 0.35f, 0.05f, 1f); // Dark yellow-green (withered)
-        float glow    = 1.0f; // Start with lower glow for dead tree
+        // 深棕色
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(0.12f, 0.08f, 0.03f, 0.4f),
+            new Color(0.2f, 0.14f, 0.06f, 0.6f)
+        );
 
-        // Trunk (5 segments, short)
-        for (int i = 0; i < 5; i++)
-        {
-            Vector3 pos = new Vector3(
-                Random.Range(-0.02f, 0.02f),
-                -0.35f + i * 0.07f,
-                Random.Range(-0.02f, 0.02f));
-            float scale = 0.12f * (1f - i / 7f);
-            Sphere(container.transform, pos, Vector3.one * scale, darkGreen, glow, treeRoot);
-        }
+        var emission = ps.emission;
+        emission.rateOverTime = 5f; 
 
-        // Branches (12, spherical spread, X-biased)
-        for (int i = 0; i < 12; i++)
-        {
-            Vector3 dir = Random.onUnitSphere;
-            if (dir.y < 0) dir.y *= -1;
-            dir.y += 0.5f;
-            dir.x *= 1.5f;
-            dir.Normalize();
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(12f, 0.3f, 12f); 
 
-            Vector3 start = new Vector3(0, Random.Range(-0.1f, 0.1f), 0);
-            Vector3 end   = start + dir * Random.Range(0.25f, 0.45f);
-            Branch(container.transform, start, end, darkGreen, 0.04f, glow, treeRoot);
-        }
+        var vel = ps.velocityOverLifetime;
+        vel.enabled = true;
+        vel.y = new ParticleSystem.MinMaxCurve(-0.01f, 0.03f);
+
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.03f;
+        noise.frequency = 0.3f;
+        noise.scrollSpeed = 0.1f;
+
+        var colorOL = ps.colorOverLifetime;
+        colorOL.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(
+            new GradientColorKey[] {
+                new GradientColorKey(new Color(0.15f, 0.1f, 0.04f), 0f),
+                new GradientColorKey(new Color(0.18f, 0.12f, 0.05f), 1f)
+            },
+            new GradientAlphaKey[] {
+                new GradientAlphaKey(0f, 0f),
+                new GradientAlphaKey(0.5f, 0.2f),
+                new GradientAlphaKey(0.4f, 0.7f),
+                new GradientAlphaKey(0f, 1f)
+            }
+        );
+        colorOL.color = grad;
+
+        var psr = ps.GetComponent<ParticleSystemRenderer>();
+        psr.material = ParticleUtils.GetGlowingSphereMaterial();
+
+        ps.Play();
     }
 
-    // ── Branch helper (matches GlassShardsSceneSetup.CreateBranch) ───────────────────────
-    void Branch(Transform parent, Vector3 start, Vector3 end, Color col, float baseScale, float emission, GameObject rootMarker)
+    void SetupAudio()
     {
-        Vector3 dir = (end - start).normalized;
-        float   len = Vector3.Distance(start, end);
-        int     segs = Mathf.CeilToInt(len / 0.06f);
-        for (int i = 0; i < segs; i++)
+        if (ambientClip != null)
         {
-            Vector3 pos   = start + dir * (i * len / segs);
-            float   scale = baseScale * (1f - i * 0.8f / segs);
-            Sphere(parent, pos, Vector3.one * scale, col, emission, rootMarker);
-        }
-    }
-
-    // ── Sphere primitive helper ───────────────────────────────────────────────────────────
-    void Sphere(Transform parent, Vector3 localPos, Vector3 scale, Color col, float emission, GameObject rootMarker)
-    {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        go.transform.SetParent(parent, false);
-        go.transform.localPosition = localPos;
-        go.transform.localScale    = scale;
-        
-        Collider c = go.GetComponent<Collider>();
-        if (c != null) c.isTrigger = true;
-        
-        // Add Rigidbody to ensure trigger collisions fire even if hand lacks Rigidbody
-        Rigidbody rb = go.AddComponent<Rigidbody>();
-        rb.isKinematic = true;
-        rb.useGravity = false;
-        // CRITICAL: Ensure the branches don't get moved by physics engines or explode apart
-        rb.constraints = RigidbodyConstraints.FreezeAll;
-        
-        TreeBranchTrigger trigger = go.AddComponent<TreeBranchTrigger>();
-        TreeHealer healer = FindObjectOfType<TreeHealer>();
-        if (healer != null) {
-            trigger.healer = healer;
-        }
-
-        Material mat = ParticleUtils.GetGlowingSphereMaterial();
-        if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor",  col);
-        else                               mat.color = col;
-        if (emission > 0.01f)
-        {
-            mat.SetColor("_EmissionColor", col * emission);
-        }
-        go.GetComponent<Renderer>().material = mat;
-
-        if (healer != null)
-        {
-            healer.AddTreeRenderer(go.GetComponent<Renderer>());
+            ambientAudio = gameObject.AddComponent<AudioSource>();
+            ambientAudio.clip = ambientClip;
+            ambientAudio.spatialBlend = 0f;
+            ambientAudio.loop = true;
+            ambientAudio.playOnAwake = false;
+            ambientAudio.Play();
+            AudioDistanceFader.Setup(ambientAudio, 20f, 2f);
         }
     }
 }

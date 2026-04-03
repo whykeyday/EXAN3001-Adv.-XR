@@ -1,22 +1,16 @@
 using UnityEngine;
 
 /// <summary>
-/// OceanSceneSetup — Builds the ocean bubble world at runtime for OceanScene.
+/// OceanSceneSetup — 只负责海洋氛围设置（深蓝环境 + 雾 + 音频）。
+/// 不创建任何模型/气泡！用户已有自己的海洋模型。
 ///
-/// HOW TO SET UP in Unity Editor (OceanScene):
-///   1. Create an empty GameObject, name it "OceanManager"
-///   2. Add Component → OceanSceneSetup  (BreathInputManager is added automatically)
-///   3. Create an AudioSource on OceanManager, assign your ocean ambient clip, enable Loop
-///   4. Drag that AudioSource into the "Ocean Audio" slot in the Inspector
-///   5. Optionally drag a coral-particle audio clip into "Coral Audio" for breath-driven volume
-///   6. Drag seagull AudioSource into "Seagull Audio" for random seagull calls
-///   7. Drag bubble AudioSource into "Bubble Audio" for random underwater bubble sounds
+/// 用法：挂到场景中已有的 OceanManager 或 BreathManager 物体上。
 /// </summary>
 [RequireComponent(typeof(BreathInputManager))]
 public class OceanSceneSetup : MonoBehaviour
 {
     [Header("Breath")]
-    public BreathInputManager breathInput;   // Auto-found on same GO
+    public BreathInputManager breathInput;
 
     [Header("Fog (breath-driven)")]
     public bool enableFog = true;
@@ -24,27 +18,22 @@ public class OceanSceneSetup : MonoBehaviour
     [Range(0f, 0.1f)] public float maxFog  = 0.04f;
 
     [Header("Deep Blue Environment")]
-    public Color deepBlueColor = new Color(0.0f, 0.04f, 0.12f, 1f); // 极深的深蓝
+    public Color deepBlueColor = new Color(0.0f, 0.04f, 0.12f, 1f);
     public Color fogColor = new Color(0.0f, 0.06f, 0.18f, 1f);
 
-    [Header("Audio (breath-driven volume)")]
-    [Tooltip("AudioSource with ocean/underwater ambient clip (Loop = true).")]
-    public AudioSource oceanAudio;
-    [Tooltip("AudioSource for seagulls when entering scene.")]
-    public AudioSource seagullAudio;
-    [Tooltip("AudioSource for underwater bubble sounds.")]
-    public AudioSource bubbleAudio;
+    [Header("Audio — 直接拖音频文件即可")]
+    [Tooltip("海洋环境音（循环）")]
+    public AudioClip oceanClip;
+    [Tooltip("海鸥叫声")]
+    public AudioClip seagullClip;
+    [Tooltip("水泡声")]
+    public AudioClip bubbleClip;
     [Range(0f, 1f)] public float minVolume = 0.15f;
     [Range(0f, 1f)] public float maxVolume = 1.0f;
 
-    [Header("Bubble Cluster")]
-    [Tooltip("World-space centre of the bubble cluster.")]
-    public Vector3 clusterCenter = new Vector3(0f, 1.4f, 2f);
-    public float bubbleScale = 1.6f;    // Larger bubbles than the shard inset version
-
-    [Header("Float Animation (FloatBob component)")]
-    public float bobAmplitude = 0.025f;  // 更小幅度
-    public float bobPeriod    = 10f;     // 更慢的周期
+    private AudioSource oceanAudio;
+    private AudioSource seagullAudio;
+    private AudioSource bubbleAudio;
 
     void Awake()
     {
@@ -53,7 +42,14 @@ public class OceanSceneSetup : MonoBehaviour
 
     void Start()
     {
-        // 深蓝色环境 — 四周都是深蓝而非白色
+        SetupAtmosphere();
+        SetupAudio();
+        MakePlaneDeepBlue();
+    }
+
+    void SetupAtmosphere()
+    {
+        // 深蓝色环境
         if (enableFog)
         {
             RenderSettings.fog      = true;
@@ -62,13 +58,11 @@ public class OceanSceneSetup : MonoBehaviour
             RenderSettings.fogDensity = minFog;
         }
 
-        // 设置全局光照和天空为深蓝
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(0.02f, 0.06f, 0.15f);
         RenderSettings.ambientIntensity = 0.3f;
         RenderSettings.skybox = null;
 
-        // 摄像机背景改为深蓝
         Camera cam = Camera.main;
         if (cam == null) cam = FindObjectOfType<Camera>();
         if (cam != null)
@@ -77,53 +71,88 @@ public class OceanSceneSetup : MonoBehaviour
             cam.backgroundColor = deepBlueColor;
         }
 
-        // 关闭方向光（避免照亮边缘变白）
+        // 关闭/调弱方向光
         Light[] lights = FindObjectsOfType<Light>();
         foreach (var l in lights)
         {
             if (l.type == LightType.Directional)
             {
-                l.intensity = 0.1f; // 保留极微弱光以免全黑看不见
+                l.intensity = 0.1f;
             }
         }
+    }
 
-        BuildBubbles();
-
-        if (oceanAudio != null && !oceanAudio.isPlaying) oceanAudio.Play();
-        
-        if (seagullAudio != null) 
+    void SetupAudio()
+    {
+        if (oceanClip != null)
         {
+            oceanAudio = gameObject.AddComponent<AudioSource>();
+            oceanAudio.clip = oceanClip;
+            oceanAudio.spatialBlend = 0f;
+            oceanAudio.loop = true;
+            oceanAudio.Play();
+            AudioDistanceFader.Setup(oceanAudio, 25f, 2f);
+        }
+        if (seagullClip != null)
+        {
+            seagullAudio = gameObject.AddComponent<AudioSource>();
+            seagullAudio.clip = seagullClip;
+            seagullAudio.spatialBlend = 0f;
+            seagullAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(seagullAudio, 15f, 1.5f);
             StartCoroutine(RandomSeagullRoutine());
         }
-        else 
+        if (bubbleClip != null)
         {
-            Debug.Log("[Placeholder] Seagull audio missing. Please attach AudioSource.");
-        }
-
-        if (bubbleAudio != null)
-        {
+            bubbleAudio = gameObject.AddComponent<AudioSource>();
+            bubbleAudio.clip = bubbleClip;
+            bubbleAudio.spatialBlend = 0f;
+            bubbleAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(bubbleAudio, 12f, 1f);
             StartCoroutine(RandomBubbleRoutine());
         }
-        else
+    }
+
+    /// <summary>
+    /// 把已有的 Plane 设为深蓝色（移除白色地面）
+    /// </summary>
+    void MakePlaneDeepBlue()
+    {
+        foreach (var mr in FindObjectsOfType<MeshRenderer>())
         {
-            Debug.Log("[Placeholder] Bubble audio missing. Please attach AudioSource with bubble clip.");
+            if (mr.gameObject.name.Contains("Plane"))
+            {
+                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                if (mat == null) mat = new Material(Shader.Find("Standard"));
+
+                Color planeColor = new Color(0.0f, 0.03f, 0.08f, 0.8f);
+                mat.SetFloat("_Surface", 1f); 
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.renderQueue = 3000;
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                mat.SetColor("_BaseColor", planeColor);
+                mat.color = planeColor;
+
+                mr.material = mat;
+                mr.enabled = true; 
+            }
         }
     }
 
     private System.Collections.IEnumerator RandomSeagullRoutine()
     {
-        // Play once initially to give immediate feedback
         if (seagullAudio != null && !seagullAudio.isPlaying) seagullAudio.Play();
 
-        // Loop and play randomly
         while (true)
         {
-            float waitTime = Random.Range(12f, 25f); // Random interval between 12 to 25 seconds
+            float waitTime = Random.Range(12f, 25f);
             yield return new WaitForSeconds(waitTime);
             
             if (seagullAudio != null)
             {
-                seagullAudio.pitch = Random.Range(0.9f, 1.1f); // Add variety to the sound
+                seagullAudio.pitch = Random.Range(0.9f, 1.1f);
                 seagullAudio.Play();
             }
         }
@@ -131,7 +160,7 @@ public class OceanSceneSetup : MonoBehaviour
 
     private System.Collections.IEnumerator RandomBubbleRoutine()
     {
-        yield return new WaitForSeconds(Random.Range(3f, 8f)); // 初始等待
+        yield return new WaitForSeconds(Random.Range(3f, 8f));
 
         while (true)
         {
@@ -157,56 +186,5 @@ public class OceanSceneSetup : MonoBehaviour
 
         if (oceanAudio != null)
             oceanAudio.volume = Mathf.Lerp(minVolume, maxVolume, b);
-    }
-
-    // ── Procedural bubble cluster (matches GlassShardsSceneSetup.CreateOceanWorld) ──────
-    void BuildBubbles()
-    {
-        var root = new GameObject("BubbleCluster");
-        root.transform.position = clusterCenter;
-
-        Random.InitState((int)(Time.realtimeSinceStartup * 1000));
-
-        // Layer 1 — large faint
-        for (int i = 0; i < 8; i++)
-            AddBubble(root.transform, Random.insideUnitSphere * 0.35f,
-                      Random.Range(0.08f, 0.15f), new Color(0f, 0.5f, 1f, 0.3f), 1.5f);
-
-        // Layer 2 — medium bright
-        for (int i = 0; i < 20; i++)
-            AddBubble(root.transform, Random.insideUnitSphere * 0.4f,
-                      Random.Range(0.04f, 0.07f),
-                      Random.value > 0.4f ? new Color(0f, 0.7f, 1f, 0.8f) : new Color(0f, 0.2f, 1f, 0.9f), 5.5f);
-
-        // Layer 3 — tiny glitter
-        for (int i = 0; i < 40; i++)
-            AddBubble(root.transform, Random.insideUnitSphere * 0.45f,
-                      Random.Range(0.015f, 0.03f),
-                      Random.value > 0.3f ? new Color(0.3f, 0.8f, 1f, 0.95f) : new Color(0f, 0.4f, 1f, 0.95f), 8.5f);
-    }
-
-    void AddBubble(Transform parent, Vector3 localPos, float size, Color col, float emission)
-    {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        go.transform.SetParent(parent, false);
-        go.transform.localPosition = localPos;
-        go.transform.localScale    = Vector3.one * size * bubbleScale;
-        Destroy(go.GetComponent<Collider>());
-
-        // Material (Using universally soft glowing sphere)
-        Material mat = ParticleUtils.GetGlowingSphereMaterial();
-        if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor",  col);
-        else                               mat.color = col;
-        if (emission > 0.01f)
-        {
-            mat.SetColor("_EmissionColor", col * emission);
-        }
-        go.GetComponent<Renderer>().material = mat;
-
-        // FloatBob (existing script reuse)
-        var bob = go.AddComponent<FloatBob>();
-        bob.amplitude    = bobAmplitude;
-        bob.period       = bobPeriod;
-        bob.randomPhase  = true;
     }
 }
