@@ -59,10 +59,15 @@ public class ParticleTreeHealer : MonoBehaviour
     public AudioClip birdAudioClip;
     [Tooltip("触碰树的魔法治愈音效")]
     public AudioClip magicHealClip;
-    [Tooltip("鸟叫距离衰减范围")]
-    public float birdFadeDistance = 5f;
-    [Tooltip("魔法音效距离衰减范围")]
-    public float magicFadeDistance = 3f;
+    [Header("Bird Audio Distance (手动调整)")]
+    public float birdFarDistance = 15f;
+    public float birdNearDistance = 1.0f;
+    public float birdFalloff = 1.5f;
+
+    [Header("Magic Heal Distance (手动调整)")]
+    public float magicFarDistance = 8f;
+    public float magicNearDistance = 0.5f;
+    public float magicFalloff = 1.5f;
 
     private AudioSource birdAudio;
     private AudioSource magicHealAudio;
@@ -85,7 +90,7 @@ public class ParticleTreeHealer : MonoBehaviour
     private bool wasHealing = false;
     private Coroutine birdCoroutine;
     private ParticleSystem.Particle[] pBuffer; // 用于读取和染色粒子的高效缓存
-    private float scanTimer = 0f;
+    private float scanTimer = 0f; // Kept as placeholder for future scans
     private List<GameObject> cachedHands = new List<GameObject>();
     private float wMinY = 0f;
     private float wMaxY = 10f;
@@ -109,7 +114,7 @@ public class ParticleTreeHealer : MonoBehaviour
             birdAudio.clip = birdAudioClip;
             birdAudio.spatialBlend = 1f;
             birdAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(birdAudio, birdFadeDistance, 0.8f);
+            AudioDistanceFader.Setup(birdAudio, birdFarDistance, birdNearDistance, birdFalloff);
         }
         if (magicHealClip != null)
         {
@@ -117,7 +122,7 @@ public class ParticleTreeHealer : MonoBehaviour
             magicHealAudio.clip = magicHealClip;
             magicHealAudio.spatialBlend = 1f;
             magicHealAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(magicHealAudio, magicFadeDistance, 0.5f);
+            AudioDistanceFader.Setup(magicHealAudio, magicFarDistance, magicNearDistance, magicFalloff);
         }
 
         // ★ 强行覆盖 Inspector 中可能残留的旧参数，确保本次更新立即生效！！

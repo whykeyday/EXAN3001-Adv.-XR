@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 #if UNITY_ANDROID
 using UnityEngine.Android;
 #endif
@@ -16,13 +17,24 @@ public class BreathInputManager : MonoBehaviour
     [Header("Debug")]
     public GameObject debugCube;
 
-    [Header("Ocean Audio — 海鸥/水泡 (全局随机环境音)")]
-    [Tooltip("海鸥叫声")]
-    public AudioClip seagullClip;
+    [Header("Ocean Audio —— 海鸥/水泡 (全局随机环境音)")]
+    [Tooltip("海鸥叫声（手动拖入最多 5 个音频）")]
+    public AudioClip[] seagullClips = new AudioClip[5]; 
     [Tooltip("水泡声")]
     public AudioClip bubbleClip;
     [Range(0f, 1f)] public float seagullVolume = 0.6f;
     [Range(0f, 1f)] public float bubbleVolume = 0.5f;
+
+    [Header("Random Intervals (手动调整随机间隔)")]
+    public float minSeagullInterval = 4f;
+    public float maxSeagullInterval = 7f;
+    public float minBubbleInterval = 4f;
+    public float maxBubbleInterval = 7f;
+
+    [Header("Distance Fade Settings (手动调整)")]
+    public float ambientFarDistance = 15f;
+    public float ambientNearDistance = 1.0f;
+    public float ambientFalloff = 1.5f;
 
     private AudioSource seagullAudio;
     private AudioSource bubbleAudio;
@@ -36,7 +48,6 @@ public class BreathInputManager : MonoBehaviour
     private AudioClip microphoneClip;
     private string microphoneDevice;
     private float[] audioSamples = new float[128];
-    private float currentRms = 0f;
     private float smoothedRms = 0f;
     
     // Calibration variables
@@ -53,58 +64,64 @@ public class BreathInputManager : MonoBehaviour
 
     void SetupOceanAudio()
     {
-        if (seagullClip != null)
-        {
-            seagullAudio = gameObject.AddComponent<AudioSource>();
-            seagullAudio.clip = seagullClip;
-            seagullAudio.spatialBlend = 0f; // 2D全局可听
-            seagullAudio.volume = seagullVolume;
-            seagullAudio.playOnAwake = false;
-            StartCoroutine(RandomSeagullRoutine());
-        }
-        if (bubbleClip != null)
-        {
-            bubbleAudio = gameObject.AddComponent<AudioSource>();
-            bubbleAudio.clip = bubbleClip;
-            bubbleAudio.spatialBlend = 0f; // 2D全局可听
-            bubbleAudio.volume = bubbleVolume;
-            bubbleAudio.playOnAwake = false;
-            StartCoroutine(RandomBubbleRoutine());
-        }
+        // 启动随机音效循环
+        StartCoroutine(RandomSeagullRoutine());
+        StartCoroutine(RandomBubbleRoutine());
     }
 
     private IEnumerator RandomSeagullRoutine()
     {
-        yield return new WaitForSeconds(Random.Range(2f, 5f));
-
         while (true)
         {
-            if (seagullAudio != null)
-            {
-                seagullAudio.pitch = Random.Range(0.9f, 1.1f);
-                seagullAudio.volume = seagullVolume * Random.Range(0.7f, 1f);
-                seagullAudio.Play();
-            }
+            float wait = Random.Range(minSeagullInterval, maxSeagullInterval);
+            yield return new WaitForSeconds(wait);
 
-            yield return new WaitForSeconds(Random.Range(4f, 7f));
+            if (seagullClips != null && seagullClips.Length > 0)
+            {
+                // 随机选一个非空的 Clip
+                List<AudioClip> validClips = new List<AudioClip>();
+                foreach (var c in seagullClips) if (c != null) validClips.Add(c);
+
+                if (validClips.Count > 0)
+                {
+                    AudioClip clip = validClips[Random.Range(0, validClips.Count)];
+                    PlayAmbient3DSound(clip, seagullVolume, 5f, "SeagullEmitter_Temp");
+                }
+            }
         }
     }
 
     private IEnumerator RandomBubbleRoutine()
     {
-        yield return new WaitForSeconds(Random.Range(1f, 3f));
-
         while (true)
         {
-            if (bubbleAudio != null)
-            {
-                bubbleAudio.pitch = Random.Range(0.85f, 1.15f);
-                bubbleAudio.volume = bubbleVolume * Random.Range(0.5f, 1f);
-                bubbleAudio.Play();
-            }
+            float wait = Random.Range(minBubbleInterval, maxBubbleInterval);
+            yield return new WaitForSeconds(wait);
 
-            yield return new WaitForSeconds(Random.Range(4f, 7f));
+            if (bubbleClip != null)
+            {
+                PlayAmbient3DSound(bubbleClip, bubbleVolume, 2f, "BubbleEmitter_Temp");
+            }
         }
+    }
+
+    private void PlayAmbient3DSound(AudioClip clip, float volume, float dist, string emitterName)
+    {
+        if (clip == null) return;
+        
+        GameObject emitter = new GameObject(emitterName);
+        emitter.transform.position = Camera.main.transform.position + Random.onUnitSphere * dist;
+        AudioSource src = emitter.AddComponent<AudioSource>();
+        src.clip = clip;
+        src.volume = volume;
+        src.spatialBlend = 1f; // 3D Spatial
+        src.Play();
+
+        // 附加强制距离衰减逻辑
+        AudioDistanceFader.Setup(src, ambientFarDistance, ambientNearDistance, ambientFalloff);
+        
+        Destroy(emitter, clip.length + 1f);
+        Debug.Log($"[OceanSound] Played {emitterName}: {clip.name} Volume: {volume}");
     }
 
     void InitializeMicrophone()

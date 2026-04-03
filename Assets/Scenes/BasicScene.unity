@@ -324,14 +324,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2865b66cc0ac42c498c7454b48185b4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 5
   lightColor: {r: 1, g: 0.98, b: 0.95, a: 1}
-  intensity: 8
-  spotAngle: 45
-  range: 12
-  discRadius: 1.2
-  discColor: {r: 1, g: 0.95, b: 0.85, a: 0.15}
-  discGroundOffset: 0.05
+  glowRadius: 1.2
+  glowIntensity: 1.5
+  groundOffset: 0.015
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   followTarget: {fileID: 0}
 --- !u!1 &441087509 stripped
 GameObject:
@@ -358,6 +357,11 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
+  leftHandIcon: {fileID: 0}
+  rightHandIcon: {fileID: 0}
+  leftControllerIcon: {fileID: 0}
+  rightControllerIcon: {fileID: 0}
+  xrOrigin: {fileID: 0}
   leftControllerVisual: {fileID: 441087510}
   rightControllerVisual: {fileID: 441087509}
 --- !u!1 &756192406
@@ -644,6 +648,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 875d13dac6ca0844eb30fe7e2910066b, type: 3}
   - {fileID: 8300000, guid: 39f19899e30196e48b3f1924ca0ab190, type: 3}
   - {fileID: 8300000, guid: 3b037f0ec2ef82c48891dc7d3aeacb20, type: 3}
+  bgmVolume: 1
 --- !u!4 &1595940220
 Transform:
   m_ObjectHideFlags: 0

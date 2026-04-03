@@ -4,12 +4,12 @@ using UnityEngine;
 /// OceanSceneSetup — 只负责海洋氛围设置（深蓝环境 + 雾 + 音频）。
 /// 不创建任何模型/气泡！用户已有自己的海洋模型。
 ///
-/// 用法：挂到场景中已有的 OceanManager 或 BreathManager 物体上。
+/// 用法：挂到场景中的 BreathManager 物体上。
 /// </summary>
 [RequireComponent(typeof(BreathInputManager))]
 public class OceanSceneSetup : MonoBehaviour
 {
-    [Header("Breath")]
+    [Header("1. Breath & Fog Settings")]
     public BreathInputManager breathInput;
 
     [Header("Fog (breath-driven)")]
@@ -21,11 +21,32 @@ public class OceanSceneSetup : MonoBehaviour
     public Color deepBlueColor = new Color(0.0f, 0.04f, 0.12f, 1f);
     public Color fogColor = new Color(0.0f, 0.06f, 0.18f, 1f);
 
-    [Header("Audio — 直接拖音频文件即可")]
+    [Header("2. Loop Audio (Deep Sea Waves)")]
     [Tooltip("海洋环境音（循环）")]
     public AudioClip oceanClip;
     [Range(0f, 1f)] public float minVolume = 0.15f;
     [Range(0f, 1f)] public float maxVolume = 1.0f;
+    
+    [Header("3. Ocean Audio — 海鸥/水泡 (全局随机环境音)")]
+    [Tooltip("海鸥叫声（随机选 1-4 个）")]
+    public AudioClip[] seagullClips;
+    [Range(0f, 1f)] public float seagullVolume = 0.6f;
+    [Tooltip("海鸥随机响起的间隔 (秒)")]
+    public float minSeagullInterval = 4f;
+    public float maxSeagullInterval = 7f;
+    
+    [Space(5)]
+    [Tooltip("气泡冒泡声")]
+    public AudioClip bubbleClip;
+    [Range(0f, 1f)] public float bubbleVolume = 0.4f;
+    [Tooltip("气泡随机响起的间隔 (秒)")]
+    public float minBubbleInterval = 4f;
+    public float maxBubbleInterval = 7f;
+
+    [Header("Random Sounds Distance Fade")]
+    public float ambientNearDistance = 0.5f;
+    public float ambientFarDistance = 15f;
+    public float ambientFalloff = 1.5f;
 
     private AudioSource oceanAudio;
 
@@ -40,6 +61,64 @@ public class OceanSceneSetup : MonoBehaviour
         SetupAudio();
         MakePlaneDeepBlue();
         SlowDownBackgroundParticles();
+
+        // 启动随机音效
+        StartCoroutine(SeagullLoop());
+        StartCoroutine(BubbleLoop());
+    }
+
+    private System.Collections.IEnumerator SeagullLoop()
+    {
+        while (true)
+        {
+            float wait = Random.Range(minSeagullInterval, maxSeagullInterval);
+            yield return new WaitForSeconds(wait);
+
+            if (seagullClips != null && seagullClips.Length > 0)
+            {
+                AudioClip clip = seagullClips[Random.Range(0, seagullClips.Length)];
+                if (clip != null)
+                {
+                    // Create a temporary emitter to allow Distance Fade
+                    GameObject emitter = new GameObject("SeagullEmitter_Temp");
+                    emitter.transform.position = Camera.main.transform.position + Random.onUnitSphere * 5f;
+                    AudioSource src = emitter.AddComponent<AudioSource>();
+                    src.clip = clip;
+                    src.volume = seagullVolume;
+                    src.spatialBlend = 1f;
+                    src.Play();
+                    AudioDistanceFader.Setup(src, ambientFarDistance, ambientNearDistance, ambientFalloff);
+                    
+                    // Auto-destroy after clip ends
+                    Destroy(emitter, clip.length + 1f);
+                    Debug.Log($"[OceanSound] Played Seagull: {clip.name} with Volume {seagullVolume}");
+                }
+            }
+        }
+    }
+
+    private System.Collections.IEnumerator BubbleLoop()
+    {
+        while (true)
+        {
+            float wait = Random.Range(minBubbleInterval, maxBubbleInterval);
+            yield return new WaitForSeconds(wait);
+
+            if (bubbleClip != null)
+            {
+                GameObject emitter = new GameObject("BubbleEmitter_Temp");
+                emitter.transform.position = Camera.main.transform.position + Random.insideUnitSphere * 2f;
+                AudioSource src = emitter.AddComponent<AudioSource>();
+                src.clip = bubbleClip;
+                src.volume = bubbleVolume;
+                src.spatialBlend = 1f;
+                src.Play();
+                AudioDistanceFader.Setup(src, ambientFarDistance, ambientNearDistance, ambientFalloff);
+
+                Destroy(emitter, bubbleClip.length + 1f);
+                Debug.Log($"[OceanSound] Played Bubble: {bubbleClip.name} with Volume {bubbleVolume}");
+            }
+        }
     }
 
     void SetupAtmosphere()

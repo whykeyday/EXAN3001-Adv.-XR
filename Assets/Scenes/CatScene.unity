@@ -15967,6 +15967,10 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
+  leftHandIcon: {fileID: 0}
+  rightHandIcon: {fileID: 0}
+  leftControllerIcon: {fileID: 0}
+  rightControllerIcon: {fileID: 0}
   xrOrigin: {fileID: 0}
   leftControllerVisual: {fileID: 441087511}
   rightControllerVisual: {fileID: 441087510}
@@ -15986,11 +15990,9 @@ MonoBehaviour:
   glowRadius: 1.5
   glowIntensity: 3
   groundOffset: 0.02
-  useSpotLight: 1
-  spotHeight: 4
-  spotIntensity: 8
-  spotAngle: 45
-  spotRange: 10
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   followTarget: {fileID: 0}
 --- !u!1 &441087510 stripped
 GameObject:
@@ -134545,6 +134547,9 @@ MonoBehaviour:
   skyColor: {r: 0, g: 0.07423182, b: 0.10188681, a: 1}
   fogDensity: 0.04
   nightAmbientIntensity: 0.2
+  breathCycleSeconds: 5
+  breathMinBrightness: 0.3
+  breathMaxBrightness: 1
   starCount: 200
   starBoxSize: {x: 20, y: 6, z: 20}
   starHeightOffset: 3

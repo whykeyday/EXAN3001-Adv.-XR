@@ -516,7 +516,9 @@ public class CampfireInteraction : MonoBehaviour
 {
     public AudioClip fireplaceClip;
     [Tooltip("篝火音频距离衰减范围")]
-    public float fireAudioDistance = 4f;
+    public float fireFarDistance = 15f;
+    public float fireNearDistance = 1.0f;
+    public float fireFalloffExponent = 1.5f;
 
     private AudioSource fireplaceAudio;
     private float lastTouchTime = -999f;
@@ -559,7 +561,7 @@ public class CampfireInteraction : MonoBehaviour
             fireplaceAudio.loop = true;
             fireplaceAudio.volume = 1f;
             fireplaceAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(fireplaceAudio, fireAudioDistance, 0.5f);
+            AudioDistanceFader.Setup(fireplaceAudio, fireFarDistance, fireNearDistance, fireFalloffExponent);
             fireplaceAudio.Play();
         }
     }

@@ -5961,8 +5961,12 @@ MonoBehaviour:
   energyLevel: 0.333
   birdAudioClip: {fileID: 8300000, guid: c6d464537e095f7408ee9d03c56b7be2, type: 3}
   magicHealClip: {fileID: 8300000, guid: 0c087b88251e6f14e9e07303955c3841, type: 3}
-  birdFadeDistance: 5
-  magicFadeDistance: 2.96
+  birdFarDistance: 3
+  birdNearDistance: 1
+  birdFalloff: 1.5
+  magicFarDistance: 8
+  magicNearDistance: 0.5
+  magicFalloff: 1.5
   butterflyTexture: {fileID: 2800000, guid: 464650f62db3b63478a0f4546554f48f, type: 3}
   triggerOverlapDetected: 0
 --- !u!4 &1902966278

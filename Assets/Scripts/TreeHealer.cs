@@ -6,10 +6,11 @@ using System.Collections.Generic;
 /// and becomes alive (green/gold, high particles) when touched.
 /// Energy particles fly from hand to tree.
 /// </summary>
+/// Energy particles fly from hand to tree.
+/// </summary>
 public class TreeHealer : MonoBehaviour
 {
-    // ============ REFERENCES ============
-    [Header("References")]
+    [Header("1. Main Tree References")]
     public ParticleSystem treeParticles;
     public Transform treeCenter;
     public Transform playerHand;
@@ -25,7 +26,7 @@ public class TreeHealer : MonoBehaviour
     [Tooltip("Drag Assets/tree/butterflies.png here (optional, now uses glow particles)")]
     public Texture2D butterflyTexture;
 
-    [Header("Audio — 直接拖音频文件即可")]
+    [Header("2. Tree Audio — 鸟叫/魔法音效")]
     [Tooltip("鸟叫声音频文件")]
     public AudioClip birdAudioClip;
     [Tooltip("触碰树的魔法治愈音效")]
@@ -33,6 +34,16 @@ public class TreeHealer : MonoBehaviour
 
     private AudioSource birdAudio;
     private AudioSource magicHealAudio;
+
+    [Header("Bird Audio Distance")]
+    public float birdFarDistance = 15f;
+    public float birdNearDistance = 1.0f;
+    public float birdFalloff = 1.5f;
+
+    [Header("Magic Heal Distance")]
+    public float healFarDistance = 8f;
+    public float healNearDistance = 0.5f;
+    public float healFalloff = 1.5f;
 
     // ============ HEALING SETTINGS ============
     [Header("Healing Settings")]
@@ -80,7 +91,7 @@ public class TreeHealer : MonoBehaviour
             birdAudio.clip = birdAudioClip;
             birdAudio.spatialBlend = 0f;
             birdAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(birdAudio, 5f, 0.8f);
+            AudioDistanceFader.Setup(birdAudio, birdFarDistance, birdNearDistance, birdFalloff);
         }
         if (magicHealClip != null)
         {
@@ -88,7 +99,7 @@ public class TreeHealer : MonoBehaviour
             magicHealAudio.clip = magicHealClip;
             magicHealAudio.spatialBlend = 0f;
             magicHealAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(magicHealAudio, 3f, 0.5f);
+            AudioDistanceFader.Setup(magicHealAudio, healFarDistance, healNearDistance, healFalloff);
         }
 
         CreateMissingEffects();

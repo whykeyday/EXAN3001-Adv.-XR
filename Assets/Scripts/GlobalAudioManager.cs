@@ -60,11 +60,14 @@ public class GlobalAudioManager : MonoBehaviour
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
         // 场景切换后确保音频继续播放（Unity有时会在切场景时暂停AudioSource）
-        if (audioSource != null && !audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
+        if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
         {
-            audioSource.UnPause();
             if (!audioSource.isPlaying)
-                PlayRandomTrack();
+            {
+                audioSource.UnPause();
+                if (!audioSource.isPlaying)
+                    PlayRandomTrack();
+            }
         }
     }
 
@@ -75,11 +78,13 @@ public class GlobalAudioManager : MonoBehaviour
             audioSource.volume = bgmVolume;
 
         // 当前曲目播完，自动播下一首随机曲目
-        if (audioSource != null && !audioSource.isPlaying
-            && meditationTracks != null && meditationTracks.Length > 0
-            && Time.time - trackStartTime > 2f)
+        if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
         {
-            PlayRandomTrack();
+            // 如果没在播且已经过了一小段时间（防止刚启动时的误判）
+            if (!audioSource.isPlaying && Time.time - trackStartTime > 1f)
+            {
+                PlayRandomTrack();
+            }
         }
     }
 

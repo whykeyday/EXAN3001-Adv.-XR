@@ -14,8 +14,8 @@ public class AudioDistanceFader : MonoBehaviour
     [Header("Distance Fade")]
     public float nearDistance = 0.5f;
     public float farDistance = 4f;
-    [Tooltip("4 = 极速衰减，走出几步即刻安静")]
-    public float falloffExponent = 4.0f; 
+    [Tooltip("1.5 = 较慢衰减，走出几步依然能听到余音")]
+    public float falloffExponent = 1.5f; 
 
     [Header("Silence Threshold")]
     [Tooltip("当音量低于此值时，彻底停止播放以节省性能并保证安静")]
@@ -32,12 +32,14 @@ public class AudioDistanceFader : MonoBehaviour
     private float fadeTarget = 1f;
     private Transform listener;
 
-    public static AudioDistanceFader Setup(AudioSource source, float maxDist = 5f, float fadeSec = 1.0f, float spatial = -1f)
+    public static AudioDistanceFader Setup(AudioSource source, float maxDist = 10f, float nearDist = 0.5f, float exponent = 1.5f, float fadeSec = 1.0f, float spatial = -1f)
     {
         if (source == null) return null;
-        AudioDistanceFader fader = source.gameObject.AddComponent<AudioDistanceFader>();
+        AudioDistanceFader fader = source.GetComponent<AudioDistanceFader>() ?? source.gameObject.AddComponent<AudioDistanceFader>();
         fader.targetAudio = source;
         fader.farDistance = maxDist;
+        fader.nearDistance = nearDist;
+        fader.falloffExponent = exponent;
         fader.fadeDuration = fadeSec;
         fader.baseVolume = source.volume;
         if (spatial >= 0f) source.spatialBlend = spatial;
