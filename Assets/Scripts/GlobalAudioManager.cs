@@ -13,6 +13,7 @@ public class GlobalAudioManager : MonoBehaviour
     
     private AudioSource audioSource;
     private int currentTrackIndex = 0;
+    private float trackStartTime;
 
     void Awake()
     {
@@ -41,7 +42,10 @@ public class GlobalAudioManager : MonoBehaviour
     void Update()
     {
         // 如果当前没有在播放，并且列表里有歌，就播放下一首
-        if (audioSource != null && !audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
+        // 防止切场景瞬间音频暂停导致误跳歌
+        if (audioSource != null && !audioSource.isPlaying
+            && meditationTracks != null && meditationTracks.Length > 0
+            && Time.time - trackStartTime > 1f)
         {
             PlayNextTrack();
         }
@@ -53,6 +57,7 @@ public class GlobalAudioManager : MonoBehaviour
 
         audioSource.clip = meditationTracks[currentTrackIndex];
         audioSource.Play();
+        trackStartTime = Time.time;
 
         // 索引推进
         currentTrackIndex = (currentTrackIndex + 1) % meditationTracks.Length;

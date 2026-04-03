@@ -38,11 +38,11 @@ public class TreeSceneSetup : MonoBehaviour
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogColor = forestFogColor;
-        RenderSettings.fogDensity = 0.025f;
+        RenderSettings.fogDensity = 0.008f; // 大幅降低雾浓度，让粉色花瓣和远处粒子可见
 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(0.05f, 0.03f, 0.02f); 
-        RenderSettings.ambientIntensity = 0.2f;
+        RenderSettings.ambientIntensity = 0.35f; // 稍微提亮环境光，让粒子特效更可见
         RenderSettings.skybox = null;
 
         // 方向光调暖月光色
@@ -171,7 +171,7 @@ public class TreeSceneSetup : MonoBehaviour
             ambientAudio.loop = true;
             ambientAudio.playOnAwake = false;
             ambientAudio.Play();
-            AudioDistanceFader.Setup(ambientAudio, 20f, 2f);
+            AudioDistanceFader.Setup(ambientAudio, 6f, 1f);
         }
     }
 }

@@ -80,7 +80,7 @@ public class TreeHealer : MonoBehaviour
             birdAudio.clip = birdAudioClip;
             birdAudio.spatialBlend = 0f;
             birdAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(birdAudio, 15f, 2f);
+            AudioDistanceFader.Setup(birdAudio, 5f, 0.8f);
         }
         if (magicHealClip != null)
         {
@@ -88,7 +88,7 @@ public class TreeHealer : MonoBehaviour
             magicHealAudio.clip = magicHealClip;
             magicHealAudio.spatialBlend = 0f;
             magicHealAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(magicHealAudio, 8f, 1f);
+            AudioDistanceFader.Setup(magicHealAudio, 3f, 0.5f);
         }
 
         CreateMissingEffects();
@@ -112,17 +112,20 @@ public class TreeHealer : MonoBehaviour
             noise.frequency = 0.5f;
             noise.scrollSpeed = 0.2f;
 
-            // 白色粒子环绕上升效果
+            // 白色粒子环绕上升效果 (Spiral rising)
             var vel = treeParticles.velocityOverLifetime;
             vel.enabled = true;
-            vel.orbitalY = 2.0f; // 绕Y轴旋转上升
-            vel.y = new ParticleSystem.MinMaxCurve(0.15f, 0.4f); // 缓缓上升
+            vel.orbitalY = 4.5f; // 强化旋转感
+            vel.y = new ParticleSystem.MinMaxCurve(0.25f, 0.6f); // 向上升的速度更快一些
+            
+            // 确保渲染层级在雾之上
+            psr.sortingFudge = -100;
         }
 
         energyLevel = 0f;
         ApplyTreeState(0f);
 
-        // 蝴蝶从一开始就作为环境生物（不需要等治愈完成）
+        // 蝴蝶从一开始就作为环境生物
         if (butterflyParticles != null) butterflyParticles.Play();
     }
 

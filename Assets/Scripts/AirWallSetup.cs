@@ -13,6 +13,8 @@ public class AirWallSetup : MonoBehaviour
     void Start()
     {
         CreateWalls();
+        CleanupScene();
+        MakeFloorsTransparent();
         
         if (makePlaneInvisible)
         {
@@ -79,5 +81,52 @@ public class AirWallSetup : MonoBehaviour
         
         BoxCollider bc = wall.AddComponent<BoxCollider>();
         bc.size = size;
+    }
+
+    void CleanupScene()
+    {
+        // 自动清理的基本原则：绝对不碰玩家、高度依赖的 XR 组件
+        foreach (var obj in FindObjectsOfType<GameObject>())
+        {
+            string n = obj.name.ToLower();
+            if (n.Contains("template") || n.Contains("module") || n.Contains("prototype"))
+            {
+                // 安全白名单：包含这些词的一律不删
+                if (n.Contains("xr") || n.Contains("player") || n.Contains("origin") || n.Contains("hand") || n.Contains("interact"))
+                    continue;
+
+                // 只处理 15 米外的远景物品
+                if (obj.transform.position.magnitude > 15f)
+                {
+                    // 确认没有物理碰撞器（防止踩空）才隐藏
+                    if (obj.GetComponent<Collider>() == null)
+                        obj.SetActive(false);
+                }
+            }
+        }
+    }
+
+    void MakeFloorsTransparent()
+    {
+        // 将所有地板变透明淡入 (深色半透)
+        foreach (var mr in FindObjectsOfType<MeshRenderer>())
+        {
+            if (mr.gameObject.name.ToLower().Contains("plane") || mr.gameObject.name.ToLower().Contains("floor"))
+            {
+                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                if (mat == null) mat = new Material(Shader.Find("Standard"));
+                
+                Color floorColor = new Color(0.01f, 0.02f, 0.05f, 0.35f); 
+                mat.SetFloat("_Surface", 1.0f);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.renderQueue = 3000;
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                mat.SetColor("_BaseColor", floorColor);
+                mat.color = floorColor;
+                mr.material = mat;
+            }
+        }
     }
 }

@@ -55,19 +55,48 @@ public class CatSceneSetup : MonoBehaviour
         {
             fireplaceAudio = gameObject.AddComponent<AudioSource>();
             fireplaceAudio.clip = fireplaceClip;
-            fireplaceAudio.spatialBlend = 0f;
+            fireplaceAudio.spatialBlend = 1f;
             fireplaceAudio.loop = true;
             fireplaceAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(fireplaceAudio, 10f, 1.5f);
+            AudioDistanceFader.Setup(fireplaceAudio, 4f, 0.5f, 1f);
         }
 
         CreateFireplacePlaceholder();
         SetupFurnitureAndCats();
+        MakePlanesDark();
         
         // 进入场景伴随壁炉炸裂声
         if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
         {
             fireplaceAudio.Play();
+        }
+    }
+
+    /// <summary>
+    /// 黑色地板：将场景所有 Plane 改为深色/黑色半透明材质
+    /// </summary>
+    void MakePlanesDark()
+    {
+        foreach (var mr in FindObjectsOfType<MeshRenderer>())
+        {
+            if (mr.gameObject.name.Contains("Plane"))
+            {
+                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                if (mat == null) mat = new Material(Shader.Find("Standard"));
+
+                Color darkColor = new Color(0.02f, 0.02f, 0.04f, 0.9f);
+                mat.SetFloat("_Surface", 1f);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.renderQueue = 3000;
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                mat.SetColor("_BaseColor", darkColor);
+                mat.color = darkColor;
+
+                mr.material = mat;
+                mr.enabled = true;
+            }
         }
     }
 
@@ -267,7 +296,7 @@ public class CatSceneSetup : MonoBehaviour
         // 如果你的 VR 相机（XR Rig）上没有挂载 AudioListener，
         // 或者 AudioListener 的位置不在头部而在世界原点，所有的 3D 声音都会因为“距离过远”被系统强行消音！
         // 设为 0（纯 2D），声音将无视任何距离或方向，直接在你的双耳耳机里用 100% 最大音量爆响！
-        src.spatialBlend = 0.0f; 
+        src.spatialBlend = 1.0f;
         src.volume = 1.0f;
         src.playOnAwake = false;
         return src;

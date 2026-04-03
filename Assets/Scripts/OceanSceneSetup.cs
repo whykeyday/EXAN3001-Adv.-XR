@@ -45,6 +45,7 @@ public class OceanSceneSetup : MonoBehaviour
         SetupAtmosphere();
         SetupAudio();
         MakePlaneDeepBlue();
+        SlowDownBackgroundParticles();
     }
 
     void SetupAtmosphere()
@@ -91,7 +92,7 @@ public class OceanSceneSetup : MonoBehaviour
             oceanAudio.spatialBlend = 0f;
             oceanAudio.loop = true;
             oceanAudio.Play();
-            AudioDistanceFader.Setup(oceanAudio, 25f, 2f);
+            AudioDistanceFader.Setup(oceanAudio, 6f, 1f);
         }
         if (seagullClip != null)
         {
@@ -99,7 +100,7 @@ public class OceanSceneSetup : MonoBehaviour
             seagullAudio.clip = seagullClip;
             seagullAudio.spatialBlend = 0f;
             seagullAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(seagullAudio, 15f, 1.5f);
+            AudioDistanceFader.Setup(seagullAudio, 5f, 0.8f);
             StartCoroutine(RandomSeagullRoutine());
         }
         if (bubbleClip != null)
@@ -108,7 +109,7 @@ public class OceanSceneSetup : MonoBehaviour
             bubbleAudio.clip = bubbleClip;
             bubbleAudio.spatialBlend = 0f;
             bubbleAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(bubbleAudio, 12f, 1f);
+            AudioDistanceFader.Setup(bubbleAudio, 4f, 0.5f);
             StartCoroutine(RandomBubbleRoutine());
         }
     }
@@ -147,7 +148,7 @@ public class OceanSceneSetup : MonoBehaviour
 
         while (true)
         {
-            float waitTime = Random.Range(12f, 25f);
+            float waitTime = Random.Range(15f, 30f);
             yield return new WaitForSeconds(waitTime);
             
             if (seagullAudio != null)
@@ -171,8 +172,21 @@ public class OceanSceneSetup : MonoBehaviour
                 bubbleAudio.Play();
             }
 
-            float waitTime = Random.Range(8f, 20f);
+            float waitTime = Random.Range(15f, 30f);
             yield return new WaitForSeconds(waitTime);
+        }
+    }
+
+    /// <summary>
+    /// 海洋背景粒子降速一倍，营造静谧感
+    /// </summary>
+    void SlowDownBackgroundParticles()
+    {
+        ParticleSystem[] allPS = FindObjectsOfType<ParticleSystem>();
+        foreach (var ps in allPS)
+        {
+            var main = ps.main;
+            main.simulationSpeed = main.simulationSpeed * 0.5f;
         }
     }
 

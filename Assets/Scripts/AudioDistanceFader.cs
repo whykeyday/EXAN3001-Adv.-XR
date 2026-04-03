@@ -12,16 +12,17 @@ using UnityEngine;
 public class AudioDistanceFader : MonoBehaviour
 {
     [Header("Distance Fade")]
-    [Tooltip("音频完全能听到的最近距离")]
-    public float nearDistance = 1f;
-    [Tooltip("音频完全听不到的最远距离")]
-    public float farDistance = 15f;
-    [Tooltip("衰减曲线指数 (1=线性, 2=二次, 3=更快衰减)")]
-    public float falloffExponent = 2f;
+    public float nearDistance = 0.5f;
+    public float farDistance = 4f;
+    [Tooltip("4 = 极速衰减，走出几步即刻安静")]
+    public float falloffExponent = 4.0f; 
+
+    [Header("Silence Threshold")]
+    [Tooltip("当音量低于此值时，彻底停止播放以节省性能并保证安静")]
+    public float stopThreshold = 0.02f;
 
     [Header("Fade Transition")]
-    [Tooltip("淡入淡出过渡时间（秒）")]
-    public float fadeDuration = 1.5f;
+    public float fadeDuration = 1.0f;
 
     [Header("References")]
     public AudioSource targetAudio;
@@ -31,10 +32,7 @@ public class AudioDistanceFader : MonoBehaviour
     private float fadeTarget = 1f;
     private Transform listener;
 
-    /// <summary>
-    /// 快捷设置方法：在代码中创建 AudioSource 后调用此方法自动挂载衰减
-    /// </summary>
-    public static AudioDistanceFader Setup(AudioSource source, float maxDist = 15f, float fadeSec = 1.5f)
+    public static AudioDistanceFader Setup(AudioSource source, float maxDist = 5f, float fadeSec = 1.0f, float spatial = -1f)
     {
         if (source == null) return null;
         AudioDistanceFader fader = source.gameObject.AddComponent<AudioDistanceFader>();
@@ -42,6 +40,7 @@ public class AudioDistanceFader : MonoBehaviour
         fader.farDistance = maxDist;
         fader.fadeDuration = fadeSec;
         fader.baseVolume = source.volume;
+        if (spatial >= 0f) source.spatialBlend = spatial;
         return fader;
     }
 
@@ -55,7 +54,7 @@ public class AudioDistanceFader : MonoBehaviour
     {
         if (targetAudio == null) return;
 
-        // 找到听音者（VR摄像机）
+        // 实时追踪 VR 头显
         if (listener == null)
         {
             Camera cam = Camera.main;
@@ -63,20 +62,39 @@ public class AudioDistanceFader : MonoBehaviour
             if (cam != null) listener = cam.transform;
         }
 
-        // 计算距离衰减
-        float distanceFade = 1f;
+        float distanceFade = 0f;
         if (listener != null)
         {
             float dist = Vector3.Distance(transform.position, listener.position);
-            float t = Mathf.InverseLerp(nearDistance, farDistance, dist);
-            distanceFade = Mathf.Pow(1f - Mathf.Clamp01(t), falloffExponent);
+            // 核心逻辑：如果在范围内，根据指数衰减；如果超出，直接 0
+            if (dist < farDistance)
+            {
+                float t = Mathf.InverseLerp(nearDistance, farDistance, dist);
+                distanceFade = Mathf.Pow(1f - t, falloffExponent);
+            }
+            else
+            {
+                distanceFade = 0f;
+            }
         }
 
-        // 平滑淡入淡出过渡
         fadeMultiplier = Mathf.MoveTowards(fadeMultiplier, fadeTarget, Time.deltaTime / Mathf.Max(0.01f, fadeDuration));
 
-        // 最终音量 = 基础音量 × 距离衰减 × 淡入淡出
-        targetAudio.volume = baseVolume * distanceFade * fadeMultiplier;
+        float finalVol = baseVolume * distanceFade * fadeMultiplier;
+        targetAudio.volume = finalVol;
+
+        // 彻底停止逻辑：不仅仅是 Pause，而是 Stop 保证没有底噪
+        if (finalVol < stopThreshold)
+        {
+            if (targetAudio.isPlaying) targetAudio.Stop();
+        }
+        else
+        {
+            if (!targetAudio.isPlaying && targetAudio.clip != null)
+            {
+                targetAudio.Play();
+            }
+        }
     }
 
     /// <summary>

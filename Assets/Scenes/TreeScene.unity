@@ -518,6 +518,11 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
+  leftHandIcon: {fileID: 0}
+  rightHandIcon: {fileID: 0}
+  leftControllerIcon: {fileID: 0}
+  rightControllerIcon: {fileID: 0}
+  xrOrigin: {fileID: 0}
   leftControllerVisual: {fileID: 441087511}
   rightControllerVisual: {fileID: 441087510}
 --- !u!114 &441087509
@@ -536,11 +541,9 @@ MonoBehaviour:
   glowRadius: 1.5
   glowIntensity: 3
   groundOffset: 0.02
-  useSpotLight: 1
-  spotHeight: 4
-  spotIntensity: 8
-  spotAngle: 45
-  spotRange: 10
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   followTarget: {fileID: 0}
 --- !u!1 &441087510 stripped
 GameObject:
@@ -800,13 +803,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cd23c17e2897d842a6440aa87234144, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  treeCenter: {x: 0, y: 1, z: 1.5}
-  treeScale: 3.5
-  ambientAudio: {fileID: 0}
-  swayAmplitude: 0.015
-  swaySpeed: 0.6
-  forestFogColor: {r: 0.24528301, g: 0.12264152, b: 0, a: 1}
-  forestSkyColor: {r: 0.4641509, g: 0.18566035, b: 0, a: 1}
+  forestFogColor: {r: 0, g: 0, b: 0, a: 1}
+  forestSkyColor: {r: 0, g: 0, b: 0, a: 1}
+  ambientClip: {fileID: 0}
 --- !u!1 &1534410813
 GameObject:
   m_ObjectHideFlags: 0

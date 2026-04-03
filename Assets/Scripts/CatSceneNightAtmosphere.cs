@@ -8,6 +8,14 @@ public class CatSceneNightAtmosphere : MonoBehaviour
     public float fogDensity = 0.035f;
     public float nightAmbientIntensity = 0.15f; // 保留一点微弱环境光
 
+    [Header("Breathing Rhythm — 全局呼吸脉动")]
+    [Tooltip("一次完整呼吸周期（吸+呼）的秒数")]
+    public float breathCycleSeconds = 5f;
+    [Tooltip("最暗时的亮度比例")]
+    public float breathMinBrightness = 0.3f;
+    [Tooltip("最亮时的亮度比例")]
+    public float breathMaxBrightness = 1.0f;
+
     [Header("Twinkling Stars")]
     public int starCount = 300;
     public Vector3 starBoxSize = new Vector3(25f, 8f, 25f);
@@ -16,6 +24,7 @@ public class CatSceneNightAtmosphere : MonoBehaviour
     public float starSizeMax = 0.25f;
 
     private ParticleSystem starParticles;
+    private Material starMat;
 
     void Start()
     {
@@ -51,6 +60,33 @@ public class CatSceneNightAtmosphere : MonoBehaviour
 
         // 创建天空闪烁呼吸星星
         CreateTwinklingStars();
+    }
+
+    void Update()
+    {
+        if (starParticles == null) return;
+
+        // 获取材质引用
+        if (starMat == null)
+        {
+            var psr = starParticles.GetComponent<ParticleSystemRenderer>();
+            if (psr != null) starMat = psr.material;
+        }
+
+        if (starMat == null) return;
+
+        // 正弦波呼吸脉动：所有星星同步亮暗
+        float t = (Mathf.Sin(Time.time * 2f * Mathf.PI / breathCycleSeconds) + 1f) * 0.5f;
+        float brightness = Mathf.Lerp(breathMinBrightness, breathMaxBrightness, t);
+
+        if (starMat.HasProperty("_EmissionColor"))
+        {
+            starMat.SetColor("_EmissionColor", Color.white * 5.0f * brightness);
+        }
+        if (starMat.HasProperty("_BaseColor"))
+        {
+            starMat.SetColor("_BaseColor", Color.white * 2f * brightness);
+        }
     }
 
     void CreateTwinklingStars()

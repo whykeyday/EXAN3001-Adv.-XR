@@ -15967,6 +15967,7 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
+  xrOrigin: {fileID: 0}
   leftControllerVisual: {fileID: 441087511}
   rightControllerVisual: {fileID: 441087510}
 --- !u!114 &441087509
@@ -134540,8 +134541,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0275ee80ba5997047a2cc31baf88bd2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nightFogColor: {r: 0, g: 0.08773585, b: 0.3509434, a: 1}
-  skyColor: {r: 0, g: 0.1985932, b: 0.2754717, a: 1}
+  nightFogColor: {r: 0, g: 0, b: 0, a: 1}
+  skyColor: {r: 0, g: 0.07423182, b: 0.10188681, a: 1}
   fogDensity: 0.04
   nightAmbientIntensity: 0.2
   starCount: 200
