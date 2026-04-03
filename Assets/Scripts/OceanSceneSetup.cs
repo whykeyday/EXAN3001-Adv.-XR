@@ -24,16 +24,10 @@ public class OceanSceneSetup : MonoBehaviour
     [Header("Audio — 直接拖音频文件即可")]
     [Tooltip("海洋环境音（循环）")]
     public AudioClip oceanClip;
-    [Tooltip("海鸥叫声")]
-    public AudioClip seagullClip;
-    [Tooltip("水泡声")]
-    public AudioClip bubbleClip;
     [Range(0f, 1f)] public float minVolume = 0.15f;
     [Range(0f, 1f)] public float maxVolume = 1.0f;
 
     private AudioSource oceanAudio;
-    private AudioSource seagullAudio;
-    private AudioSource bubbleAudio;
 
     void Awake()
     {
@@ -94,24 +88,6 @@ public class OceanSceneSetup : MonoBehaviour
             oceanAudio.Play();
             AudioDistanceFader.Setup(oceanAudio, 6f, 1f);
         }
-        if (seagullClip != null)
-        {
-            seagullAudio = gameObject.AddComponent<AudioSource>();
-            seagullAudio.clip = seagullClip;
-            seagullAudio.spatialBlend = 0f;
-            seagullAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(seagullAudio, 5f, 0.8f);
-            StartCoroutine(RandomSeagullRoutine());
-        }
-        if (bubbleClip != null)
-        {
-            bubbleAudio = gameObject.AddComponent<AudioSource>();
-            bubbleAudio.clip = bubbleClip;
-            bubbleAudio.spatialBlend = 0f;
-            bubbleAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(bubbleAudio, 4f, 0.5f);
-            StartCoroutine(RandomBubbleRoutine());
-        }
     }
 
     /// <summary>
@@ -139,41 +115,6 @@ public class OceanSceneSetup : MonoBehaviour
                 mr.material = mat;
                 mr.enabled = true; 
             }
-        }
-    }
-
-    private System.Collections.IEnumerator RandomSeagullRoutine()
-    {
-        if (seagullAudio != null && !seagullAudio.isPlaying) seagullAudio.Play();
-
-        while (true)
-        {
-            float waitTime = Random.Range(15f, 30f);
-            yield return new WaitForSeconds(waitTime);
-            
-            if (seagullAudio != null)
-            {
-                seagullAudio.pitch = Random.Range(0.9f, 1.1f);
-                seagullAudio.Play();
-            }
-        }
-    }
-
-    private System.Collections.IEnumerator RandomBubbleRoutine()
-    {
-        yield return new WaitForSeconds(Random.Range(3f, 8f));
-
-        while (true)
-        {
-            if (bubbleAudio != null)
-            {
-                bubbleAudio.pitch = Random.Range(0.85f, 1.15f);
-                bubbleAudio.volume = Random.Range(0.3f, 0.7f);
-                bubbleAudio.Play();
-            }
-
-            float waitTime = Random.Range(15f, 30f);
-            yield return new WaitForSeconds(waitTime);
         }
     }
 

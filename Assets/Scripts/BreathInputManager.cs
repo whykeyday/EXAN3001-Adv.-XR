@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 #if UNITY_ANDROID
 using UnityEngine.Android;
 #endif
@@ -11,10 +12,21 @@ public class BreathInputManager : MonoBehaviour
 
     [Header("Calibration")]
     public float calibrationDuration = 5.0f;
-    
+
     [Header("Debug")]
     public GameObject debugCube;
-    
+
+    [Header("Ocean Audio — 海鸥/水泡 (全局随机环境音)")]
+    [Tooltip("海鸥叫声")]
+    public AudioClip seagullClip;
+    [Tooltip("水泡声")]
+    public AudioClip bubbleClip;
+    [Range(0f, 1f)] public float seagullVolume = 0.6f;
+    [Range(0f, 1f)] public float bubbleVolume = 0.5f;
+
+    private AudioSource seagullAudio;
+    private AudioSource bubbleAudio;
+
     // Public property to access the breath value (0.0 to 1.0)
     public float BreathValue { get; private set; }
 
@@ -36,6 +48,63 @@ public class BreathInputManager : MonoBehaviour
     void Start()
     {
         InitializeMicrophone();
+        SetupOceanAudio();
+    }
+
+    void SetupOceanAudio()
+    {
+        if (seagullClip != null)
+        {
+            seagullAudio = gameObject.AddComponent<AudioSource>();
+            seagullAudio.clip = seagullClip;
+            seagullAudio.spatialBlend = 0f; // 2D全局可听
+            seagullAudio.volume = seagullVolume;
+            seagullAudio.playOnAwake = false;
+            StartCoroutine(RandomSeagullRoutine());
+        }
+        if (bubbleClip != null)
+        {
+            bubbleAudio = gameObject.AddComponent<AudioSource>();
+            bubbleAudio.clip = bubbleClip;
+            bubbleAudio.spatialBlend = 0f; // 2D全局可听
+            bubbleAudio.volume = bubbleVolume;
+            bubbleAudio.playOnAwake = false;
+            StartCoroutine(RandomBubbleRoutine());
+        }
+    }
+
+    private IEnumerator RandomSeagullRoutine()
+    {
+        yield return new WaitForSeconds(Random.Range(2f, 5f));
+
+        while (true)
+        {
+            if (seagullAudio != null)
+            {
+                seagullAudio.pitch = Random.Range(0.9f, 1.1f);
+                seagullAudio.volume = seagullVolume * Random.Range(0.7f, 1f);
+                seagullAudio.Play();
+            }
+
+            yield return new WaitForSeconds(Random.Range(4f, 7f));
+        }
+    }
+
+    private IEnumerator RandomBubbleRoutine()
+    {
+        yield return new WaitForSeconds(Random.Range(1f, 3f));
+
+        while (true)
+        {
+            if (bubbleAudio != null)
+            {
+                bubbleAudio.pitch = Random.Range(0.85f, 1.15f);
+                bubbleAudio.volume = bubbleVolume * Random.Range(0.5f, 1f);
+                bubbleAudio.Play();
+            }
+
+            yield return new WaitForSeconds(Random.Range(4f, 7f));
+        }
     }
 
     void InitializeMicrophone()

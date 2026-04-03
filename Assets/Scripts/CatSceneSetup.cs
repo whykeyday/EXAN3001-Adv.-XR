@@ -46,30 +46,11 @@ public class CatSceneSetup : MonoBehaviour
     [Tooltip("篝火噼啪声音频文件")]
     public AudioClip fireplaceClip;
 
-    private AudioSource fireplaceAudio;
-
     void Start()
     {
-        // 自动创建壁炉 AudioSource + 距离衰减
-        if (fireplaceClip != null)
-        {
-            fireplaceAudio = gameObject.AddComponent<AudioSource>();
-            fireplaceAudio.clip = fireplaceClip;
-            fireplaceAudio.spatialBlend = 1f;
-            fireplaceAudio.loop = true;
-            fireplaceAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(fireplaceAudio, 4f, 0.5f, 1f);
-        }
-
         CreateFireplacePlaceholder();
         SetupFurnitureAndCats();
         MakePlanesDark();
-        
-        // 进入场景伴随壁炉炸裂声
-        if (fireplaceAudio != null && !fireplaceAudio.isPlaying) 
-        {
-            fireplaceAudio.Play();
-        }
     }
 
     /// <summary>
@@ -144,19 +125,18 @@ public class CatSceneSetup : MonoBehaviour
 
             // 挂载我们新写的专属篝火互动脚本！
             CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
-            fireScript.fireplaceAudio = fireplaceAudio;
+            fireScript.fireplaceClip = fireplaceClip;
         }
-        else 
+        else
         {
             GameObject fireplace = GameObject.CreatePrimitive(PrimitiveType.Cube);
             fireplace.name = "Fireplace_Placeholder";
             fireplace.transform.position = new Vector3(0, 0.5f, 2.4f);
             fireplace.transform.localScale = new Vector3(1.5f, 1f, 0.5f);
             sparkParent = fireplace.transform;
-            
-            // 确保没有分配模型时，互动依然挂载生效
+
             CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
-            fireScript.fireplaceAudio = fireplaceAudio;
+            fireScript.fireplaceClip = fireplaceClip;
         }
         
         // 获取视觉中心（破除原点偏移）
@@ -232,7 +212,7 @@ public class CatSceneSetup : MonoBehaviour
             sofa.transform.localScale = new Vector3(2f, 0.6f, 1f);
         }
         // ================= 三只猫专属业务逻辑分发 =================
-        // 取消了“场景/文件夹”防呆验证，防止在 VR 真机 Build 里被误判拦截导致脚本挂不上！
+        // 取消了"场景/文件夹"防呆验证，防止在 VR 真机 Build 里被误判拦截导致脚本挂不上！
 
         // 1. 黑猫 (遇人发出凶狠叫声)
         if (blackCatModel != null)
@@ -291,14 +271,11 @@ public class CatSceneSetup : MonoBehaviour
 
         AudioSource src = audioEmitter.AddComponent<AudioSource>();
         src.clip = clip;
-        
-        // 【究极查错：强制 2D 声音！】
-        // 如果你的 VR 相机（XR Rig）上没有挂载 AudioListener，
-        // 或者 AudioListener 的位置不在头部而在世界原点，所有的 3D 声音都会因为“距离过远”被系统强行消音！
-        // 设为 0（纯 2D），声音将无视任何距离或方向，直接在你的双耳耳机里用 100% 最大音量爆响！
         src.spatialBlend = 1.0f;
         src.volume = 1.0f;
+        src.loop = true;
         src.playOnAwake = false;
+        AudioDistanceFader.Setup(src, 3f, 1.0f);
         return src;
     }
 
@@ -309,7 +286,7 @@ public class CatSceneSetup : MonoBehaviour
         // 【逆转思路：全面尊重玩家手工配置】
         // 原生 FBX 动画骨骼会导致通过脚本读取的 Bounds 严重飞偏移，所以绝不能去硬算！
         // 既然你之前【自己手动加过 Collider】，说明你精心调装过大小。
-        // 我们不该清场删掉它！我们只需要把它从一堵“挡路的死墙”，变成“能穿透的手电筒（触发器）”！
+        // 我们不该清场删掉它！我们只需要把它从一堵"挡路的死墙"，变成"能穿透的手电筒（触发器）"！
         Collider[] allCols = target.GetComponentsInChildren<Collider>();
         if (allCols.Length > 0)
         {
@@ -336,7 +313,7 @@ public class CatSceneSetup : MonoBehaviour
     {
         // 注意！绝对不能用 self.root，很多玩家喜欢把整个场景全放进一家名叫 environment 的根文件夹！
         // 如果用 root 判定，意味着整个屋里的东西全成了你的孩子，判定直接报废！
-        // 我们只排斥明确属于“它自身这块零配件”碰撞体的自己人！
+        // 我们只排斥明确属于"它自身这块零配件"碰撞体的自己人！
         if (other.transform.IsChildOf(self)) return false;
 
         string n = other.name.ToLower();
@@ -362,7 +339,7 @@ public class CatSceneSetup : MonoBehaviour
             curr = curr.parent;
         }
 
-        // 宁可杀错绝不放过：如果在祖宗结构里找不到任何明显代表“玩家/VR设备”的关键词标记，
+        // 宁可杀错绝不放过：如果在祖宗结构里找不到任何明显代表"玩家/VR设备"的关键词标记，
         // 我们坚决不认为这是一个合法的手！这能 100% 杜绝阿猫阿狗的场景白模（如名为 Cube 的地板）无限触发互动！
         return false; 
     }
@@ -423,22 +400,18 @@ public class CatTouchReceiver : MonoBehaviour
 {
     public enum CatRole { Aggressive, Purr }
     public CatRole catRole;
-    
+
     public AudioSource audioSource;
     private float lastTouchTime = -999f;
-    private const float Cooldown = 3.0f; // 防止连叫
-    private float baseAnimSpeed = 1.0f; // 记忆猫猫本来的播放速度
+    private const float TouchTimeout = 0.5f;
+    private float baseAnimSpeed = 1.0f;
+    private bool isTouching = false;
+    private AudioDistanceFader audioFader;
 
-    private Renderer statusIndicator; // 状态指示灯
-
-    // 获取真实的网格中心，无视模型原点的偏离
     public Vector3 GetTrueCenter()
     {
-        // 如果有玩家手动加的碰撞体（无论盒子还是胶囊），它的中心绝对是最完美的！
         Collider col = GetComponentInChildren<Collider>();
         if (col != null) return col.bounds.center;
-
-        // 兜底：如果完全没有碰撞体，再用极其容易被骨骼污染的 Mesh 暴力算
         Renderer[] rs = GetComponentsInChildren<Renderer>();
         if (rs.Length == 0) return transform.position;
         Bounds b = rs[0].bounds;
@@ -448,65 +421,56 @@ public class CatTouchReceiver : MonoBehaviour
 
     void Start()
     {
-        // 生产环境：移除所有丑陋的调试灯块
+        if (audioSource != null)
+            audioFader = audioSource.GetComponent<AudioDistanceFader>();
     }
 
     void Update()
     {
-        bool forceInteract = Input.GetKeyDown(KeyCode.E);
-        if (forceInteract && Time.time - lastTouchTime >= Cooldown)
+        if (Input.GetKeyDown(KeyCode.E)) TriggerCat();
+
+        if (isTouching && Time.time - lastTouchTime > TouchTimeout)
         {
-            TriggerCat();
+            isTouching = false;
+            if (audioFader != null) audioFader.FadeOut();
         }
     }
 
-    // 这两个方法必须是 public，因为我们的 CatTouchForwarder 信号快递员在外层（甚至子物体上）要调用它们！
     public void OnTriggerEnter(Collider other)
     {
         if (!CatSceneSetup.IsValidPlayer(other, transform)) return;
-        if (Time.time - lastTouchTime < Cooldown) return;
         TriggerCat();
     }
 
     public void OnTriggerStay(Collider other)
     {
         if (!CatSceneSetup.IsValidPlayer(other, transform)) return;
-        if (Time.time - lastTouchTime < Cooldown) return;
-        TriggerCat();
+        lastTouchTime = Time.time;
+        if (!isTouching) TriggerCat();
     }
 
     [ContextMenu(">>> CLICK ME: FORCE TRIGGER INTERACTION <<<")]
     private void TriggerCat()
     {
         lastTouchTime = Time.time;
-        
-        Debug.Log($"[CatInteraction] Player interacted with {catRole} cat!");
+        isTouching = true;
 
-        // 声音反馈
-        if (audioSource != null && audioSource.clip != null)
+        if (audioSource != null && audioSource.clip != null && !audioSource.isPlaying)
         {
-            audioSource.Play(); // 强制覆盖当前播放并重新播放，确保不会因为 isPlaying 锁死！
+            if (audioFader != null) audioFader.FadeIn();
+            audioSource.Play();
         }
 
         if (catRole == CatRole.Purr || catRole == CatRole.Aggressive)
         {
             Animator anim = GetComponentInChildren<Animator>();
             if (anim == null && transform.parent != null) anim = transform.parent.GetComponentInChildren<Animator>();
-
-            if (anim != null)
+            if (anim != null && anim.runtimeAnimatorController != null)
             {
-                if (anim.runtimeAnimatorController == null)
-                {
-                    Debug.LogWarning("[CatInteraction] 猫无 Animator Controller，只展示物理弹跳与红球反馈！");
-                }
-                else
-                {
-                    // 记忆原始速度，给动画提速到 2.0 倍持续两秒！
-                    baseAnimSpeed = anim.speed;
-                    anim.speed = 2.0f;
-                    Invoke("ResetAnimSpeed", 2.0f);
-                    anim.Play(0, -1, 0f); // 重播当前动画
-                }
+                baseAnimSpeed = anim.speed;
+                anim.speed = 2.0f;
+                Invoke("ResetAnimSpeed", 2.0f);
+                anim.Play(0, -1, 0f);
             }
         }
     }
@@ -520,7 +484,7 @@ public class CatTouchReceiver : MonoBehaviour
 }
 
 /// <summary>
-/// 专为沙发猫设计的“死不悔改循环脚本”
+/// 专为沙发猫设计的"死不悔改循环脚本"
 /// </summary>
 public class SofaCatForeverLooper : MonoBehaviour
 {
@@ -550,18 +514,17 @@ public class SofaCatForeverLooper : MonoBehaviour
 /// </summary>
 public class CampfireInteraction : MonoBehaviour
 {
-    public AudioSource fireplaceAudio;
+    public AudioClip fireplaceClip;
+    [Tooltip("篝火音频距离衰减范围")]
+    public float fireAudioDistance = 4f;
+
+    private AudioSource fireplaceAudio;
     private float lastTouchTime = -999f;
     private const float Cooldown = 2.0f;
-    private ParticleSystem containerPs; 
-    private ParticleSystem sparksPs; 
-    
-    // 平滑线性燃烧强度
-    private float currentFireIntensity = 0f;
+    private ParticleSystem containerPs;
+    private ParticleSystem sparksPs;
 
-    private Renderer statusIndicator; 
-    
-    // 我们从父类获取最大爆发数量
+    private float currentFireIntensity = 0f;
     private float maxFireRate = 50f;
 
     public Vector3 GetTrueCenter()
@@ -575,26 +538,29 @@ public class CampfireInteraction : MonoBehaviour
 
     void Start()
     {
-        containerPs = GetComponent<ParticleSystem>(); 
+        containerPs = GetComponent<ParticleSystem>();
         Transform sparks = transform.Find("FireSparksParticles");
         if (sparks != null) sparksPs = sparks.GetComponent<ParticleSystem>();
-        
+
         CatSceneSetup setup = FindObjectOfType<CatSceneSetup>();
         if (setup != null) maxFireRate = setup.fireRate;
 
-        // 起步时强行把主火焰粒子发射率设为 0，彻底浇灭之前的“白色幽灵火”！
         if (containerPs != null)
         {
             var em = containerPs.emission;
             em.rateOverTime = 0f;
         }
 
-        if (fireplaceAudio != null) 
+        if (fireplaceClip != null)
         {
-            fireplaceAudio.spatialBlend = 0.0f; // 强制 2D 贴耳播放
+            fireplaceAudio = gameObject.AddComponent<AudioSource>();
+            fireplaceAudio.clip = fireplaceClip;
+            fireplaceAudio.spatialBlend = 1f;
             fireplaceAudio.loop = true;
+            fireplaceAudio.volume = 1f;
+            fireplaceAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(fireplaceAudio, fireAudioDistance, 0.5f);
             fireplaceAudio.Play();
-            fireplaceAudio.volume = 0f; // 初始静音，靠靠近变大
         }
     }
 
@@ -628,11 +594,7 @@ public class CampfireInteraction : MonoBehaviour
             noise.strength = Mathf.Lerp(0f, 1.5f, currentFireIntensity); 
         }
 
-        // 3. 声音由远及近
-        if (fireplaceAudio != null)
-        {
-            fireplaceAudio.volume = currentFireIntensity * 1.5f; // 确保音量足够大
-        }
+        // 篝火声音由 AudioDistanceFader 控制，不手动设 volume
     }
 
     void OnTriggerEnter(Collider other)

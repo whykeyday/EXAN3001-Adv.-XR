@@ -15035,6 +15035,7 @@ MonoBehaviour:
   particlesToEmit: 30
   cooldown: 0.5
   autoCreateEffect: 1
+  isBowlCoral: 0
 --- !u!28 &57541912
 Texture2D:
   m_ObjectHideFlags: 0
@@ -25896,6 +25897,11 @@ MonoBehaviour:
   followSpeed: 0.5
   rotationSpeed: 2
   forwardOffset: 0.4
+  waveThreshold: 2
+  waveTimeout: 1
+  summonDuration: 20
+  waveMinDelta: 0.015
+  bufferSize: 45
 --- !u!199 &348228583
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -45702,6 +45708,11 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
+  leftHandIcon: {fileID: 0}
+  rightHandIcon: {fileID: 0}
+  leftControllerIcon: {fileID: 0}
+  rightControllerIcon: {fileID: 0}
+  xrOrigin: {fileID: 0}
   leftControllerVisual: {fileID: 441087511}
   rightControllerVisual: {fileID: 441087510}
 --- !u!114 &441087509
@@ -45720,11 +45731,9 @@ MonoBehaviour:
   glowRadius: 1.5
   glowIntensity: 3
   groundOffset: 0.02
-  useSpotLight: 1
-  spotHeight: 4
-  spotIntensity: 8
-  spotAngle: 45
-  spotRange: 10
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   followTarget: {fileID: 0}
 --- !u!1 &441087510 stripped
 GameObject:
@@ -50798,6 +50807,7 @@ MonoBehaviour:
   particlesToEmit: 30
   cooldown: 0.5
   autoCreateEffect: 1
+  isBowlCoral: 0
 --- !u!21 &450747178
 Material:
   serializedVersion: 8
@@ -70759,82 +70769,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!1 &617092281
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 617092284}
-  - component: {fileID: 617092283}
-  - component: {fileID: 617092282}
-  m_Layer: 0
-  m_Name: OceanManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &617092282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 617092281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54c5980b3474bb444b4ab36cdf341356, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  breathInput: {fileID: 2021912771}
-  enableFog: 1
-  minFog: 0.003
-  maxFog: 0.04
-  deepBlueColor: {r: 0, g: 0.04, b: 0.12, a: 1}
-  fogColor: {r: 0, g: 0.06, b: 0.18, a: 1}
-  oceanClip: {fileID: 8300000, guid: a3b3e36510fd96941ae2dfc45307d7e8, type: 3}
-  seagullClip: {fileID: 8300000, guid: 759fe3410c680634984b5323b8e3852a, type: 3}
-  bubbleClip: {fileID: 8300000, guid: 8abff1739e5030f48b9ab335fd00b8d2, type: 3}
-  minVolume: 0.15
-  maxVolume: 1
-  clusterCenter: {x: 0, y: 1.4, z: 2}
-  bubbleScale: 1.6
-  bobAmplitude: 0.025
-  bobPeriod: 10
---- !u!114 &617092283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 617092281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35a9b340315a0f74580fc32855c89c92, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  smoothness: 0.8
-  debugKey: 32
-  calibrationDuration: 5
-  debugCube: {fileID: 0}
---- !u!4 &617092284
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 617092281}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.284801, y: -0.66187453, z: 35.576424}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!21 &632263964
 Material:
   serializedVersion: 8
@@ -130551,6 +130485,7 @@ MonoBehaviour:
   particlesToEmit: 30
   cooldown: 0.5
   autoCreateEffect: 1
+  isBowlCoral: 0
 --- !u!1 &1087589389 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f4388a0d0d30d364a99c8655b711d88f, type: 3}
@@ -145268,6 +145203,7 @@ MonoBehaviour:
   particlesToEmit: 30
   cooldown: 0.5
   autoCreateEffect: 1
+  isBowlCoral: 0
 --- !u!1001 &1223739509
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -150330,6 +150266,7 @@ MonoBehaviour:
   particlesToEmit: 30
   cooldown: 0.5
   autoCreateEffect: 1
+  isBowlCoral: 0
 --- !u!114 &1247198962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230581,6 +230518,7 @@ MonoBehaviour:
   particlesToEmit: 30
   cooldown: 0.5
   autoCreateEffect: 1
+  isBowlCoral: 0
 --- !u!199 &1997326570
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -235469,7 +235407,7 @@ MonoBehaviour:
   maxVolume: 1
   minPitch: 0.8
   maxPitch: 1.6
-  smoothingSpeed: 0.1
+  smoothingSpeed: 0.039
 --- !u!114 &2021912771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235486,6 +235424,10 @@ MonoBehaviour:
   debugKey: 32
   calibrationDuration: 5
   debugCube: {fileID: 0}
+  seagullClip: {fileID: 8300000, guid: ec8111ade52bfad469f77ed95c05fd3e, type: 3}
+  bubbleClip: {fileID: 8300000, guid: 8abff1739e5030f48b9ab335fd00b8d2, type: 3}
+  seagullVolume: 0.6
+  bubbleVolume: 0.5
 --- !u!4 &2021912772
 Transform:
   m_ObjectHideFlags: 0
@@ -250213,4 +250155,3 @@ SceneRoots:
   - {fileID: 1223739509}
   - {fileID: 1940087872}
   - {fileID: 348228577}
-  - {fileID: 617092284}

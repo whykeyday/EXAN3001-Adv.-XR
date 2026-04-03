@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -54,8 +55,18 @@ public class ParticleTreeHealer : MonoBehaviour
     [Range(0, 1)] public float energyLevel = 0f;
 
     [Header("====== 音效与贴图 ======")]
-    public AudioSource birdAudio;
-    public AudioSource chimeAudio;
+    [Tooltip("鸟叫声音频文件（完全治愈时播放）")]
+    public AudioClip birdAudioClip;
+    [Tooltip("触碰树的魔法治愈音效")]
+    public AudioClip magicHealClip;
+    [Tooltip("鸟叫距离衰减范围")]
+    public float birdFadeDistance = 5f;
+    [Tooltip("魔法音效距离衰减范围")]
+    public float magicFadeDistance = 3f;
+
+    private AudioSource birdAudio;
+    private AudioSource magicHealAudio;
+
     [Tooltip("蝴蝶动画序列帧，2x2 切图")]
     public Texture2D butterflyTexture;
 
@@ -71,6 +82,8 @@ public class ParticleTreeHealer : MonoBehaviour
     private Collider treeCollider;
     [HideInInspector] public bool triggerOverlapDetected = false;
     private bool fullyHealedTriggered = false;
+    private bool wasHealing = false;
+    private Coroutine birdCoroutine;
     private ParticleSystem.Particle[] pBuffer; // 用于读取和染色粒子的高效缓存
     private float scanTimer = 0f;
     private List<GameObject> cachedHands = new List<GameObject>();
@@ -88,6 +101,24 @@ public class ParticleTreeHealer : MonoBehaviour
         treeCollider = GetComponent<Collider>();
         pBuffer = new ParticleSystem.Particle[Mathf.Max(MAX_ALIVE_RATE, MAX_WITHERED_RATE) + 2000];
         energyLevel = 0f;
+
+        // 自动创建 AudioSource + 距离衰减
+        if (birdAudioClip != null)
+        {
+            birdAudio = gameObject.AddComponent<AudioSource>();
+            birdAudio.clip = birdAudioClip;
+            birdAudio.spatialBlend = 1f;
+            birdAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(birdAudio, birdFadeDistance, 0.8f);
+        }
+        if (magicHealClip != null)
+        {
+            magicHealAudio = gameObject.AddComponent<AudioSource>();
+            magicHealAudio.clip = magicHealClip;
+            magicHealAudio.spatialBlend = 1f;
+            magicHealAudio.playOnAwake = false;
+            AudioDistanceFader.Setup(magicHealAudio, magicFadeDistance, 0.5f);
+        }
 
         // ★ 强行覆盖 Inspector 中可能残留的旧参数，确保本次更新立即生效！！
         aliveMeshScaleMultiplier = 0.35f;
@@ -508,12 +539,15 @@ public class ParticleTreeHealer : MonoBehaviour
         bool isHealing = triggerOverlapDetected;
         triggerOverlapDetected = false;
 
-        if (isHealing) 
+        if (isHealing)
         {
-            energyLevel += healingRate * Time.deltaTime; 
-            healLingerTimer = healLingerDuration; // 只要手在，就充满延迟倒计时
+            energyLevel += healingRate * Time.deltaTime;
+            healLingerTimer = healLingerDuration;
+            // 每次开始交互播放一次魔法音效（一次交互响一次）
+            if (!wasHealing && magicHealAudio != null && !magicHealAudio.isPlaying)
+                magicHealAudio.PlayOneShot(magicHealAudio.clip);
         }
-        else 
+        else
         {
             if (healLingerTimer > 0f)
             {
@@ -526,6 +560,7 @@ public class ParticleTreeHealer : MonoBehaviour
         }
 
         energyLevel = Mathf.Clamp01(energyLevel);
+        wasHealing = isHealing;
 
         UpdateParticleSystems(isHealing);
     }
@@ -553,16 +588,20 @@ public class ParticleTreeHealer : MonoBehaviour
             sEmis.enabled = false;
         }
 
-        // 3. 满状态触发特效：粉色落花 & 蝴蝶 & 音效
+        // 3. 满状态触发特效：粉色落花 & 蝴蝶 & 鸟叫循环
         if (energyLevel >= 1.0f && !fullyHealedTriggered)
         {
             fullyHealedTriggered = true;
-            if (birdAudio != null) birdAudio.Play();
-            if (chimeAudio != null) chimeAudio.Play();
+            // 开启鸟叫随机循环
+            if (birdAudio != null && birdCoroutine == null)
+                birdCoroutine = StartCoroutine(RandomBirdRoutine());
         }
         else if (energyLevel < 0.95f && fullyHealedTriggered)
         {
-            fullyHealedTriggered = false; // 允许第二次交互重新触发！
+            fullyHealedTriggered = false;
+            // 停止鸟叫循环
+            if (birdCoroutine != null) { StopCoroutine(birdCoroutine); birdCoroutine = null; }
+            if (birdAudio != null && birdAudio.isPlaying) birdAudio.Stop();
         }
 
         // 保持飘落特效状态（密集的短距悬浮花簇）
@@ -578,6 +617,22 @@ public class ParticleTreeHealer : MonoBehaviour
 
         var bEmis = butterfliesPS.emission;
         bEmis.rateOverTime = (energyLevel >= 0.95f) ? 0.4f : 0f; // ★ 再少一半，数量极度稀缺
+    }
+
+    IEnumerator RandomBirdRoutine()
+    {
+        // 激活后立即叫一声
+        if (birdAudio != null) birdAudio.PlayOneShot(birdAudio.clip);
+
+        while (true)
+        {
+            yield return new WaitForSeconds(Random.Range(3f, 5f));
+            if (birdAudio != null)
+            {
+                birdAudio.pitch = Random.Range(0.9f, 1.1f);
+                birdAudio.PlayOneShot(birdAudio.clip);
+            }
+        }
     }
 
     void LateUpdate()
