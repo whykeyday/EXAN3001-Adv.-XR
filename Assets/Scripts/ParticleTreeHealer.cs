@@ -211,9 +211,10 @@ public class ParticleTreeHealer : MonoBehaviour
         canopyMaxHeight = Mathf.Max(wMaxY, aMaxY);
         trunkHeightThreshold = wMinY + (wMaxY - wMinY) * 0.45f;
 
-        // 强行修正 UX 体验数值，避免离开手后瞬间衰退回枯树
+        // 强行修正 UX 体验数值，完全遵循交互逻辑
         healingRate = 0.4f; // 2.5秒完全治愈
-        decayRate = 0.05f;  // 20秒衰退
+        healLingerDuration = 5.0f; // 离开手后 5 秒便开始衰退
+        decayRate = 0.5f;  // 2秒衰退为枯树（走远后很快恢复枯木）
 
         // 1. 强力清理旧状态：隐藏所有 MeshRenderer（我们只需要纯粒子！）
         var meshRenderers = GetComponentsInChildren<MeshRenderer>();
@@ -637,14 +638,17 @@ public class ParticleTreeHealer : MonoBehaviour
             fullyHealedTriggered = true;
             // 开启鸟叫随机循环
             if (birdAudio != null && birdCoroutine == null)
+            {
+                birdAudio.volume = birdVolume;
                 birdCoroutine = StartCoroutine(RandomBirdRoutine());
+            }
         }
         else if (energyLevel < 0.95f && fullyHealedTriggered)
         {
             fullyHealedTriggered = false;
-            // 停止鸟叫循环
+            // 停止鸟叫循环并淡出音量
             if (birdCoroutine != null) { StopCoroutine(birdCoroutine); birdCoroutine = null; }
-            if (birdAudio != null && birdAudio.isPlaying) birdAudio.Stop();
+            if (birdAudio != null && birdAudio.isPlaying) StartCoroutine(FadeOutBirdAudio());
         }
 
         // 防御性检查：确保声音没有被静默
@@ -664,6 +668,19 @@ public class ParticleTreeHealer : MonoBehaviour
 
         var bEmis = butterfliesPS.emission;
         bEmis.rateOverTime = (energyLevel >= 0.95f) ? 0.4f : 0f; // ★ 再少一半，数量极度稀缺
+    }
+
+    IEnumerator FadeOutBirdAudio()
+    {
+        float startVol = birdAudio.volume;
+        float elapsed = 0f;
+        while(elapsed < 1.0f && birdAudio != null)
+        {
+            elapsed += Time.deltaTime;
+            birdAudio.volume = Mathf.Lerp(startVol, 0f, elapsed);
+            yield return null;
+        }
+        if (birdAudio != null) birdAudio.Stop();
     }
 
     IEnumerator RandomBirdRoutine()

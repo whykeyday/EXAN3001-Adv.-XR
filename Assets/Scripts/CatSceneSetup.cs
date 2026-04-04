@@ -211,8 +211,8 @@ public class CatSceneSetup : MonoBehaviour
             return;
         }
 
-        // 使用与猫音频完全相同的创建逻辑 (此时 sparkParent 已经挂载了 CampfireInteraction)
-        AudioSource src = CreateAudioSource(sparkParent, fireplaceClip);
+        // 篝火只依靠原生距离和 AudioSource.maxDistance 衰减，不采用触摸 Fade。
+        AudioSource src = CreateAudioSource(sparkParent, fireplaceClip, false);
         src.volume = fireplaceVolume;
         src.minDistance = fireNearDistance;
         src.maxDistance = fireFarDistance; 
@@ -246,7 +246,7 @@ public class CatSceneSetup : MonoBehaviour
             EnsureColliderAndRigidBody(blackCatModel);
             CatTouchReceiver rec = blackCatModel.gameObject.AddComponent<CatTouchReceiver>();
             rec.catRole = CatTouchReceiver.CatRole.Aggressive;
-            if (blackCatAggrAudio != null) rec.audioSource = CreateAudioSource(blackCatModel, blackCatAggrAudio);
+            if (blackCatAggrAudio != null) rec.audioSource = CreateAudioSource(blackCatModel, blackCatAggrAudio, true);
             AttachForwarders(blackCatModel, rec);
         }
 
@@ -267,7 +267,7 @@ public class CatSceneSetup : MonoBehaviour
             EnsureColliderAndRigidBody(toonCatModel);
             CatTouchReceiver rec = toonCatModel.gameObject.AddComponent<CatTouchReceiver>();
             rec.catRole = CatTouchReceiver.CatRole.Purr;
-            if (toonCatPurrAudio != null) rec.audioSource = CreateAudioSource(toonCatModel, toonCatPurrAudio);
+            if (toonCatPurrAudio != null) rec.audioSource = CreateAudioSource(toonCatModel, toonCatPurrAudio, true);
             AttachForwarders(toonCatModel, rec);
         }
     }
@@ -286,7 +286,7 @@ public class CatSceneSetup : MonoBehaviour
         }
     }
 
-    AudioSource CreateAudioSource(Transform parent, AudioClip clip)
+    AudioSource CreateAudioSource(Transform parent, AudioClip clip, bool isCatInteraction = false)
     {
         GameObject audioEmitter = new GameObject("AudioEmitter_PerfectCenter");
         audioEmitter.transform.SetParent(parent, false);
@@ -310,9 +310,24 @@ public class CatSceneSetup : MonoBehaviour
         src.loop = true;
         src.playOnAwake = true;
         src.ignoreListenerPause = true;
-        src.minDistance = 1f;
-        src.maxDistance = 40f; 
         src.rolloffMode = AudioRolloffMode.Linear;
+        
+        if (isCatInteraction)
+        {
+            // 猫咪声音传播距离必须很短，否则全图清晰听到
+            src.minDistance = 0.5f;
+            src.maxDistance = 5.0f; 
+            
+            // 自动挂载距离+淡入淡出模块，并在初始阶段强行将其静音（直到你去摸）
+            AudioDistanceFader fader = AudioDistanceFader.Setup(src, 5.0f, 0.5f, 2.0f, 1.0f);
+            fader.SetSilentInstant();
+        }
+        else
+        {
+            // 篝火之类的不做强制裁截，使用普通的距离衰减
+            src.minDistance = 1f;
+            src.maxDistance = 40f; 
+        }
         
         Debug.Log($"[DIAGNOSTIC] Created AudioEmitter for {parent.name} at {soundPos}. Clip: {clip.name}");
         return src;

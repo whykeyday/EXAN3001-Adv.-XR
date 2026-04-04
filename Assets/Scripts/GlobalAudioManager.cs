@@ -1,233 +1,146 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 全局音效管理器：贯穿所有场景随机循环播放背景音乐。
-/// 挂载此组件的物体会自动跨场景保留 (DontDestroyOnLoad)。
-/// 进入 BasicScene 后开始播放，切换任何场景都不会中断。
+/// 全局音效管理器：单例模式 (Singleton) + DontDestroyOnLoad。
+/// 修复了因为 Unity 判定 isPlaying 延迟导致的“无限连切”静音 Bug。
 /// </summary>
 public class GlobalAudioManager : MonoBehaviour
 {
-
-    [Header("BGM Tracks (拖入 global1/2/3/4 音频)")]
+    [Header("BGM Tracks (拖入 4 首冥想音频)")]
     public AudioClip[] meditationTracks;
 
-    [Header("Volume")]
+    [Header("Volume (音量调节)")]
     [Range(0f, 1f)]
     public float bgmVolume = 0.4f;
 
     private AudioSource audioSource;
-    private float trackStartTime;
-    private int lastPlayedIndex = -1;
+    private int currentTrackIndex = -1;
+    
+    // 冷却时间，防止 Update 每帧都在疯狂切歌导致没声音
+    private float nextAllowedPlayTime = 0f;
 
     private static GlobalAudioManager _instance = null;
     public static GlobalAudioManager Instance => _instance;
 
     void Awake()
     {
-        // ★ 采用用户提供的标准 Singleton 模式
         if (_instance != null && _instance != this)
         {
             Destroy(this.gameObject);
-            return;
+            return; 
         }
 
         _instance = this;
-        transform.SetParent(null); // DDOL 要求必须是根物体
+        transform.SetParent(null); 
         DontDestroyOnLoad(this.gameObject);
 
-        // 自动准备 AudioSource
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
         audioSource.playOnAwake = false;
-        audioSource.loop = false; // 由脚本控制循环
-        audioSource.spatialBlend = 0f; // ★ 2D Constant Volume
-        audioSource.ignoreListenerPause = true;
-        audioSource.ignoreListenerVolume = true;
-
-        Debug.Log("[DIAGNOSTIC] GlobalAudioManager Singleton Initialized. 2D mode active.");
+        audioSource.loop = false; 
+        audioSource.spatialBlend = 0f; // 2D 贴耳音效
     }
 
-    void Start()
-    {
-        Debug.Log($"[GlobalAudioManager] Start. Volume: {bgmVolume}, tracks: {meditationTracks?.Length ?? 0}, GO: {gameObject.name}, parent: {(transform.parent != null ? transform.parent.name : "ROOT")}");
-        if (meditationTracks != null && meditationTracks.Length > 0)
-        {
-            // 逐个检查 tracks 是否为 null
-            for (int i = 0; i < meditationTracks.Length; i++)
-                Debug.Log($"[GlobalAudioManager] Track[{i}]: {(meditationTracks[i] != null ? meditationTracks[i].name : "NULL")}");
-
-            if (!audioSource.isPlaying)
-                PlayRandomTrack();
-        }
-        else
-        {
-            Debug.LogError("[GlobalAudioManager] ❌ No tracks assigned in the Inspector! 请拖入 BGM 音频！");
-        }
-    }
+    private bool isAllowedToPlay = false;
 
     void OnEnable()
     {
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void OnDisable()
     {
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"[GlobalBGM] Scene loaded: {scene.name}. isPlaying: {audioSource?.isPlaying}");
+        isAllowedToPlay = true;
 
-        // 场景切换后确保音频继续播放（Unity有时会在切场景时暂停AudioSource）
-        if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
+        if (audioSource != null && !audioSource.isPlaying)
         {
-            // ★ 强制刷新 2D + ignoreListenerPause，防止新场景中的某些设置覆盖
-            audioSource.spatialBlend = 0f;
-            audioSource.ignoreListenerPause = true;
-            audioSource.ignoreListenerVolume = true;
+            PlayRandomTrack();
+        }
+    }
 
-            if (!audioSource.isPlaying)
-            {
-                audioSource.UnPause();
-                if (!audioSource.isPlaying)
-                {
-                    Debug.Log("[GlobalBGM] UnPause failed, playing random track.");
-                    PlayRandomTrack();
-                }
-            }
-        }
-        else
+    void Start()
+    {
+        if (meditationTracks == null || meditationTracks.Length == 0)
         {
-             Debug.LogWarning($"[GlobalBGM] SceneLoaded but audioSource or tracks are null! Source: {audioSource != null}, Tracks: {meditationTracks?.Length ?? 0}");
+            Debug.LogError("[GlobalAudioManager] ❌ 警告：你还没有放入任何 BGM 曲目！请在 Inspector 侧边栏拖入你的 mp3/wav。");
+            return;
         }
+
+        isAllowedToPlay = true;
+        PlayRandomTrack();
     }
 
     void Update()
     {
-        // ★ 防御性恢复：如果 AudioSource 被意外销毁（场景切换副作用），立即重建
-        if (audioSource == null)
-        {
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 0f;
-            audioSource.ignoreListenerPause = true;
-            audioSource.ignoreListenerVolume = true;
-            Debug.LogWarning("[DIAGNOSTIC] GlobalBGM AudioSource was lost — rebuilt.");
-        }
+        if (audioSource == null || meditationTracks == null || meditationTracks.Length == 0) return;
 
-        // 强行锁定状态，应对任何外部脚本篡改
-        audioSource.mute = false;
-        audioSource.volume = bgmVolume;
-        audioSource.spatialBlend = 0f;
-        audioSource.ignoreListenerPause = true;
-        audioSource.ignoreListenerVolume = true;
-
-        if (!audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
-        {
-            Debug.LogWarning("[DIAGNOSTIC] GlobalBGM silent in Update — forcing recovery.");
-            PlayRandomTrack();
-        }
-
-        // ★ 音量实时同步 Inspector 调节
-        if (audioSource != null)
+        // 实时同步 Inspector 音量
+        if (Mathf.Abs(audioSource.volume - bgmVolume) > 0.01f)
         {
             audioSource.volume = bgmVolume;
-            // 强行锁定 2D + 忽略暂停，应对任何意外覆盖
-            audioSource.spatialBlend = 0f;
-            audioSource.ignoreListenerPause = true;
-            audioSource.ignoreListenerVolume = true; // ★ 即使 Master volume 为 0 也不受影响
-
-            if (!audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
-            {
-                Debug.LogWarning("[GlobalBGM] AudioSource was NOT playing in Update — forced recovery.");
-                PlayRandomTrack();
-            }
         }
 
-        // 当前曲目播完，自动播下一首曲目
-        if (meditationTracks != null && meditationTracks.Length > 0)
+        // ★ 防抖切歌逻辑：当音乐确实完全停止，且过了冷却时间，才切下一首
+        // 只有被允许播放 (isAllowedToPlay == true) 时才自动切歌
+        if (isAllowedToPlay && !audioSource.isPlaying && Time.time >= nextAllowedPlayTime)
         {
-            if (!audioSource.isPlaying)
-            {
-                PlayNextTrack();
-            }
+            PlayNextTrack();
         }
     }
 
     void PlayNextTrack()
     {
-        if (meditationTracks == null || meditationTracks.Length == 0) return;
-        
-        // 顺序循环
-        int nextIndex = (lastPlayedIndex + 1) % meditationTracks.Length;
-        PlayTrack(nextIndex);
+        if (meditationTracks.Length == 0) return;
+
+        currentTrackIndex = (currentTrackIndex + 1) % meditationTracks.Length;
+        PlayTrack(currentTrackIndex);
+    }
+
+    void PlayRandomTrack()
+    {
+        if (meditationTracks.Length == 0) return;
+
+        if (meditationTracks.Length == 1)
+        {
+            currentTrackIndex = 0;
+        }
+        else
+        {
+            int newIndex;
+            do { newIndex = Random.Range(0, meditationTracks.Length); }
+            while (newIndex == currentTrackIndex);
+            
+            currentTrackIndex = newIndex;
+        }
+
+        PlayTrack(currentTrackIndex);
     }
 
     void PlayTrack(int index)
     {
         if (index < 0 || index >= meditationTracks.Length || meditationTracks[index] == null)
         {
-            Debug.LogError($"[DIAGNOSTIC] Track {index} is NULL or out of range!");
+            Debug.LogWarning($"[GlobalAudioManager] 试图播放空白曲目 (Index: {index})");
             return;
         }
 
-        lastPlayedIndex = index;
-        audioSource.clip = meditationTracks[index];
-        audioSource.loop = false; // 由 Update 链式驱动
-        audioSource.mute = false;
-        audioSource.volume = bgmVolume;
-        audioSource.Play();
-        trackStartTime = Time.time;
-        Debug.Log($"[DIAGNOSTIC] BGM Playing track {index}: {meditationTracks[index].name}, Vol: {audioSource.volume}, Mute: {audioSource.mute}");
-    }
-
-    [ContextMenu(">>> FORCE RESTART BGM <<<")]
-    public void ForcePlay()
-    {
-        Debug.Log($"[GlobalBGM] ForcePlay (Restart) called. Track count: {meditationTracks?.Length ?? 0}");
-        if (meditationTracks != null && meditationTracks.Length > 0)
-        {
-            PlayRandomTrack();
-        }
-    }
-
-    void PlayRandomTrack()
-    {
-        if (meditationTracks == null || meditationTracks.Length == 0) return;
-
-        // 随机选一首（避免连续重复）
-        int index;
-        if (meditationTracks.Length == 1)
-        {
-            index = 0;
-        }
-        else
-        {
-            do { index = Random.Range(0, meditationTracks.Length); }
-            while (index == lastPlayedIndex);
-        }
-
-        // 跳过空 clip
-        if (meditationTracks[index] == null)
-        {
-            Debug.LogWarning($"[GlobalAudioManager] meditationTracks[{index}] is null, skipping.");
-            return;
-        }
-
-        lastPlayedIndex = index;
         audioSource.clip = meditationTracks[index];
         audioSource.volume = bgmVolume;
         audioSource.Play();
-        trackStartTime = Time.time;
-
-        Debug.Log($"[GlobalAudioManager] Now playing track {index}: {meditationTracks[index].name}");
+        
+        // 关键！给 AudioSource 起步的时间，防止下一帧判定为 isPlaying == false 从而闪现切歌
+        nextAllowedPlayTime = Time.time + 1.0f;
+        
+        Debug.Log($"[GlobalAudioManager] 正在播放曲目: {audioSource.clip.name}");
     }
 
-    /// <summary>
-    /// 外部调用：设置 BGM 音量
-    /// </summary>
     public void SetVolume(float vol)
     {
         bgmVolume = Mathf.Clamp01(vol);
