@@ -1,30 +1,26 @@
 using UnityEngine;
 
 /// <summary>
-/// GroundParticleController: 
-/// 将 Plane 地面转换为透明粒子容器的通用控制组件。
-/// 支持手动在 Inspector 面板调整：大小、密度、颜色。
+/// GroundParticleController (Precision Fix): 
+/// 1. 使用 Mesh 发射模式替代 Box，实现 100% 精准覆盖。
+/// 2. 彻底禁用 MeshRenderer 实现绝对透明地面。
+/// 3. 缩短寿命并锁定高度，防止粒子飞得太高。
 /// </summary>
 public class GroundParticleController : MonoBehaviour
 {
     public enum MovementMode { BasicTwinkle, OceanWavy, CatBlinking, TreeRandom }
 
     [Header("--- Manual Adjustments ---")]
-    [Tooltip("粒子的基础颜色")]
     public Color mainColor = Color.white;
     
-    [Tooltip("粒子的大小 (建议 0.02 - 0.1)")]
     [Range(0.001f, 0.2f)]
     public float particleSize = 0.04f;
 
-    [Tooltip("粒子的密度 (每秒发射数量)")]
     [Range(5f, 500f)]
     public float particleDensity = 80f;
 
-    [Tooltip("地面的动态模式")]
     public MovementMode mode = MovementMode.BasicTwinkle;
 
-    [Header("--- Internals ---")]
     private ParticleSystem ps;
     private ParticleSystemRenderer psr;
 
@@ -36,39 +32,50 @@ public class GroundParticleController : MonoBehaviour
 
     void Update()
     {
-        // 实时应用 Inspector 的调整
         ApplyAdjustments();
     }
 
     void SetupParticleSystem()
     {
-        // 创建粒子系统物体
+        // 1. 获取地面的 MeshFilter (用于精准吸附)
+        MeshFilter mf = GetComponent<MeshFilter>();
+        if (mf == null || mf.sharedMesh == null) {
+            Debug.LogError("GroundParticleController: 物体上未找到 MeshFilter，无法进行高精度吸附发射。");
+            return;
+        }
+
         GameObject psObj = new GameObject("GroundParticles_Container");
         psObj.transform.SetParent(transform, false);
-        // 紧贴地面 (Y=0.01)
-        psObj.transform.localPosition = new Vector3(0, 0.01f, 0);
+        // 稍微往上抬一点点，防止埋在地板里
+        psObj.transform.localPosition = new Vector3(0, 0.02f, 0);
+        psObj.transform.localRotation = Quaternion.identity;
+        psObj.transform.localScale = Vector3.one;
 
         ps = psObj.AddComponent<ParticleSystem>();
         psr = psObj.GetComponent<ParticleSystemRenderer>();
 
-        // 1. 基础设置 (Main)
         var main = ps.main;
         main.loop = true;
         main.playOnAwake = true;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
+        main.simulationSpace = ParticleSystemSimulationSpace.Local; // 使用本地空间，防止移动时残留
+        
+        // ★ 核心修复 1：寿命减半，防止飞得太高。1.5秒左右是最佳“贴地”感
+        main.startLifetime = new ParticleSystem.MinMaxCurve(1.0f, 1.8f);
+        main.startSpeed = 0f;
         main.gravityModifier = 0f;
-        main.maxParticles = 2000;
+        main.maxParticles = 4000;
 
-        // 2. 发射形状 (Shape) - 自动匹配 Plane 的大小
+        // ★ 核心修复 2：网格发射模式 (Mesh Shape)
+        // 这将百分之百精准对齐你的 Plane 形状，不管它有多大。
         var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Box;
-        // Plane 的默认大小是 10x10，Scale 1 对应 10m
-        shape.scale = new Vector3(10f, 0.1f, 10f); 
-        shape.rotation = new Vector3(90, 0, 0); // 确保朝上发射
+        shape.shapeType = ParticleSystemShapeType.Mesh;
+        shape.mesh = mf.sharedMesh;
+        shape.scale = Vector3.one;
+        shape.position = Vector3.zero;
+        shape.rotation = Vector3.zero;
 
-        // 3. 渲染器设置 (Renderer)
-        psr.material = GetGlowingMaterial();
+        // ★ 材质与渲染
+        psr.material = GetParticleMaterial();
         psr.renderMode = ParticleSystemRenderMode.Billboard;
 
         ConfigureMode();
@@ -77,66 +84,46 @@ public class GroundParticleController : MonoBehaviour
 
     void HideBaseMesh()
     {
-        // 让原始的 Plane 彻底透明，只作为容器
+        // ★ 核心修复 3：直接彻底禁用地面的显示
+        // 这样不仅透明，而且毫无渲染压力。Collider 依然会生效。
         MeshRenderer mr = GetComponent<MeshRenderer>();
-        if (mr != null)
-        {
-            // 创建一个全透明材质
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            if (mat != null)
-            {
-                mat.SetFloat("_Surface", 1); // Transparent
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", 0);
-                mat.SetColor("_BaseColor", new Color(0, 0, 0, 0));
-                mr.material = mat;
-            }
-        }
+        if (mr != null) mr.enabled = false;
     }
 
     void ConfigureMode()
     {
-        var main = ps.main;
         var noise = ps.noise;
         var colorOL = ps.colorOverLifetime;
-        var emission = ps.emission;
 
         switch (mode)
         {
             case MovementMode.BasicTwinkle:
-                // 五颜六色闪耀
-                main.startColor = new ParticleSystem.MinMaxGradient(Color.white, Color.grey);
-                emission.rateOverTime = particleDensity;
                 colorOL.enabled = true;
                 colorOL.color = GetTwinkleGradient();
                 break;
 
             case MovementMode.OceanWavy:
-                // 蓝色波动 (使用 Noise)
-                main.startColor = mainColor;
+                // 海洋粒子：保持低频微动
                 noise.enabled = true;
-                noise.strength = 0.5f;
+                noise.strength = 0.25f; // 降低强度，防止飘离
                 noise.frequency = 0.5f;
-                noise.scrollSpeed = 0.2f;
+                noise.scrollSpeed = 0.15f;
                 break;
 
             case MovementMode.CatBlinking:
-                // 淡红闪烁
-                main.startColor = mainColor;
                 colorOL.enabled = true;
                 colorOL.color = GetBlinkingGradient();
                 break;
 
             case MovementMode.TreeRandom:
-                // 黄色随机移动
-                main.startColor = mainColor;
+                // 森林粒子：由于是网格吸附，现在的移动将更自然
                 var vel = ps.velocityOverLifetime;
                 vel.enabled = true;
-                vel.x = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f);
-                vel.z = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f);
+                vel.x = new ParticleSystem.MinMaxCurve(-0.1f, 0.1f);
+                vel.z = new ParticleSystem.MinMaxCurve(-0.1f, 0.1f);
+                vel.y = new ParticleSystem.MinMaxCurve(0f, 0f); // 强制垂直速度为 0
                 noise.enabled = true;
-                noise.strength = 0.1f;
+                noise.strength = 0.04f; 
                 break;
         }
     }
@@ -144,31 +131,21 @@ public class GroundParticleController : MonoBehaviour
     void ApplyAdjustments()
     {
         if (ps == null) return;
-
         var main = ps.main;
         main.startSize = particleSize;
-        
-        // 如果是 Basic 模式，强制应用随机颜色
-        if (mode == MovementMode.BasicTwinkle) {
-            // 自动循环颜色
-            main.startColor = new ParticleSystem.MinMaxGradient(mainColor, Color.white);
-        } else {
-            main.startColor = mainColor;
-        }
+        main.startColor = mainColor;
 
         var emission = ps.emission;
         emission.rateOverTime = particleDensity;
     }
 
-    // --- Helpers ---
-
-    private Material GetGlowingMaterial()
+    private Material GetParticleMaterial()
     {
-        Shader s = Shader.Find("Universal Render Pipeline/Unlit");
+        Shader s = Shader.Find("Universal Render Pipeline/Particles/Unlit");
         if (s == null) s = Shader.Find("Sprites/Default");
         Material mat = new Material(s);
         mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One); 
         mat.SetInt("_ZWrite", 0);
         return mat;
     }
@@ -188,7 +165,7 @@ public class GroundParticleController : MonoBehaviour
         Gradient g = new Gradient();
         g.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.2f), new GradientAlphaKey(1, 0.8f), new GradientAlphaKey(0, 1) }
+            new GradientAlphaKey[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.3f), new GradientAlphaKey(1, 0.7f), new GradientAlphaKey(0, 1) }
         );
         return g;
     }
