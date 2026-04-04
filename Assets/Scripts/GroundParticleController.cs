@@ -1,10 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// GroundParticleController (Precision Coral Version): 
-/// 1. 不再进行任何自动化盲目搜索。
-/// 2. 专门负责将当前物体变为透明粒子容器。
-/// 3. 强制锁定 Y 轴高度到脚底 (Y = 0.05)。
+/// GroundParticleController (Infinite Horizon Version): 
+/// 1. 彻底从父级缩放脱离 (Parent Decoupling)，进入 1:1 世界坐标。
+/// 2. 强制 80 米超广域覆盖，再也没有“远处一小块”的情况。
+/// 3. 环境色深邃化校正，确保背景不透色。
 /// </summary>
 public class GroundParticleController : MonoBehaviour
 {
@@ -14,10 +14,10 @@ public class GroundParticleController : MonoBehaviour
     public Color mainColor = Color.white;
     
     [Range(0.001f, 0.2f)]
-    public float particleSize = 0.045f;
+    public float particleSize = 0.05f;
 
-    [Range(5f, 2000f)]
-    public float particleDensity = 300f;
+    [Range(10f, 3000f)]
+    public float particleDensity = 400f;
 
     public MovementMode mode = MovementMode.BasicTwinkle;
 
@@ -29,25 +29,30 @@ public class GroundParticleController : MonoBehaviour
     {
         baseMr = GetComponent<MeshRenderer>();
         SetupParticleSystem();
-        HideTargetMesh();
+        HideBaseMesh();
+        AdjustEnvironment();
     }
 
     void Update()
     {
         ApplyAdjustments();
         
-        // ★ 核心修复：强制地心引力 (World Y = 0.05)
-        // 确保粒子永远在脚底，而不是在手掌、腰部或天空。
+        // ★ 核心修复：坐标锁定 (World Align)
+        // 使粒子系统保持在指定的 XZ 中心，且锁定在脚底高度 0.05f。
         if (ps != null) {
             ps.transform.position = new Vector3(transform.position.x, 0.05f, transform.position.z);
+            // 确保缩放始终为物理 1:1:1
+            ps.transform.localScale = Vector3.one; 
         }
     }
 
     void SetupParticleSystem()
     {
-        // 建立纯净容器
-        GameObject psObj = new GameObject("GroundParticles_CoralContainer");
-        psObj.transform.SetParent(transform, true); 
+        GameObject psObj = new GameObject("InfiniteHorizon_Particles");
+        // ★ 核心修复 2：彻底脱离父级旋转和缩放的干扰，设为 null (Root Object)
+        psObj.transform.SetParent(null); 
+        psObj.transform.position = new Vector3(transform.position.x, 0.05f, transform.position.z);
+        psObj.transform.localScale = Vector3.one;
 
         ps = psObj.AddComponent<ParticleSystem>();
         psr = psObj.GetComponent<ParticleSystemRenderer>();
@@ -56,26 +61,17 @@ public class GroundParticleController : MonoBehaviour
         main.loop = true;
         main.playOnAwake = true;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(2f, 4f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f);
         main.startSpeed = 0f;
-        main.gravityModifier = 0f;
-        main.maxParticles = 10000;
+        main.maxParticles = 12000;
 
-        // ★ 珊瑚级覆盖逻辑：自适应容器大小
+        // ★ 核心修复 3：强力 80x80 米覆盖。
+        // 因为它是顶级物体且 Scale 为 1，这里的 80f 就是物理上的 80 米。
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        
-        if (baseMr != null) {
-            Vector3 worldSize = baseMr.bounds.size;
-            // 确保覆盖全域，设置最小值为 50m
-            float finalX = Mathf.Max(worldSize.x, 50f);
-            float finalZ = Mathf.Max(worldSize.z, 50f);
-            shape.scale = new Vector3(finalX / transform.lossyScale.x, 0.01f, finalZ / transform.lossyScale.z);
-        } else {
-            shape.scale = new Vector3(50f, 0.01f, 50f);
-        }
+        shape.scale = new Vector3(80f, 0.01f, 80f); 
 
-        // ★ 核心渲染：几何金属颗粒 (Cube Rendering)
+        // ★ 核心渲染：几何金属化 (Cube Mesh) 复刻珊瑚逻辑
         psr.renderMode = ParticleSystemRenderMode.Mesh;
         GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         psr.mesh = tempCube.GetComponent<MeshFilter>().sharedMesh;
@@ -86,14 +82,24 @@ public class GroundParticleController : MonoBehaviour
         ps.Play();
     }
 
-    void HideTargetMesh()
+    void HideBaseMesh()
     {
-        // ★ 核心：绝对透明容器化
+        // ★ 核心修复 4：暴力递归隐藏所有 Renderer（确保毫无残留）
         if (baseMr != null) baseMr.enabled = false;
-        
-        // 递归隐藏所有子层级 Renderer (防止手掌模型或其他附件被渲染出来)
-        foreach (var r in GetComponentsInChildren<Renderer>()) {
+        Renderer[] allRs = GetComponentsInChildren<Renderer>(true);
+        foreach (var r in allRs) {
             if (r != psr) r.enabled = false;
+        }
+    }
+
+    void AdjustEnvironment()
+    {
+        // ★ 核心修复 5：调暗底色，解决“地面依然有蓝色”的问题
+        Camera cam = Camera.main;
+        if (cam != null) {
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            // 确保背景深度足够，不产生灰蒙感
+            cam.backgroundColor = new Color(0.01f, 0.02f, 0.04f, 1f); 
         }
     }
 
@@ -110,7 +116,7 @@ public class GroundParticleController : MonoBehaviour
                 break;
             case MovementMode.OceanWavy:
                 noise.enabled = true;
-                noise.strength = 0.12f; 
+                noise.strength = 0.14f; 
                 noise.frequency = 0.25f;
                 noise.scrollSpeed = 0.1f;
                 break;
@@ -121,8 +127,8 @@ public class GroundParticleController : MonoBehaviour
             case MovementMode.TreeRandom:
                 var vel = ps.velocityOverLifetime;
                 vel.enabled = true;
-                vel.x = new ParticleSystem.MinMaxCurve(-0.06f, 0.06f);
-                vel.z = new ParticleSystem.MinMaxCurve(-0.06f, 0.06f);
+                vel.x = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
+                vel.z = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
                 vel.y = new ParticleSystem.MinMaxCurve(0f, 0f);
                 noise.enabled = true;
                 noise.strength = 0.02f; 
@@ -141,8 +147,9 @@ public class GroundParticleController : MonoBehaviour
         emission.rateOverTime = particleDensity;
 
         if (psr != null && psr.material != null) {
-            psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, 0.55f));
-            psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, 0.55f));
+            // 同步金属材质色相
+            psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, 0.5f));
+            psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, 0.5f));
         }
     }
 
@@ -155,10 +162,10 @@ public class GroundParticleController : MonoBehaviour
         mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         mat.renderQueue = 3000;
         
-        Color tColor = new Color(color.r, color.g, color.b, 0.55f);
+        Color tColor = new Color(color.r, color.g, color.b, 0.5f);
         mat.SetColor("_BaseColor", tColor);
-        mat.SetFloat("_Metallic", 0.93f);
-        mat.SetFloat("_Smoothness", 0.97f);
+        mat.SetFloat("_Metallic", 0.94f); // 极高反射率
+        mat.SetFloat("_Smoothness", 0.98f); // 极致镜面
         return mat;
     }
 
