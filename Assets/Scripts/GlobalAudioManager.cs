@@ -47,17 +47,19 @@ public class GlobalAudioManager : MonoBehaviour
         // VR 的 Audio 系统在第一帧直接用代码 Play() 经常会被忽略，最可靠的办法是利用原生 playOnAwake
         if (meditationTracks != null && meditationTracks.Length > 0)
         {
-            // 确保真随机：用系统时间作为种子，打破 Unity 初始冷启动随机因子定死的 Bug
-            Random.InitState((int)System.DateTime.Now.Ticks);
+            // 真随机：系统 Guid 哈希作为绝对不可预测的种子，避免冷启动时钟种子相同
+            Random.InitState(System.Guid.NewGuid().GetHashCode());
             
             // 在 Awake 期间就直接选好第一首歌（真·随机）
             currentTrackIndex = Random.Range(0, meditationTracks.Length);
             audioSource.clip = meditationTracks[currentTrackIndex];
             audioSource.volume = bgmVolume;
-            audioSource.playOnAwake = true; // 开启原生启动，只要系统加载完必响！
             
-            // 给它 3 秒的启动保护期，防止 Update 刚启动时乱切歌
-            nextAllowedPlayTime = Time.time + 3.0f;
+            // 引擎会瞬间开始播放 clip，强制重新覆盖
+            audioSource.Play(); 
+            
+            // 给系统 2 秒的启动保护期，这段时间内禁止乱切歌
+            nextAllowedPlayTime = Time.time + 2.0f;
             Debug.Log($"[GlobalAudioManager] Awake initialized. Picked true random first track: {audioSource.clip.name}");
         }
     }
@@ -115,9 +117,18 @@ public class GlobalAudioManager : MonoBehaviour
             audioSource.volume = bgmVolume;
         }
 
-        // ★ 防抖顺连逻辑：如果确实彻底放完了，且避开了所有场景卡顿保护期，才放下一首
+        // ★ 新增功能：按 A 键随机切歌 (PC 端可用 Space 键盘空格测试)
+        // 支持右手 A 键 或 通用 Button.One
+        if (OVRInput.GetDown(OVRInput.RawButton.A) || OVRInput.GetDown(OVRInput.Button.One) || Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("[GlobalAudioManager] User pressed 'A' or Space to skip track.");
+            PlayNextTrack();
+        }
+
+        // ★ 核心兜底机制：只要过了开机冷却保护期（2秒），如果发现还是没声音（不管是被吞了还是在 BasicScene 出 bug 了），强制帮它响！
         if (!audioSource.isPlaying && Time.time >= nextAllowedPlayTime)
         {
+            Debug.Log("[GlobalAudioManager] Fallback detected silence, auto-triggering next track!");
             PlayNextTrack();
         }
     }
