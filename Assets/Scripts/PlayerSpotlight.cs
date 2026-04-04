@@ -8,9 +8,9 @@ using UnityEngine;
 public class PlayerSpotlight : MonoBehaviour
 {
     [Header("Glow Aesthetics")]
-    public Color lightColor = new Color(1.0f, 0.7f, 0.25f, 1.0f); // 琥珀色 (Additive 下 Alpha 建议为 1)
-    public float glowRadius = 0.85f;      
-    public float glowIntensity = 1.0f; 
+    public Color lightColor = new Color(1.0f, 0.7f, 0.25f, 1.0f); 
+    public float glowRadius = 0.42f;      
+    public float glowIntensity = 0.4f; 
     public float groundOffset = 0.015f;
 
     [Header("Follow Settings")]

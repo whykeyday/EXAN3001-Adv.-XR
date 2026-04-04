@@ -181,7 +181,7 @@ public class OceanSceneSetup : MonoBehaviour
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 if (mat == null) mat = new Material(Shader.Find("Standard"));
 
-                Color planeColor = new Color(0.0f, 0.03f, 0.08f, 0.8f);
+                Color planeColor = new Color(0.0f, 0.03f, 0.08f, 0.35f);
                 mat.SetFloat("_Surface", 1f); 
                 mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
