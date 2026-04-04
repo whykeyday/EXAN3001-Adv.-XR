@@ -1,10 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// GroundParticleController (Precision Fix): 
-/// 1. 使用 Mesh 发射模式替代 Box，实现 100% 精准覆盖。
-/// 2. 彻底禁用 MeshRenderer 实现绝对透明地面。
-/// 3. 缩短寿命并锁定高度，防止粒子飞得太高。
+/// GroundParticleController (Coral Style - Master Version): 
+/// 1. 复刻珊瑚的几何金属感 (Metallic Gems)。
+/// 2. 自动探测地面边界 (Auto-Bounds) 并铺满全场。
+/// 3. 实现绝对透明的“容器”化。
 /// </summary>
 public class GroundParticleController : MonoBehaviour
 {
@@ -16,16 +16,18 @@ public class GroundParticleController : MonoBehaviour
     [Range(0.001f, 0.2f)]
     public float particleSize = 0.04f;
 
-    [Range(5f, 500f)]
-    public float particleDensity = 80f;
+    [Range(5f, 1000f)]
+    public float particleDensity = 150f;
 
     public MovementMode mode = MovementMode.BasicTwinkle;
 
     private ParticleSystem ps;
     private ParticleSystemRenderer psr;
+    private MeshRenderer baseMr;
 
     void Awake()
     {
+        baseMr = GetComponent<MeshRenderer>();
         SetupParticleSystem();
         HideBaseMesh();
     }
@@ -37,16 +39,8 @@ public class GroundParticleController : MonoBehaviour
 
     void SetupParticleSystem()
     {
-        // 1. 获取地面的 MeshFilter (用于精准吸附)
-        MeshFilter mf = GetComponent<MeshFilter>();
-        if (mf == null || mf.sharedMesh == null) {
-            Debug.LogError("GroundParticleController: 物体上未找到 MeshFilter，无法进行高精度吸附发射。");
-            return;
-        }
-
-        GameObject psObj = new GameObject("GroundParticles_Container");
+        GameObject psObj = new GameObject("CoralStyle_GroundParticles");
         psObj.transform.SetParent(transform, false);
-        // 稍微往上抬一点点，防止埋在地板里
         psObj.transform.localPosition = new Vector3(0, 0.02f, 0);
         psObj.transform.localRotation = Quaternion.identity;
         psObj.transform.localScale = Vector3.one;
@@ -57,26 +51,37 @@ public class GroundParticleController : MonoBehaviour
         var main = ps.main;
         main.loop = true;
         main.playOnAwake = true;
-        main.simulationSpace = ParticleSystemSimulationSpace.Local; // 使用本地空间，防止移动时残留
-        
-        // ★ 核心修复 1：寿命减半，防止飞得太高。1.5秒左右是最佳“贴地”感
-        main.startLifetime = new ParticleSystem.MinMaxCurve(1.0f, 1.8f);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(2.0f, 4.0f);
         main.startSpeed = 0f;
         main.gravityModifier = 0f;
-        main.maxParticles = 4000;
+        main.maxParticles = 5000;
 
-        // ★ 核心修复 2：网格发射模式 (Mesh Shape)
-        // 这将百分之百精准对齐你的 Plane 形状，不管它有多大。
+        // ★ 珊瑚级核心 1：自适应全图覆盖 (Auto-Bounds)
         var shape = ps.shape;
-        shape.shapeType = ParticleSystemShapeType.Mesh;
-        shape.mesh = mf.sharedMesh;
-        shape.scale = Vector3.one;
-        shape.position = Vector3.zero;
-        shape.rotation = Vector3.zero;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        
+        if (baseMr != null) {
+            // 通过获取 Bounds 的世界尺寸来同步粒子范围
+            Vector3 worldSize = baseMr.bounds.size;
+            // 因为粒子是子物体，所以要除以父物体的 LossyScale 来抵消
+            Vector3 localSize = new Vector3(
+                worldSize.x / transform.lossyScale.x,
+                0.01f,
+                worldSize.z / transform.lossyScale.z
+            );
+            shape.scale = localSize;
+        } else {
+            shape.scale = new Vector3(10f, 0.01f, 10f); // Fallback
+        }
 
-        // ★ 材质与渲染
-        psr.material = GetParticleMaterial();
-        psr.renderMode = ParticleSystemRenderMode.Billboard;
+        // ★ 珊瑚级核心 2：几何金属化渲染 (Metallic Cube Rendering)
+        psr.renderMode = ParticleSystemRenderMode.Mesh;
+        GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        psr.mesh = tempCube.GetComponent<MeshFilter>().sharedMesh;
+        DestroyImmediate(tempCube);
+
+        psr.material = CreateMetallicMaterial(mainColor);
 
         ConfigureMode();
         ps.Play();
@@ -84,10 +89,8 @@ public class GroundParticleController : MonoBehaviour
 
     void HideBaseMesh()
     {
-        // ★ 核心修复 3：直接彻底禁用地面的显示
-        // 这样不仅透明，而且毫无渲染压力。Collider 依然会生效。
-        MeshRenderer mr = GetComponent<MeshRenderer>();
-        if (mr != null) mr.enabled = false;
+        // ★ 核心 3：强制隐藏地面，实现 100% 透明容器
+        if (baseMr != null) baseMr.enabled = false;
     }
 
     void ConfigureMode()
@@ -103,11 +106,10 @@ public class GroundParticleController : MonoBehaviour
                 break;
 
             case MovementMode.OceanWavy:
-                // 海洋粒子：保持低频微动
                 noise.enabled = true;
-                noise.strength = 0.25f; // 降低强度，防止飘离
-                noise.frequency = 0.5f;
-                noise.scrollSpeed = 0.15f;
+                noise.strength = 0.15f; 
+                noise.frequency = 0.2f;
+                noise.scrollSpeed = 0.1f;
                 break;
 
             case MovementMode.CatBlinking:
@@ -116,14 +118,13 @@ public class GroundParticleController : MonoBehaviour
                 break;
 
             case MovementMode.TreeRandom:
-                // 森林粒子：由于是网格吸附，现在的移动将更自然
                 var vel = ps.velocityOverLifetime;
                 vel.enabled = true;
-                vel.x = new ParticleSystem.MinMaxCurve(-0.1f, 0.1f);
-                vel.z = new ParticleSystem.MinMaxCurve(-0.1f, 0.1f);
-                vel.y = new ParticleSystem.MinMaxCurve(0f, 0f); // 强制垂直速度为 0
+                vel.x = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
+                vel.z = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
+                vel.y = new ParticleSystem.MinMaxCurve(0f, 0f);
                 noise.enabled = true;
-                noise.strength = 0.04f; 
+                noise.strength = 0.02f; 
                 break;
         }
     }
@@ -137,16 +138,40 @@ public class GroundParticleController : MonoBehaviour
 
         var emission = ps.emission;
         emission.rateOverTime = particleDensity;
+
+        // 如果你在 Inspector 调整了颜色，材质也会动态更新反光色
+        if (psr != null && psr.material != null) {
+            psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, 0.6f));
+            psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, 0.6f));
+        }
     }
 
-    private Material GetParticleMaterial()
+    // --- 珊瑚级核心材质：高反射、高金属感、极致透明 ---
+    private Material CreateMetallicMaterial(Color color)
     {
-        Shader s = Shader.Find("Universal Render Pipeline/Particles/Unlit");
-        if (s == null) s = Shader.Find("Sprites/Default");
+        Shader s = Shader.Find("Universal Render Pipeline/Lit");
+        if (s == null) s = Shader.Find("Standard");
+        
         Material mat = new Material(s);
-        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One); 
+        
+        // 透明模式开关 (URP & Standard)
+        mat.SetFloat("_Surface", 1); 
+        mat.SetFloat("_Mode", 3);
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
         mat.SetInt("_ZWrite", 0);
+        mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        mat.renderQueue = 3000;
+        
+        Color tColor = new Color(color.r, color.g, color.b, 0.6f);
+        mat.SetColor("_BaseColor", tColor);
+        mat.SetColor("_Color", tColor);
+        
+        // ★ 核心：金属镜面质感 (同珊瑚设置)
+        mat.SetFloat("_Metallic", 0.92f);
+        mat.SetFloat("_Smoothness", 0.96f);
+        mat.SetFloat("_Glossiness", 0.96f);
+        
         return mat;
     }
 
@@ -155,7 +180,7 @@ public class GroundParticleController : MonoBehaviour
         Gradient g = new Gradient();
         g.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(Color.yellow, 0.3f), new GradientColorKey(Color.cyan, 0.6f), new GradientColorKey(Color.white, 1f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.5f), new GradientAlphaKey(0, 1) }
+            new GradientAlphaKey[] { new GradientAlphaKey(0.1f, 0), new GradientAlphaKey(1, 0.5f), new GradientAlphaKey(0.1f, 1) }
         );
         return g;
     }
@@ -165,7 +190,7 @@ public class GroundParticleController : MonoBehaviour
         Gradient g = new Gradient();
         g.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.3f), new GradientAlphaKey(1, 0.7f), new GradientAlphaKey(0, 1) }
+            new GradientAlphaKey[] { new GradientAlphaKey(0.1f, 0), new GradientAlphaKey(1, 0.3f), new GradientAlphaKey(1, 0.7f), new GradientAlphaKey(0.1f, 1) }
         );
         return g;
     }
