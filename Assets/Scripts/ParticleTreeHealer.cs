@@ -59,15 +59,21 @@ public class ParticleTreeHealer : MonoBehaviour
     public AudioClip birdAudioClip;
     [Tooltip("触碰树的魔法治愈音效")]
     public AudioClip magicHealClip;
+
     [Header("Bird Audio Distance (手动调整)")]
     public float birdFarDistance = 15f;
     public float birdNearDistance = 1.0f;
     public float birdFalloff = 1.5f;
 
-    [Header("Magic Heal Distance (手动调整)")]
-    public float magicFarDistance = 8f;
+    [Header("Magic Heal Settings (手动调整)")]
+    [Tooltip("嗡鸣音量")]
+    [Range(0f, 2f)] public float magicVolume = 1.0f;
+    [Tooltip("手部距离树干中心多少米内才响起魔法嗡鸣 (树大请调大)")]
+    public float magicRecognitionDistance = 2.0f; 
+    public float magicFarDistance = 5.0f;
     public float magicNearDistance = 0.5f;
-    public float magicFalloff = 1.5f;
+    public float magicFalloff = 1.2f;
+    public bool showDebugDistance = false;
 
     private AudioSource birdAudio;
     private AudioSource magicHealAudio;
@@ -82,6 +88,10 @@ public class ParticleTreeHealer : MonoBehaviour
     private ParticleSystem scarfPS;
     private ParticleSystem butterfliesPS;
     private ParticleSystem soilPS;
+
+    [Header("Distance Tracking")]
+    [Tooltip("树干中心（用于计算手部距离），如果不拖入则使用本物体中心")]
+    public Transform treeCenter;
 
     // --- 逻辑控制 ---
     private Collider treeCollider;
@@ -121,8 +131,14 @@ public class ParticleTreeHealer : MonoBehaviour
             magicHealAudio = gameObject.AddComponent<AudioSource>();
             magicHealAudio.clip = magicHealClip;
             magicHealAudio.spatialBlend = 1f;
+            magicHealAudio.loop = true;
             magicHealAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(magicHealAudio, magicFarDistance, magicNearDistance, magicFalloff);
+            magicHealAudio.volume = magicVolume; // ★ 必须在 Setup 之前设好真实音量，否则 baseVolume 被记为 0 永远无声
+            magicHealAudio.Play();
+
+            // 预设距离衰减；Setup 会把 volume 当作 baseVolume 记住，然后立即归零等待手触发
+            var magicFader = AudioDistanceFader.Setup(magicHealAudio, magicFarDistance, magicNearDistance, magicFalloff);
+            magicFader.SetSilentInstant(); // 初始静音，手触碰后由 FadeIn() 唤醒
         }
 
         // ★ 强行覆盖 Inspector 中可能残留的旧参数，确保本次更新立即生效！！
@@ -548,12 +564,28 @@ public class ParticleTreeHealer : MonoBehaviour
         {
             energyLevel += healingRate * Time.deltaTime;
             healLingerTimer = healLingerDuration;
-            // 每次开始交互播放一次魔法音效（一次交互响一次）
-            if (!wasHealing && magicHealAudio != null && !magicHealAudio.isPlaying)
-                magicHealAudio.PlayOneShot(magicHealAudio.clip);
+
+            // 获取是否正在治愈 (只要手在大树 Collider 内就是 true)
+            // 不再使用硬编码的 2.0m 距离检测，因为大树太高太宽了
+            bool handIsInTree = isHealing; 
+
+            if (showDebugDistance) Debug.Log($"[TreeAudio] Hand Touching Tree: {handIsInTree}. isHealing: {isHealing}");
+
+            // 只有正在治愈时，才播放魔法嗡鸣
+            if (magicHealAudio != null)
+            {
+                AudioDistanceFader fader = magicHealAudio.GetComponent<AudioDistanceFader>();
+                if (fader != null)
+                {
+                    if (handIsInTree) fader.FadeIn();
+                    else fader.FadeOut();
+                }
+            }
         }
         else
         {
+            if (magicHealAudio != null) magicHealAudio.GetComponent<AudioDistanceFader>().FadeOut();
+            
             if (healLingerTimer > 0f)
             {
                 healLingerTimer -= Time.deltaTime; // 等待延迟时间结束

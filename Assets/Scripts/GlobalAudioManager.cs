@@ -29,6 +29,7 @@ public class GlobalAudioManager : MonoBehaviour
         }
 
         Instance = this;
+        transform.SetParent(null); // DontDestroyOnLoad 只对根级物体有效，强制脱离父节点
         DontDestroyOnLoad(gameObject);
 
         // 检查是否已经有 AudioSource（防止重复添加）
@@ -38,13 +39,26 @@ public class GlobalAudioManager : MonoBehaviour
 
         audioSource.loop = false;
         audioSource.playOnAwake = false;
-        audioSource.spatialBlend = 0f;
+        audioSource.spatialBlend = 0f; // Force 2D
         audioSource.volume = bgmVolume;
+
+        // 确保没有任何距离衰减脚本干扰全局 BGM
+        AudioDistanceFader oldFader = GetComponent<AudioDistanceFader>();
+        if (oldFader != null) Destroy(oldFader);
     }
 
     void Start()
     {
-        PlayRandomTrack();
+        Debug.Log("[GlobalAudioManager] Start. Volume: " + bgmVolume);
+        if (meditationTracks != null && meditationTracks.Length > 0)
+        {
+            if (!audioSource.isPlaying)
+                PlayRandomTrack();
+        }
+        else
+        {
+            Debug.LogError("[GlobalAudioManager] No tracks assigned in the Inspector!");
+        }
     }
 
     void OnEnable()
@@ -77,14 +91,44 @@ public class GlobalAudioManager : MonoBehaviour
         if (audioSource != null)
             audioSource.volume = bgmVolume;
 
-        // 当前曲目播完，自动播下一首随机曲目
+        // 当前曲目播完，自动播下一首曲目
         if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
         {
-            // 如果没在播且已经过了一小段时间（防止刚启动时的误判）
-            if (!audioSource.isPlaying && Time.time - trackStartTime > 1f)
+            // 如果没在播放，说明上一首已经放完（或由于某些原因停止）
+            if (!audioSource.isPlaying)
             {
-                PlayRandomTrack();
+                PlayNextTrack();
             }
+        }
+    }
+
+    void PlayNextTrack()
+    {
+        if (meditationTracks == null || meditationTracks.Length == 0) return;
+        
+        // 顺序循环
+        int nextIndex = (lastPlayedIndex + 1) % meditationTracks.Length;
+        PlayTrack(nextIndex);
+    }
+
+    void PlayTrack(int index)
+    {
+        if (index < 0 || index >= meditationTracks.Length || meditationTracks[index] == null) return;
+
+        lastPlayedIndex = index;
+        audioSource.clip = meditationTracks[index];
+        audioSource.loop = false; // 由 Update 链式驱动
+        audioSource.Play();
+        trackStartTime = Time.time;
+        Debug.Log($"[GlobalAudioManager] Now playing track {index}: {meditationTracks[index].name}");
+    }
+
+    public void ForcePlay()
+    {
+        Debug.Log($"[GlobalAudioManager] ForcePlay called. Track count: {meditationTracks?.Length ?? 0}");
+        if (meditationTracks != null && meditationTracks.Length > 0)
+        {
+            PlayNextTrack();
         }
     }
 

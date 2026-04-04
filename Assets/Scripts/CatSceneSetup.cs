@@ -11,6 +11,14 @@ using UnityEngine;
 /// </summary>
 public class CatSceneSetup : MonoBehaviour
 {
+    [Header("--- Campfire Audio Tuning (音量与衰减) ---")]
+    public AudioClip fireplaceClip;
+    [Range(0f, 1f)] public float fireplaceVolume = 1.0f;
+    [Tooltip("篝火音频最远衰减距离 (40m+)")]
+    public float fireFarDistance = 40f;
+    public float fireNearDistance = 1.0f;
+    public float fireFalloffExponent = 1.5f;
+
     [Header("1. Black Cat (Aggr Sound on Touch)")]
     public Transform blackCatModel;
     public AudioClip blackCatAggrAudio;
@@ -43,8 +51,6 @@ public class CatSceneSetup : MonoBehaviour
     public Transform fireplaceModel; 
     [Tooltip("如果你已经摆好了沙发，拖进来可以关掉占位白块")]
     public Transform sofaModel;
-    [Tooltip("篝火噼啪声音频文件")]
-    public AudioClip fireplaceClip;
 
     void Start()
     {
@@ -125,7 +131,7 @@ public class CatSceneSetup : MonoBehaviour
 
             // 挂载我们新写的专属篝火互动脚本！
             CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
-            fireScript.fireplaceClip = fireplaceClip;
+            // 注意：fireScript 现在会自动从父级 CatSceneSetup 读取 clip
         }
         else
         {
@@ -136,7 +142,7 @@ public class CatSceneSetup : MonoBehaviour
             sparkParent = fireplace.transform;
 
             CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
-            fireScript.fireplaceClip = fireplaceClip;
+            // 注意：fireScript 现在会自动从父级 CatSceneSetup 读取 clip
         }
         
         // 获取视觉中心（破除原点偏移）
@@ -514,12 +520,6 @@ public class SofaCatForeverLooper : MonoBehaviour
 /// </summary>
 public class CampfireInteraction : MonoBehaviour
 {
-    public AudioClip fireplaceClip;
-    [Tooltip("篝火音频距离衰减范围")]
-    public float fireFarDistance = 15f;
-    public float fireNearDistance = 1.0f;
-    public float fireFalloffExponent = 1.5f;
-
     private AudioSource fireplaceAudio;
     private float lastTouchTime = -999f;
     private const float Cooldown = 2.0f;
@@ -553,16 +553,32 @@ public class CampfireInteraction : MonoBehaviour
             em.rateOverTime = 0f;
         }
 
-        if (fireplaceClip != null)
+        // 从场景中找 CatSceneSetup（fireplaceModel 不一定是其子物体，所以不能用 GetComponentInParent）
+        CatSceneSetup mainSetup = setup ?? FindObjectOfType<CatSceneSetup>();
+        AudioClip clipToUse = (mainSetup != null) ? mainSetup.fireplaceClip : null;
+        float farDist = (mainSetup != null) ? mainSetup.fireFarDistance : 15f;
+        float nearDist = (mainSetup != null) ? mainSetup.fireNearDistance : 1.0f;
+        float falloff = (mainSetup != null) ? mainSetup.fireFalloffExponent : 1.5f;
+        float baseVol = (mainSetup != null) ? mainSetup.fireplaceVolume : 1.0f;
+
+        if (clipToUse != null)
         {
-            fireplaceAudio = gameObject.AddComponent<AudioSource>();
-            fireplaceAudio.clip = fireplaceClip;
+            // 将音源移到物体中心（通常是火苗根部）
+            GameObject emitter = new GameObject("Fire_Audio_Emitter");
+            emitter.transform.SetParent(transform, false);
+            emitter.transform.localPosition = Vector3.up * 0.2f; 
+
+            fireplaceAudio = emitter.AddComponent<AudioSource>();
+            fireplaceAudio.clip = clipToUse;
             fireplaceAudio.spatialBlend = 1f;
             fireplaceAudio.loop = true;
-            fireplaceAudio.volume = 1f;
-            fireplaceAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(fireplaceAudio, fireFarDistance, fireNearDistance, fireFalloffExponent);
+            fireplaceAudio.volume = baseVol;
+            fireplaceAudio.playOnAwake = true;
+            
+            // 使用设置好的参数
+            AudioDistanceFader.Setup(fireplaceAudio, farDist, nearDist, falloff);
             fireplaceAudio.Play();
+            Debug.Log($"[Campfire] Audio setup from Parent: {mainSetup != null}. Clip: {clipToUse.name}");
         }
     }
 

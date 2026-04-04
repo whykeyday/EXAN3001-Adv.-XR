@@ -5964,10 +5964,14 @@ MonoBehaviour:
   birdFarDistance: 3
   birdNearDistance: 1
   birdFalloff: 1.5
+  magicVolume: 2
+  magicRecognitionDistance: 0.8
   magicFarDistance: 8
   magicNearDistance: 0.5
   magicFalloff: 1.5
+  showDebugDistance: 0
   butterflyTexture: {fileID: 2800000, guid: 464650f62db3b63478a0f4546554f48f, type: 3}
+  treeCenter: {fileID: 0}
   triggerOverlapDetected: 0
 --- !u!4 &1902966278
 Transform:
@@ -6003,10 +6007,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.005985775
+  m_Radius: 0.007619298
   m_Height: 0.05218946
   m_Direction: 1
-  m_Center: {x: 0.00019816929, y: 0.009589313, z: -0.00033646144}
+  m_Center: {x: 0.00022320639, y: 0.009589313, z: -0.000033954417}
 --- !u!1 &2092139007
 GameObject:
   m_ObjectHideFlags: 0

@@ -60,11 +60,15 @@ public class AudioDistanceFader : MonoBehaviour
         if (listener == null)
         {
             Camera cam = Camera.main;
+            if (cam == null) cam = GameObject.Find("CenterEyeAnchor")?.GetComponent<Camera>(); // Oculus-specific
             if (cam == null) cam = FindObjectOfType<Camera>();
             if (cam != null) listener = cam.transform;
+            
+            // 如果还找不到，可能是 VR 头显还没初始化
+            // 此时保持 distanceFade 为 1，防止冷启动时声音全无
         }
 
-        float distanceFade = 0f;
+        float distanceFade = 1f; // 默认 1，防止找不到 Listener 时静音
         if (listener != null)
         {
             float dist = Vector3.Distance(transform.position, listener.position);
@@ -83,19 +87,9 @@ public class AudioDistanceFader : MonoBehaviour
         fadeMultiplier = Mathf.MoveTowards(fadeMultiplier, fadeTarget, Time.deltaTime / Mathf.Max(0.01f, fadeDuration));
 
         float finalVol = baseVolume * distanceFade * fadeMultiplier;
-        targetAudio.volume = finalVol;
-
-        // 彻底停止逻辑：不仅仅是 Pause，而是 Stop 保证没有底噪
-        if (finalVol < stopThreshold)
+        if (targetAudio != null)
         {
-            if (targetAudio.isPlaying) targetAudio.Stop();
-        }
-        else
-        {
-            if (!targetAudio.isPlaying && targetAudio.clip != null)
-            {
-                targetAudio.Play();
-            }
+            targetAudio.volume = finalVol;
         }
     }
 
@@ -121,5 +115,16 @@ public class AudioDistanceFader : MonoBehaviour
     public void SetBaseVolume(float vol)
     {
         baseVolume = vol;
+    }
+
+    /// <summary>
+    /// 立即静音（不过渡），并保持 fadeTarget = 0，等待外部调用 FadeIn() 再响起。
+    /// 用于初始化时确保不发出任何声音。
+    /// </summary>
+    public void SetSilentInstant()
+    {
+        fadeMultiplier = 0f;
+        fadeTarget = 0f;
+        if (targetAudio != null) targetAudio.volume = 0f;
     }
 }
