@@ -150495,10 +150495,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83244f19a06808843a9ebc50ccaefff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  heightOffset: -0.98
+  coverageArea: 80
+  visualStyle: 1
   mainColor: {r: 0.19433957, g: 1, b: 0.8905945, a: 1}
   particleSize: 0.04
   particleDensity: 80
-  mode: 1
+  movementMode: 0
+  hideOriginalMesh: 1
 --- !u!199 &1271400707
 ParticleSystemRenderer:
   serializedVersion: 6

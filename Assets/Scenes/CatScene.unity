@@ -134517,6 +134517,7 @@ MonoBehaviour:
   fireRadius: 0.3
   fireplaceModel: {fileID: 143120998}
   sofaModel: {fileID: 1547890039}
+  groundObject: {fileID: 0}
 --- !u!4 &1941078026
 Transform:
   m_ObjectHideFlags: 0
@@ -135111,10 +135112,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83244f19a06808843a9ebc50ccaefff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  heightOffset: -1
+  coverageArea: 80
+  visualStyle: 0
   mainColor: {r: 0.9245283, g: 0.31859648, b: 0, a: 1}
-  particleSize: 0.04
-  particleDensity: 80
-  mode: 2
+  particleSize: 0.0438
+  particleDensity: 292
+  movementMode: 1
+  hideOriginalMesh: 1
 --- !u!21 &1984568630
 Material:
   serializedVersion: 8
