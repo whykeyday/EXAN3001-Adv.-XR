@@ -81004,7 +81004,7 @@ Transform:
   m_GameObject: {fileID: 823148689}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.3000002, z: 1.5}
+  m_LocalPosition: {x: 0, y: 2.3, z: 1.5}
   m_LocalScale: {x: 6.9468, y: 6.9468, z: 6.9468}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -140256,7 +140256,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2096442890036865669, guid: 35ff916ecc9f6b14fbb0601886db838d, type: 3}
       propertyPath: bgmVolume
-      value: 0.111
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 5605880397603512724, guid: 35ff916ecc9f6b14fbb0601886db838d, type: 3}
       propertyPath: m_Name
