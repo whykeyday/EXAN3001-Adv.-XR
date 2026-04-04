@@ -223,7 +223,7 @@ public class CatSceneSetup : MonoBehaviour
         src.spatialBlend = 1f;
         src.loop = true;
         src.volume = fireplaceVolume;
-        src.playOnAwake = false;
+        src.playOnAwake = true; // ★ 确保加载即播
         src.ignoreListenerPause = true; // ★ 解决传送中断
         src.minDistance = fireNearDistance;
         src.maxDistance = fireFarDistance;
@@ -234,7 +234,7 @@ public class CatSceneSetup : MonoBehaviour
         // 直接传给 CampfireInteraction，它不再需要自己找配置
         fireScript.SetAudioSource(src);
 
-        Debug.Log($"[CatSceneSetup] Campfire audio CREATED and PLAYING. Clip: {fireplaceClip.name}, vol: {fireplaceVolume}, ignorePause: {src.ignoreListenerPause}");
+        Debug.Log($"[CatCampfire] Audio CREATED. Clip: {(fireplaceClip != null ? fireplaceClip.name : "NULL")}, Volume: {fireplaceVolume}, Source playing: {src.isPlaying}");
     }
 
     /// <summary>
@@ -636,11 +636,15 @@ public class CampfireInteraction : MonoBehaviour
         // 3. 音效防御性恢复：确保它始终在播放 (因为 Unity 有时在切场景/传送时静默 AudioSource)
         if (fireplaceAudio != null)
         {
+            // 同步 Inspector 中的音量
+            CatSceneSetup setup = FindObjectOfType<CatSceneSetup>();
+            if (setup != null) fireplaceAudio.volume = setup.fireplaceVolume;
+
             fireplaceAudio.ignoreListenerPause = true;
             if (!fireplaceAudio.isPlaying && fireplaceAudio.isActiveAndEnabled)
             {
                 fireplaceAudio.Play();
-                Debug.Log("[Campfire] Audio was NOT playing — forced Play().");
+                Debug.Log("[CatCampfire] Audio was NOT playing — forced Play().");
             }
         }
     }

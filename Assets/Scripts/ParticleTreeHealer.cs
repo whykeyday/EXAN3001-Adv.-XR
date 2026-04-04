@@ -57,6 +57,8 @@ public class ParticleTreeHealer : MonoBehaviour
     [Header("====== 音效与贴图 ======")]
     [Tooltip("鸟叫声音频文件（完全治愈时播放）")]
     public AudioClip birdAudioClip;
+    [Tooltip("鸟叫声音量")]
+    [Range(0f, 1f)] public float birdVolume = 0.5f;
     [Tooltip("触碰树的魔法治愈音效")]
     public AudioClip magicHealClip;
 
@@ -126,7 +128,7 @@ public class ParticleTreeHealer : MonoBehaviour
             birdAudio = birdObj.AddComponent<AudioSource>();
             birdAudio.clip = birdAudioClip;
             birdAudio.spatialBlend = 1f;
-            birdAudio.volume = 1f;
+            birdAudio.volume = birdVolume; // ★ 手动调音量
             birdAudio.playOnAwake = false;
             birdAudio.ignoreListenerPause = true; // ★ 防止传送中断
             birdAudio.minDistance = 5.0f; // ★ 调大最小距离，确保更远也能听到
@@ -675,6 +677,7 @@ public class ParticleTreeHealer : MonoBehaviour
             if (birdAudio != null)
             {
                 birdAudio.pitch = Random.Range(0.9f, 1.1f);
+                birdAudio.volume = birdVolume; // ★ 实时同步调音
                 birdAudio.PlayOneShot(birdAudio.clip);
             }
         }

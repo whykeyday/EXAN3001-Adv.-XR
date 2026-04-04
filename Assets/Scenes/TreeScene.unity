@@ -5960,6 +5960,7 @@ MonoBehaviour:
   decayRate: 0.124
   energyLevel: 0.333
   birdAudioClip: {fileID: 8300000, guid: c6d464537e095f7408ee9d03c56b7be2, type: 3}
+  birdVolume: 0.244
   magicHealClip: {fileID: 8300000, guid: 0c087b88251e6f14e9e07303955c3841, type: 3}
   birdFarDistance: 4
   birdNearDistance: 1

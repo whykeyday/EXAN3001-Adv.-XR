@@ -125,12 +125,12 @@ public class GlobalAudioManager : MonoBehaviour
             // 强行锁定 2D + 忽略暂停，应对任何意外覆盖
             audioSource.spatialBlend = 0f;
             audioSource.ignoreListenerPause = true;
-            audioSource.ignoreListenerVolume = true;
+            audioSource.ignoreListenerVolume = true; // ★ 即使 Master volume 为 0 也不受影响
 
             if (!audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
             {
-                Debug.LogWarning("[GlobalBGM] AudioSource was NOT playing — forced PlayNextTrack().");
-                PlayNextTrack();
+                Debug.LogWarning("[GlobalBGM] AudioSource was NOT playing in Update — forced recovery.");
+                PlayRandomTrack();
             }
         }
 
@@ -165,12 +165,13 @@ public class GlobalAudioManager : MonoBehaviour
         Debug.Log($"[GlobalAudioManager] Now playing track {index}: {meditationTracks[index].name}");
     }
 
+    [ContextMenu(">>> FORCE RESTART BGM <<<")]
     public void ForcePlay()
     {
-        Debug.Log($"[GlobalAudioManager] ForcePlay called. Track count: {meditationTracks?.Length ?? 0}");
+        Debug.Log($"[GlobalBGM] ForcePlay (Restart) called. Track count: {meditationTracks?.Length ?? 0}");
         if (meditationTracks != null && meditationTracks.Length > 0)
         {
-            PlayNextTrack();
+            PlayRandomTrack();
         }
     }
 
