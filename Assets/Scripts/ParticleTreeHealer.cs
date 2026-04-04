@@ -77,6 +77,7 @@ public class ParticleTreeHealer : MonoBehaviour
 
     private AudioSource birdAudio;
     private AudioSource magicHealAudio;
+    private float magicCurrentVolume = 0f; // 直接控制魔法音量，不依赖 AudioDistanceFader
 
     [Tooltip("蝴蝶动画序列帧，2x2 切图")]
     public Texture2D butterflyTexture;
@@ -117,28 +118,36 @@ public class ParticleTreeHealer : MonoBehaviour
         pBuffer = new ParticleSystem.Particle[Mathf.Max(MAX_ALIVE_RATE, MAX_WITHERED_RATE) + 2000];
         energyLevel = 0f;
 
-        // 自动创建 AudioSource + 距离衰减
+        // 自动创建鸟叫 AudioSource（不使用 AudioDistanceFader，靠 Unity 原生 3D rolloff）
         if (birdAudioClip != null)
         {
-            birdAudio = gameObject.AddComponent<AudioSource>();
+            GameObject birdObj = new GameObject("BirdAudio");
+            birdObj.transform.SetParent(transform, false);
+            birdAudio = birdObj.AddComponent<AudioSource>();
             birdAudio.clip = birdAudioClip;
             birdAudio.spatialBlend = 1f;
+            birdAudio.volume = 1f;
             birdAudio.playOnAwake = false;
-            AudioDistanceFader.Setup(birdAudio, birdFarDistance, birdNearDistance, birdFalloff);
+            birdAudio.ignoreListenerPause = true;
+            birdAudio.minDistance = birdNearDistance;
+            birdAudio.maxDistance = birdFarDistance;
+            birdAudio.rolloffMode = AudioRolloffMode.Linear; // 线性衰减，简单可控
+            Debug.Log($"[TreeAudio] Bird audio created. Clip: {birdAudioClip.name}");
         }
         if (magicHealClip != null)
         {
-            magicHealAudio = gameObject.AddComponent<AudioSource>();
+            // ★ 创建在独立子物体上，防止和 birdAudio 共享 gameObject 导致 AudioDistanceFader 冲突
+            GameObject magicObj = new GameObject("MagicHealAudio");
+            magicObj.transform.SetParent(transform, false);
+            magicHealAudio = magicObj.AddComponent<AudioSource>();
             magicHealAudio.clip = magicHealClip;
             magicHealAudio.spatialBlend = 1f;
             magicHealAudio.loop = true;
             magicHealAudio.playOnAwake = false;
-            magicHealAudio.volume = magicVolume; // ★ 必须在 Setup 之前设好真实音量，否则 baseVolume 被记为 0 永远无声
+            magicHealAudio.ignoreListenerPause = true; // ★ 防止传送时中断
+            magicHealAudio.volume = 0f; // 初始静音，由 Update 中的 magicCurrentVolume 直接控制
             magicHealAudio.Play();
-
-            // 预设距离衰减；Setup 会把 volume 当作 baseVolume 记住，然后立即归零等待手触发
-            var magicFader = AudioDistanceFader.Setup(magicHealAudio, magicFarDistance, magicNearDistance, magicFalloff);
-            magicFader.SetSilentInstant(); // 初始静音，手触碰后由 FadeIn() 唤醒
+            Debug.Log($"[TreeAudio] Magic audio created. Clip: {magicHealClip.name}, magicVolume: {magicVolume}");
         }
 
         // ★ 强行覆盖 Inspector 中可能残留的旧参数，确保本次更新立即生效！！
@@ -565,35 +574,30 @@ public class ParticleTreeHealer : MonoBehaviour
             energyLevel += healingRate * Time.deltaTime;
             healLingerTimer = healLingerDuration;
 
-            // 获取是否正在治愈 (只要手在大树 Collider 内就是 true)
-            // 不再使用硬编码的 2.0m 距离检测，因为大树太高太宽了
-            bool handIsInTree = isHealing; 
+            if (showDebugDistance) Debug.Log($"[TreeAudio] Healing! energy: {energyLevel:F2}, magicVol: {magicCurrentVolume:F2}");
 
-            if (showDebugDistance) Debug.Log($"[TreeAudio] Hand Touching Tree: {handIsInTree}. isHealing: {isHealing}");
-
-            // 只有正在治愈时，才播放魔法嗡鸣
-            if (magicHealAudio != null)
-            {
-                AudioDistanceFader fader = magicHealAudio.GetComponent<AudioDistanceFader>();
-                if (fader != null)
-                {
-                    if (handIsInTree) fader.FadeIn();
-                    else fader.FadeOut();
-                }
-            }
+            // ★ 直接淡入魔法嗡鸣，不再依赖 AudioDistanceFader
+            magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, magicVolume, Time.deltaTime * 3f);
         }
         else
         {
-            if (magicHealAudio != null) magicHealAudio.GetComponent<AudioDistanceFader>().FadeOut();
-            
+            // ★ 直接淡出
+            magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, 0f, Time.deltaTime * 3f);
+
             if (healLingerTimer > 0f)
             {
-                healLingerTimer -= Time.deltaTime; // 等待延迟时间结束
+                healLingerTimer -= Time.deltaTime;
             }
             else
             {
-                energyLevel -= decayRate * Time.deltaTime; // 延迟耗尽，开始极其缓慢地自然衰退（从上往下）
+                energyLevel -= decayRate * Time.deltaTime;
             }
+        }
+
+        // ★ 每帧直接设置魔法音量，简单可靠
+        if (magicHealAudio != null)
+        {
+            magicHealAudio.volume = magicCurrentVolume;
         }
 
         energyLevel = Mathf.Clamp01(energyLevel);

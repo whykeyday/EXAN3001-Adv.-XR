@@ -41,6 +41,8 @@ public class GlobalAudioManager : MonoBehaviour
         audioSource.playOnAwake = false;
         audioSource.spatialBlend = 0f; // Force 2D
         audioSource.volume = bgmVolume;
+        audioSource.ignoreListenerPause = true;  // ★ XR 传送/场景切换时 AudioListener 可能短暂暂停，BGM 不受影响
+        audioSource.ignoreListenerVolume = true;  // ★ 不被全局 AudioListener.volume 拖累
 
         // 确保没有任何距离衰减脚本干扰全局 BGM
         AudioDistanceFader oldFader = GetComponent<AudioDistanceFader>();
@@ -49,15 +51,19 @@ public class GlobalAudioManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("[GlobalAudioManager] Start. Volume: " + bgmVolume);
+        Debug.Log($"[GlobalAudioManager] Start. Volume: {bgmVolume}, tracks: {meditationTracks?.Length ?? 0}, GO: {gameObject.name}, parent: {(transform.parent != null ? transform.parent.name : "ROOT")}");
         if (meditationTracks != null && meditationTracks.Length > 0)
         {
+            // 逐个检查 tracks 是否为 null
+            for (int i = 0; i < meditationTracks.Length; i++)
+                Debug.Log($"[GlobalAudioManager] Track[{i}]: {(meditationTracks[i] != null ? meditationTracks[i].name : "NULL")}");
+
             if (!audioSource.isPlaying)
                 PlayRandomTrack();
         }
         else
         {
-            Debug.LogError("[GlobalAudioManager] No tracks assigned in the Inspector!");
+            Debug.LogError("[GlobalAudioManager] ❌ No tracks assigned in the Inspector! 请拖入 BGM 音频！");
         }
     }
 
@@ -73,9 +79,15 @@ public class GlobalAudioManager : MonoBehaviour
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
+        Debug.Log($"[GlobalAudioManager] Scene loaded: {scene.name}. isPlaying: {audioSource?.isPlaying}");
+
         // 场景切换后确保音频继续播放（Unity有时会在切场景时暂停AudioSource）
         if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
         {
+            // ★ 强制刷新 2D + ignoreListenerPause，防止新场景中的某些设置覆盖
+            audioSource.spatialBlend = 0f;
+            audioSource.ignoreListenerPause = true;
+
             if (!audioSource.isPlaying)
             {
                 audioSource.UnPause();
@@ -87,14 +99,23 @@ public class GlobalAudioManager : MonoBehaviour
 
     void Update()
     {
+        // ★ 防御性恢复：如果 AudioSource 被意外销毁（场景切换副作用），立即重建
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.spatialBlend = 0f;
+            audioSource.ignoreListenerPause = true;
+            audioSource.ignoreListenerVolume = true;
+            Debug.LogWarning("[GlobalAudioManager] AudioSource was lost — rebuilt.");
+        }
+
         // 音量实时同步 Inspector 调节
-        if (audioSource != null)
-            audioSource.volume = bgmVolume;
+        audioSource.volume = bgmVolume;
 
         // 当前曲目播完，自动播下一首曲目
-        if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
+        if (meditationTracks != null && meditationTracks.Length > 0)
         {
-            // 如果没在播放，说明上一首已经放完（或由于某些原因停止）
             if (!audioSource.isPlaying)
             {
                 PlayNextTrack();

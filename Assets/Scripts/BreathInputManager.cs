@@ -115,10 +115,12 @@ public class BreathInputManager : MonoBehaviour
         src.clip = clip;
         src.volume = volume;
         src.spatialBlend = 1f; // 3D Spatial
+        src.ignoreListenerPause = true;
+        // ★ 不再使用 AudioDistanceFader，用 Unity 原生 3D rolloff
+        src.minDistance = ambientNearDistance;
+        src.maxDistance = ambientFarDistance;
+        src.rolloffMode = AudioRolloffMode.Linear;
         src.Play();
-
-        // 附加强制距离衰减逻辑
-        AudioDistanceFader.Setup(src, ambientFarDistance, ambientNearDistance, ambientFalloff);
         
         Destroy(emitter, clip.length + 1f);
         Debug.Log($"[OceanSound] Played {emitterName}: {clip.name} Volume: {volume}");

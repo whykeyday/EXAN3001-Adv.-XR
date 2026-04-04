@@ -281,7 +281,11 @@ public class CatSceneSetup : MonoBehaviour
         src.volume = 1.0f;
         src.loop = true;
         src.playOnAwake = false;
-        AudioDistanceFader.Setup(src, 3f, 1.0f);
+        src.ignoreListenerPause = true;
+        // ★ 不再使用 AudioDistanceFader，用 Unity 原生 3D rolloff
+        src.minDistance = 1f;
+        src.maxDistance = 3f;
+        src.rolloffMode = AudioRolloffMode.Linear;
         return src;
     }
 
@@ -561,24 +565,32 @@ public class CampfireInteraction : MonoBehaviour
         float falloff = (mainSetup != null) ? mainSetup.fireFalloffExponent : 1.5f;
         float baseVol = (mainSetup != null) ? mainSetup.fireplaceVolume : 1.0f;
 
+        Debug.Log($"[Campfire] mainSetup: {mainSetup != null}, clipToUse: {(clipToUse != null ? clipToUse.name : "NULL")}, baseVol: {baseVol}");
+
         if (clipToUse != null)
         {
             // 将音源移到物体中心（通常是火苗根部）
             GameObject emitter = new GameObject("Fire_Audio_Emitter");
             emitter.transform.SetParent(transform, false);
-            emitter.transform.localPosition = Vector3.up * 0.2f; 
+            emitter.transform.localPosition = Vector3.up * 0.2f;
 
             fireplaceAudio = emitter.AddComponent<AudioSource>();
             fireplaceAudio.clip = clipToUse;
             fireplaceAudio.spatialBlend = 1f;
             fireplaceAudio.loop = true;
             fireplaceAudio.volume = baseVol;
-            fireplaceAudio.playOnAwake = true;
-            
-            // 使用设置好的参数
-            AudioDistanceFader.Setup(fireplaceAudio, farDist, nearDist, falloff);
+            fireplaceAudio.playOnAwake = false;
+            fireplaceAudio.ignoreListenerPause = true;
+            // ★ 不再使用 AudioDistanceFader，改用 Unity 原生 3D 距离衰减
+            fireplaceAudio.minDistance = nearDist;
+            fireplaceAudio.maxDistance = farDist;
+            fireplaceAudio.rolloffMode = AudioRolloffMode.Linear;
             fireplaceAudio.Play();
-            Debug.Log($"[Campfire] Audio setup from Parent: {mainSetup != null}. Clip: {clipToUse.name}");
+            Debug.Log($"[Campfire] Audio PLAYING. Clip: {clipToUse.name}, vol: {baseVol}, near: {nearDist}, far: {farDist}");
+        }
+        else
+        {
+            Debug.LogError("[Campfire] fireplaceClip is NULL! 请在 CatManager Inspector 中拖入篝火音频文件！");
         }
     }
 

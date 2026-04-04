@@ -31,6 +31,7 @@ public class AudioDistanceFader : MonoBehaviour
     private float fadeMultiplier = 1f;
     private float fadeTarget = 1f;
     private Transform listener;
+    private bool setupWasCalled = false; // Setup() 已经设好 baseVolume，Start() 不得覆盖
 
     public static AudioDistanceFader Setup(AudioSource source, float maxDist = 10f, float nearDist = 0.5f, float exponent = 1.5f, float fadeSec = 1.0f, float spatial = -1f)
     {
@@ -42,6 +43,7 @@ public class AudioDistanceFader : MonoBehaviour
         fader.falloffExponent = exponent;
         fader.fadeDuration = fadeSec;
         fader.baseVolume = source.volume;
+        fader.setupWasCalled = true; // 防止 Start() 覆盖 baseVolume
         if (spatial >= 0f) source.spatialBlend = spatial;
         return fader;
     }
@@ -49,16 +51,19 @@ public class AudioDistanceFader : MonoBehaviour
     void Start()
     {
         if (targetAudio == null) targetAudio = GetComponent<AudioSource>();
-        if (targetAudio != null) baseVolume = targetAudio.volume;
+        // ★ 只有当 Setup() 没被调用过时才从 AudioSource 读取 baseVolume
+        // 否则 Setup→SetSilentInstant 之后 volume 已经是 0，这里会把正确的 baseVolume 覆盖为 0
+        if (targetAudio != null && !setupWasCalled) baseVolume = targetAudio.volume;
     }
 
     void Update()
     {
         if (targetAudio == null) return;
 
-        // 实时追踪 VR 头显
-        if (listener == null)
+        // 实时追踪 VR 头显（场景切换后旧 Camera 被销毁，需重新查找）
+        if (listener == null || !listener.gameObject.activeInHierarchy)
         {
+            listener = null;
             Camera cam = Camera.main;
             if (cam == null) cam = GameObject.Find("CenterEyeAnchor")?.GetComponent<Camera>(); // Oculus-specific
             if (cam == null) cam = FindObjectOfType<Camera>();
