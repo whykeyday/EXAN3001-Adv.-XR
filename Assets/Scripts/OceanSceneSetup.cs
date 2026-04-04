@@ -189,7 +189,7 @@ public class OceanSceneSetup : MonoBehaviour
         
         // 设置海洋默认参数：蓝色，波动
         controller.mainColor = new Color(0.1f, 0.4f, 1.0f, 0.8f);
-        controller.mode = GroundParticleController.MovementMode.OceanWavy;
+        controller.movementMode = GroundParticleController.MovementMode.OceanWavy;
         controller.particleDensity = 250f;
         controller.particleSize = 0.05f;
     }

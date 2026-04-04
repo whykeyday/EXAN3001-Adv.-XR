@@ -85,7 +85,7 @@ public class TreeSceneSetup : MonoBehaviour
         
         // 设置森林默认参数：黄色，随机移动
         controller.mainColor = new Color(1.0f, 0.75f, 0.2f, 0.8f);
-        controller.mode = GroundParticleController.MovementMode.TreeRandom;
+        controller.movementMode = GroundParticleController.MovementMode.TreeRandom;
         controller.particleDensity = 150f;
         controller.particleSize = 0.05f;
     }

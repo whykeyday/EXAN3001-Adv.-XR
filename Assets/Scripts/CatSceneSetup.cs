@@ -79,7 +79,7 @@ public class CatSceneSetup : MonoBehaviour
         
         // 设置猫咪默认参数：淡红色，闪烁
         controller.mainColor = new Color(1.0f, 0.3f, 0.3f, 0.7f);
-        controller.mode = GroundParticleController.MovementMode.CatBlinking;
+        controller.movementMode = GroundParticleController.MovementMode.CatBlinking;
         controller.particleDensity = 100f;
         controller.particleSize = 0.045f;
     }
