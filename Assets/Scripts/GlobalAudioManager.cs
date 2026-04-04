@@ -7,7 +7,6 @@ using UnityEngine;
 /// </summary>
 public class GlobalAudioManager : MonoBehaviour
 {
-    public static GlobalAudioManager Instance { get; private set; }
 
     [Header("BGM Tracks (拖入 global1/2/3/4 音频)")]
     public AudioClip[] meditationTracks;
@@ -20,33 +19,33 @@ public class GlobalAudioManager : MonoBehaviour
     private float trackStartTime;
     private int lastPlayedIndex = -1;
 
+    private static GlobalAudioManager _instance = null;
+    public static GlobalAudioManager Instance => _instance;
+
     void Awake()
     {
-        if (Instance != null && Instance != this)
+        // ★ 采用用户提供的标准 Singleton 模式
+        if (_instance != null && _instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this.gameObject);
             return;
         }
 
-        Instance = this;
-        transform.SetParent(null); // DontDestroyOnLoad 只对根级物体有效，强制脱离父节点
-        DontDestroyOnLoad(gameObject);
+        _instance = this;
+        transform.SetParent(null); // DDOL 要求必须是根物体
+        DontDestroyOnLoad(this.gameObject);
 
-        // 检查是否已经有 AudioSource（防止重复添加）
+        // 自动准备 AudioSource
         audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
 
-        audioSource.loop = false;
         audioSource.playOnAwake = false;
-        audioSource.spatialBlend = 0f; // Force 2D
-        audioSource.volume = bgmVolume;
-        audioSource.ignoreListenerPause = true;  // ★ XR 传送/场景切换时 AudioListener 可能短暂暂停，BGM 不受影响
-        audioSource.ignoreListenerVolume = true;  // ★ 不被全局 AudioListener.volume 拖累
+        audioSource.loop = false; // 由脚本控制循环
+        audioSource.spatialBlend = 0f; // ★ 2D Constant Volume
+        audioSource.ignoreListenerPause = true;
+        audioSource.ignoreListenerVolume = true;
 
-        // 确保没有任何距离衰减脚本干扰全局 BGM
-        AudioDistanceFader oldFader = GetComponent<AudioDistanceFader>();
-        if (oldFader != null) Destroy(oldFader);
+        Debug.Log("[DIAGNOSTIC] GlobalAudioManager Singleton Initialized. 2D mode active.");
     }
 
     void Start()
@@ -115,7 +114,20 @@ public class GlobalAudioManager : MonoBehaviour
             audioSource.spatialBlend = 0f;
             audioSource.ignoreListenerPause = true;
             audioSource.ignoreListenerVolume = true;
-            Debug.LogWarning("[GlobalAudioManager] AudioSource was lost — rebuilt.");
+            Debug.LogWarning("[DIAGNOSTIC] GlobalBGM AudioSource was lost — rebuilt.");
+        }
+
+        // 强行锁定状态，应对任何外部脚本篡改
+        audioSource.mute = false;
+        audioSource.volume = bgmVolume;
+        audioSource.spatialBlend = 0f;
+        audioSource.ignoreListenerPause = true;
+        audioSource.ignoreListenerVolume = true;
+
+        if (!audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
+        {
+            Debug.LogWarning("[DIAGNOSTIC] GlobalBGM silent in Update — forcing recovery.");
+            PlayRandomTrack();
         }
 
         // ★ 音量实时同步 Inspector 调节
@@ -155,14 +167,20 @@ public class GlobalAudioManager : MonoBehaviour
 
     void PlayTrack(int index)
     {
-        if (index < 0 || index >= meditationTracks.Length || meditationTracks[index] == null) return;
+        if (index < 0 || index >= meditationTracks.Length || meditationTracks[index] == null)
+        {
+            Debug.LogError($"[DIAGNOSTIC] Track {index} is NULL or out of range!");
+            return;
+        }
 
         lastPlayedIndex = index;
         audioSource.clip = meditationTracks[index];
         audioSource.loop = false; // 由 Update 链式驱动
+        audioSource.mute = false;
+        audioSource.volume = bgmVolume;
         audioSource.Play();
         trackStartTime = Time.time;
-        Debug.Log($"[GlobalAudioManager] Now playing track {index}: {meditationTracks[index].name}");
+        Debug.Log($"[DIAGNOSTIC] BGM Playing track {index}: {meditationTracks[index].name}, Vol: {audioSource.volume}, Mute: {audioSource.mute}");
     }
 
     [ContextMenu(">>> FORCE RESTART BGM <<<")]

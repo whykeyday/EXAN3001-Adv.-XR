@@ -210,31 +210,21 @@ public class CatSceneSetup : MonoBehaviour
     {
         if (fireplaceClip == null)
         {
-            Debug.LogError("[CatSceneSetup] ❌ fireplaceClip is NULL! 请在 CatManager Inspector 中拖入篝火音频！");
+            Debug.LogError("[DIAGNOSTIC] ❌ fireplaceClip is NULL! Please assign it in the Inspector.");
             return;
         }
 
-        GameObject emitter = new GameObject("Fire_Audio_Emitter");
-        emitter.transform.SetParent(sparkParent, false);
-        emitter.transform.localPosition = Vector3.up * 0.2f;
-
-        AudioSource src = emitter.AddComponent<AudioSource>();
-        src.clip = fireplaceClip;
-        src.spatialBlend = 1f;
-        src.loop = true;
+        // 使用与猫音频完全相同的创建逻辑 (此时 sparkParent 已经挂载了 CampfireInteraction)
+        AudioSource src = CreateAudioSource(sparkParent, fireplaceClip);
         src.volume = fireplaceVolume;
-        src.playOnAwake = true; // ★ 确保加载即播
-        src.ignoreListenerPause = true; // ★ 解决传送中断
         src.minDistance = fireNearDistance;
-        src.maxDistance = fireFarDistance;
-        src.rolloffMode = AudioRolloffMode.Linear;
-        
-        src.Play();
+        src.maxDistance = fireFarDistance; 
+        if (!src.isPlaying) src.Play();
 
-        // 直接传给 CampfireInteraction，它不再需要自己找配置
+        // 直接传给 CampfireInteraction
         fireScript.SetAudioSource(src);
 
-        Debug.Log($"[CatCampfire] Audio CREATED. Clip: {(fireplaceClip != null ? fireplaceClip.name : "NULL")}, Volume: {fireplaceVolume}, Source playing: {src.isPlaying}");
+        Debug.Log($"[DIAGNOSTIC] Campfire Audio setup via UnifiedMethod. Clip: {src.clip.name}, Vol: {src.volume}, Pos: {src.transform.position}");
     }
 
     /// <summary>
@@ -304,21 +294,30 @@ public class CatSceneSetup : MonoBehaviour
         GameObject audioEmitter = new GameObject("AudioEmitter_PerfectCenter");
         audioEmitter.transform.SetParent(parent, false);
 
-        CatTouchReceiver rec = parent.GetComponent<CatTouchReceiver>();
-        if (rec != null) audioEmitter.transform.position = rec.GetTrueCenter();
-        else audioEmitter.transform.position = parent.position;
+        // ★ 核心修复：不管是猫还是篝火，如果有 GetTrueCenter 逻辑，就用那个位置！
+        // 否则默认父级坐标会有偏移，导致声音微弱。
+        Vector3 soundPos = parent.position;
+        CatTouchReceiver catRec = parent.GetComponent<CatTouchReceiver>();
+        if (catRec != null) soundPos = catRec.GetTrueCenter();
+        else 
+        {
+            CampfireInteraction fireInter = parent.GetComponent<CampfireInteraction>();
+            if (fireInter != null) soundPos = fireInter.GetTrueCenter();
+        }
+        audioEmitter.transform.position = soundPos;
 
         AudioSource src = audioEmitter.AddComponent<AudioSource>();
         src.clip = clip;
-        src.spatialBlend = 1.0f;
+        src.spatialBlend = 1.0f; // 3D
         src.volume = 1.0f;
         src.loop = true;
-        src.playOnAwake = false;
+        src.playOnAwake = true;
         src.ignoreListenerPause = true;
-        // ★ 不再使用 AudioDistanceFader，用 Unity 原生 3D rolloff
         src.minDistance = 1f;
-        src.maxDistance = 3f;
+        src.maxDistance = 40f; 
         src.rolloffMode = AudioRolloffMode.Linear;
+        
+        Debug.Log($"[DIAGNOSTIC] Created AudioEmitter for {parent.name} at {soundPos}. Clip: {clip.name}");
         return src;
     }
 
@@ -636,15 +635,17 @@ public class CampfireInteraction : MonoBehaviour
         // 3. 音效防御性恢复：确保它始终在播放 (因为 Unity 有时在切场景/传送时静默 AudioSource)
         if (fireplaceAudio != null)
         {
-            // 同步 Inspector 中的音量
+            // 实时同步状态
+            fireplaceAudio.mute = false;
+            fireplaceAudio.ignoreListenerPause = true;
+            
             CatSceneSetup setup = FindObjectOfType<CatSceneSetup>();
             if (setup != null) fireplaceAudio.volume = setup.fireplaceVolume;
 
-            fireplaceAudio.ignoreListenerPause = true;
-            if (!fireplaceAudio.isPlaying && fireplaceAudio.isActiveAndEnabled)
+            if (!fireplaceAudio.isPlaying && fireplaceAudio.isActiveAndEnabled && fireplaceAudio.clip != null)
             {
                 fireplaceAudio.Play();
-                Debug.Log("[CatCampfire] Audio was NOT playing — forced Play().");
+                Debug.LogWarning($"[DIAGNOSTIC] Campfire was silent — forcing Play(). Pos: {fireplaceAudio.transform.position}");
             }
         }
     }

@@ -5960,7 +5960,7 @@ MonoBehaviour:
   decayRate: 0.124
   energyLevel: 0.333
   birdAudioClip: {fileID: 8300000, guid: c6d464537e095f7408ee9d03c56b7be2, type: 3}
-  birdVolume: 0.244
+  birdVolume: 0.063
   magicHealClip: {fileID: 8300000, guid: 0c087b88251e6f14e9e07303955c3841, type: 3}
   birdFarDistance: 4
   birdNearDistance: 1
@@ -6008,10 +6008,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.007619298
+  m_Radius: 0.009923698
   m_Height: 0.05218946
   m_Direction: 1
-  m_Center: {x: 0.00022320639, y: 0.009589313, z: -0.000033954417}
+  m_Center: {x: 0.00013742653, y: 0.009589313, z: 0.00019631861}
 --- !u!1 &2092139007
 GameObject:
   m_ObjectHideFlags: 0
