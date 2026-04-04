@@ -1,58 +1,66 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <summary>
-/// GroundParticleController (Infinite Horizon Version): 
-/// 1. 彻底从父级缩放脱离 (Parent Decoupling)，进入 1:1 世界坐标。
-/// 2. 强制 80 米超广域覆盖，再也没有“远处一小块”的情况。
-/// 3. 环境色深邃化校正，确保背景不透色。
+/// GroundParticleController (God-Mode Tuner Version): 
+/// 1. 提供实时 Height Offset 高度调节。
+/// 2. 提供 Style 预设（金属宝石、微光圆点、柔和虚化）。
+/// 3. 提供自定义 Mesh 接口。
+/// 4. 强制 ShadowsOnly 实现 100% 地面透明化。
 /// </summary>
 public class GroundParticleController : MonoBehaviour
 {
-    public enum MovementMode { BasicTwinkle, OceanWavy, CatBlinking, TreeRandom }
+    public enum ParticleStyle { MetallicGem, GlowingSphere, SoftTranslucent }
 
-    [Header("--- Manual Adjustments ---")]
+    [Header("--- 1. Height Alignment (高度校准) ---")]
+    [Tooltip("手动上下调节粒子高度，直到贴合脚底。建议范围 0.01 - 2.0")]
+    public float heightOffset = 0.05f;
+
+    [Header("--- 2. Visual Style (视觉风格) ---")]
+    [Tooltip("切换不同质感的粒子预设")]
+    public ParticleStyle style = ParticleStyle.MetallicGem;
+    
+    [Header("--- 3. Manual Adjustments (手动微调) ---")]
     public Color mainColor = Color.white;
     
-    [Range(0.001f, 0.2f)]
-    public float particleSize = 0.05f;
+    [Range(0.001f, 0.3f)]
+    public float particleSize = 0.045f;
 
-    [Range(10f, 3000f)]
+    [Range(5f, 3000f)]
     public float particleDensity = 400f;
 
-    public MovementMode mode = MovementMode.BasicTwinkle;
+    [Tooltip("自定义粒子形状（如菱形、十字架等），留空则使用默认形状")]
+    public Mesh customMesh;
 
     private ParticleSystem ps;
     private ParticleSystemRenderer psr;
     private MeshRenderer baseMr;
+    private ParticleStyle lastStyle;
 
     void Awake()
     {
         baseMr = GetComponent<MeshRenderer>();
         SetupParticleSystem();
         HideBaseMesh();
-        AdjustEnvironment();
     }
 
     void Update()
     {
         ApplyAdjustments();
         
-        // ★ 核心修复：坐标锁定 (World Align)
-        // 使粒子系统保持在指定的 XZ 中心，且锁定在脚底高度 0.05f。
+        // ★ 核心修复：上帝视角高度实时映射
         if (ps != null) {
-            ps.transform.position = new Vector3(transform.position.x, 0.05f, transform.position.z);
-            // 确保缩放始终为物理 1:1:1
+            // 将控制器上的 heightOffset 实时同步到独立的世界坐标粒子系统中
+            ps.transform.position = new Vector3(transform.position.x, heightOffset, transform.position.z);
             ps.transform.localScale = Vector3.one; 
         }
     }
 
     void SetupParticleSystem()
     {
-        GameObject psObj = new GameObject("InfiniteHorizon_Particles");
-        // ★ 核心修复 2：彻底脱离父级旋转和缩放的干扰，设为 null (Root Object)
-        psObj.transform.SetParent(null); 
-        psObj.transform.position = new Vector3(transform.position.x, 0.05f, transform.position.z);
-        psObj.transform.localScale = Vector3.one;
+        GameObject psObj = new GameObject("GodMode_GroundParticles");
+        psObj.transform.SetParent(null); // 脱离缩放影响
+        psObj.transform.position = new Vector3(transform.position.x, heightOffset, transform.position.z);
 
         ps = psObj.AddComponent<ParticleSystem>();
         psr = psObj.GetComponent<ParticleSystemRenderer>();
@@ -65,80 +73,58 @@ public class GroundParticleController : MonoBehaviour
         main.startSpeed = 0f;
         main.maxParticles = 12000;
 
-        // ★ 核心修复 3：强力 80x80 米覆盖。
-        // 因为它是顶级物体且 Scale 为 1，这里的 80f 就是物理上的 80 米。
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
         shape.scale = new Vector3(80f, 0.01f, 80f); 
 
-        // ★ 核心渲染：几何金属化 (Cube Mesh) 复刻珊瑚逻辑
-        psr.renderMode = ParticleSystemRenderMode.Mesh;
-        GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        psr.mesh = tempCube.GetComponent<MeshFilter>().sharedMesh;
-        DestroyImmediate(tempCube);
-        psr.material = CreateMetallicMaterial(mainColor);
-
-        ConfigureMode();
+        UpdateStyleSettings();
         ps.Play();
     }
 
     void HideBaseMesh()
     {
-        // ★ 核心修复 4：暴力递归隐藏所有 Renderer（确保毫无残留）
-        if (baseMr != null) baseMr.enabled = false;
+        // ★ 核心：绝对透明化方案
+        if (baseMr != null) {
+            // 通过 ShadowsOnly 剔除视觉。模型依然有碰撞，但绝对不可见。
+            baseMr.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+            baseMr.receiveShadows = false;
+            baseMr.enabled = false; 
+        }
+        
         Renderer[] allRs = GetComponentsInChildren<Renderer>(true);
         foreach (var r in allRs) {
             if (r != psr) r.enabled = false;
         }
     }
 
-    void AdjustEnvironment()
+    void UpdateStyleSettings()
     {
-        // ★ 核心修复 5：调暗底色，解决“地面依然有蓝色”的问题
-        Camera cam = Camera.main;
-        if (cam != null) {
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            // 确保背景深度足够，不产生灰蒙感
-            cam.backgroundColor = new Color(0.01f, 0.02f, 0.04f, 1f); 
-        }
-    }
+        if (psr == null) return;
 
-    void ConfigureMode()
-    {
-        var noise = ps.noise;
-        var colorOL = ps.colorOverLifetime;
-
-        switch (mode)
-        {
-            case MovementMode.BasicTwinkle:
-                colorOL.enabled = true;
-                colorOL.color = GetTwinkleGradient();
-                break;
-            case MovementMode.OceanWavy:
-                noise.enabled = true;
-                noise.strength = 0.14f; 
-                noise.frequency = 0.25f;
-                noise.scrollSpeed = 0.1f;
-                break;
-            case MovementMode.CatBlinking:
-                colorOL.enabled = true;
-                colorOL.color = GetBlinkingGradient();
-                break;
-            case MovementMode.TreeRandom:
-                var vel = ps.velocityOverLifetime;
-                vel.enabled = true;
-                vel.x = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
-                vel.z = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f);
-                vel.y = new ParticleSystem.MinMaxCurve(0f, 0f);
-                noise.enabled = true;
-                noise.strength = 0.02f; 
-                break;
+        psr.material = CreateStyleMaterial(style, mainColor);
+        
+        // 渲染网格切换
+        if (customMesh != null) {
+            psr.renderMode = ParticleSystemRenderMode.Mesh;
+            psr.mesh = customMesh;
+        } else {
+            if (style == ParticleStyle.MetallicGem) {
+                psr.renderMode = ParticleSystemRenderMode.Mesh;
+                GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                psr.mesh = tempCube.GetComponent<MeshFilter>().sharedMesh;
+                DestroyImmediate(tempCube);
+            } else {
+                // 圆球通常使用 Billboard 模式或 Sphere Mesh
+                psr.renderMode = ParticleSystemRenderMode.Billboard;
+            }
         }
+        lastStyle = style;
     }
 
     void ApplyAdjustments()
     {
         if (ps == null) return;
+        
         var main = ps.main;
         main.startSize = particleSize;
         main.startColor = mainColor;
@@ -146,26 +132,54 @@ public class GroundParticleController : MonoBehaviour
         var emission = ps.emission;
         emission.rateOverTime = particleDensity;
 
+        // 检测风格变化并应用
+        if (style != lastStyle) {
+            UpdateStyleSettings();
+        }
+
+        // 实时更新材质颜色（如果你在 Inspector 实时调色）
         if (psr != null && psr.material != null) {
-            // 同步金属材质色相
-            psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, 0.5f));
-            psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, 0.5f));
+            float alpha = (style == ParticleStyle.SoftTranslucent) ? 0.3f : 0.6f;
+            psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
+            psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
         }
     }
 
-    private Material CreateMetallicMaterial(Color color)
+    private Material CreateStyleMaterial(ParticleStyle s, Color color)
     {
-        Shader s = Shader.Find("Universal Render Pipeline/Lit");
-        if (s == null) s = Shader.Find("Standard");
-        Material mat = new Material(s);
+        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null) shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        if (shader == null) shader = Shader.Find("Standard");
+
+        Material mat = new Material(shader);
         mat.SetFloat("_Surface", 1); 
         mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         mat.renderQueue = 3000;
         
-        Color tColor = new Color(color.r, color.g, color.b, 0.5f);
-        mat.SetColor("_BaseColor", tColor);
-        mat.SetFloat("_Metallic", 0.94f); // 极高反射率
-        mat.SetFloat("_Smoothness", 0.98f); // 极致镜面
+        float alpha = 0.6f;
+        mat.SetColor("_BaseColor", new Color(color.r, color.g, color.b, alpha));
+
+        switch (s)
+        {
+            case ParticleStyle.MetallicGem:
+                // 复刻珊瑚质感：高反射、极致平滑
+                mat.SetFloat("_Metallic", 0.95f);
+                mat.SetFloat("_Smoothness", 0.98f);
+                break;
+            case ParticleStyle.GlowingSphere:
+                // 微光质感
+                mat.SetFloat("_Metallic", 0.1f);
+                mat.SetFloat("_Smoothness", 0.5f);
+                mat.EnableKeyword("_EMISSION");
+                mat.SetColor("_EmissionColor", color * 1.5f);
+                break;
+            case ParticleStyle.SoftTranslucent:
+                // 柔和半透明
+                mat.SetFloat("_Metallic", 0f);
+                mat.SetFloat("_Smoothness", 0.1f);
+                mat.SetColor("_BaseColor", new Color(color.r, color.g, color.b, 0.3f));
+                break;
+        }
         return mat;
     }
 
