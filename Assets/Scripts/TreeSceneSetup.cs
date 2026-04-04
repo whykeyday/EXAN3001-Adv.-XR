@@ -28,7 +28,7 @@ public class TreeSceneSetup : MonoBehaviour
     {
         SetupAtmosphere();
         MakePlaneBrown();
-        CreateGroundParticles();
+        // CreateGroundParticles(); // 禁用旧的背景粒子，改为统一的 GroundParticle 控制器
         SetupAudio();
     }
 
@@ -65,26 +65,29 @@ public class TreeSceneSetup : MonoBehaviour
         }
     }
 
+    [Header("Ground Particle Container")]
+    public GameObject groundObject;
+
     /// <summary>
-    /// 将 Plane 转换为黄色随机漂移粒子容器
+    /// 将指定 Ground Object 转换为黄色随机漂移粒子容器
     /// </summary>
     void MakePlaneBrown()
     {
-        foreach (var mr in FindObjectsOfType<MeshRenderer>())
+        if (groundObject == null)
         {
-            if (mr.gameObject.name.Contains("Plane"))
-            {
-                // 挂载粒子控制器
-                GroundParticleController controller = mr.gameObject.GetComponent<GroundParticleController>();
-                if (controller == null) controller = mr.gameObject.AddComponent<GroundParticleController>();
-                
-                // 设置森林默认参数：黄色，随机移动
-                controller.mainColor = new Color(1.0f, 0.75f, 0.2f, 0.8f);
-                controller.mode = GroundParticleController.MovementMode.TreeRandom;
-                controller.particleDensity = 60f;
-                controller.particleSize = 0.04f;
-            }
+            Debug.LogWarning("[TreeSceneSetup] 未指定 groundObject。请在 Inspector 中拖入地板物品。");
+            return;
         }
+
+        // 挂载粒子控制器
+        GroundParticleController controller = groundObject.GetComponent<GroundParticleController>();
+        if (controller == null) controller = groundObject.AddComponent<GroundParticleController>();
+        
+        // 设置森林默认参数：黄色，随机移动
+        controller.mainColor = new Color(1.0f, 0.75f, 0.2f, 0.8f);
+        controller.mode = GroundParticleController.MovementMode.TreeRandom;
+        controller.particleDensity = 150f;
+        controller.particleSize = 0.05f;
     }
 
     /// <summary>

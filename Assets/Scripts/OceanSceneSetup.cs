@@ -169,26 +169,29 @@ public class OceanSceneSetup : MonoBehaviour
         }
     }
 
+    [Header("4. Ground Particle Container")]
+    public GameObject groundObject;
+
     /// <summary>
-    /// 将 Plane 转换为蓝色波动粒子容器
+    /// 将指定 Ground Object 转换为蓝色波动粒子容器
     /// </summary>
     void MakePlaneDeepBlue()
     {
-        foreach (var mr in FindObjectsOfType<MeshRenderer>())
+        if (groundObject == null)
         {
-            if (mr.gameObject.name.Contains("Plane"))
-            {
-                // 挂载粒子控制器
-                GroundParticleController controller = mr.gameObject.GetComponent<GroundParticleController>();
-                if (controller == null) controller = mr.gameObject.AddComponent<GroundParticleController>();
-                
-                // 设置海洋默认参数：蓝色，波动
-                controller.mainColor = new Color(0.1f, 0.4f, 1.0f, 0.8f);
-                controller.mode = GroundParticleController.MovementMode.OceanWavy;
-                controller.particleDensity = 120f;
-                controller.particleSize = 0.05f;
-            }
+            Debug.LogWarning("[OceanSceneSetup] 未指定 groundObject，跳过地表粒子生成。请在 Inspector 中拖入地板。");
+            return;
         }
+
+        // 挂载粒子控制器
+        GroundParticleController controller = groundObject.GetComponent<GroundParticleController>();
+        if (controller == null) controller = groundObject.AddComponent<GroundParticleController>();
+        
+        // 设置海洋默认参数：蓝色，波动
+        controller.mainColor = new Color(0.1f, 0.4f, 1.0f, 0.8f);
+        controller.mode = GroundParticleController.MovementMode.OceanWavy;
+        controller.particleDensity = 250f;
+        controller.particleSize = 0.05f;
     }
 
     /// <summary>

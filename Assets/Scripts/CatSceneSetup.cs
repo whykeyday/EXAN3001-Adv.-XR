@@ -59,26 +59,29 @@ public class CatSceneSetup : MonoBehaviour
         MakePlanesDark();
     }
 
+    [Header("Ground Particle Container")]
+    public GameObject groundObject;
+
     /// <summary>
-    /// 将 Plane 转换为淡红色闪烁粒子容器
+    /// 将指定 Ground 对象转换为淡红色闪烁粒子容器
     /// </summary>
     void MakePlanesDark()
     {
-        foreach (var mr in FindObjectsOfType<MeshRenderer>())
+        if (groundObject == null)
         {
-            if (mr.gameObject.name.Contains("Plane"))
-            {
-                // 挂载粒子控制器
-                GroundParticleController controller = mr.gameObject.GetComponent<GroundParticleController>();
-                if (controller == null) controller = mr.gameObject.AddComponent<GroundParticleController>();
-                
-                // 设置猫咪默认参数：淡红色，闪烁
-                controller.mainColor = new Color(1.0f, 0.3f, 0.3f, 0.7f);
-                controller.mode = GroundParticleController.MovementMode.CatBlinking;
-                controller.particleDensity = 40f;
-                controller.particleSize = 0.035f;
-            }
+            Debug.LogWarning("[CatSceneSetup] 未指定 groundObject。请在 Inspector 中拖入地板物品。");
+            return;
         }
+
+        // 挂载粒子控制器
+        GroundParticleController controller = groundObject.GetComponent<GroundParticleController>();
+        if (controller == null) controller = groundObject.AddComponent<GroundParticleController>();
+        
+        // 设置猫咪默认参数：淡红色，闪烁
+        controller.mainColor = new Color(1.0f, 0.3f, 0.3f, 0.7f);
+        controller.mode = GroundParticleController.MovementMode.CatBlinking;
+        controller.particleDensity = 100f;
+        controller.particleSize = 0.045f;
     }
 
     /// <summary>

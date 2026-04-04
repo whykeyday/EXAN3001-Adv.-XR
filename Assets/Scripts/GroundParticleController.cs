@@ -1,10 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// GroundParticleController (Ground Zero - Final Fix): 
-/// 1. 强力锁定 Y 轴高度 (Height Lock) 到脚底 (World Y = 0.05)。
-/// 2. 扩大的搜索逻辑 (Scan for Ground/Terrain/Water)。
-/// 3. 设置更为宽广的默认发射范围。
+/// GroundParticleController (Precision Coral Version): 
+/// 1. 不再进行任何自动化盲目搜索。
+/// 2. 专门负责将当前物体变为透明粒子容器。
+/// 3. 强制锁定 Y 轴高度到脚底 (Y = 0.05)。
 /// </summary>
 public class GroundParticleController : MonoBehaviour
 {
@@ -16,8 +16,8 @@ public class GroundParticleController : MonoBehaviour
     [Range(0.001f, 0.2f)]
     public float particleSize = 0.045f;
 
-    [Range(5f, 1500f)]
-    public float particleDensity = 250f;
+    [Range(5f, 2000f)]
+    public float particleDensity = 300f;
 
     public MovementMode mode = MovementMode.BasicTwinkle;
 
@@ -29,21 +29,15 @@ public class GroundParticleController : MonoBehaviour
     {
         baseMr = GetComponent<MeshRenderer>();
         SetupParticleSystem();
-        HideBaseMesh();
-    }
-
-    void Start()
-    {
-        // 进一步扩大默认范围以确保 100% 覆盖
-        UpdateEmissionBounds();
+        HideTargetMesh();
     }
 
     void Update()
     {
         ApplyAdjustments();
         
-        // ★ 核心修复 1：地心锁定 (Height Lock)。
-        // 无论 Plane/Water 物体本身在腰部还是眼睛，粒子物体都被拽到脚底 (Y=0.05)
+        // ★ 核心修复：强制地心引力 (World Y = 0.05)
+        // 确保粒子永远在脚底，而不是在手掌、腰部或天空。
         if (ps != null) {
             ps.transform.position = new Vector3(transform.position.x, 0.05f, transform.position.z);
         }
@@ -51,8 +45,8 @@ public class GroundParticleController : MonoBehaviour
 
     void SetupParticleSystem()
     {
-        GameObject psObj = new GameObject("GroundZero_Particles");
-        // 注意：这里不设为 transform 的子物体，或者设为子物体但 Update 里强制设 WorldPos
+        // 建立纯净容器
+        GameObject psObj = new GameObject("GroundParticles_CoralContainer");
         psObj.transform.SetParent(transform, true); 
 
         ps = psObj.AddComponent<ParticleSystem>();
@@ -61,19 +55,27 @@ public class GroundParticleController : MonoBehaviour
         var main = ps.main;
         main.loop = true;
         main.playOnAwake = true;
-        main.simulationSpace = ParticleSystemSimulationSpace.World; // 世界空间以便锁定高度
-        main.startLifetime = new ParticleSystem.MinMaxCurve(2.5f, 5.0f);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(2f, 4f);
         main.startSpeed = 0f;
         main.gravityModifier = 0f;
-        main.maxParticles = 8000;
+        main.maxParticles = 10000;
 
-        // ★ 核心修复 2：超大范围发射
+        // ★ 珊瑚级覆盖逻辑：自适应容器大小
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        // 初始给一个巨大的覆盖面积 (50x50m)，稍后在 UpdateEmissionBounds 精调
-        shape.scale = new Vector3(50f, 0.01f, 50f); 
+        
+        if (baseMr != null) {
+            Vector3 worldSize = baseMr.bounds.size;
+            // 确保覆盖全域，设置最小值为 50m
+            float finalX = Mathf.Max(worldSize.x, 50f);
+            float finalZ = Mathf.Max(worldSize.z, 50f);
+            shape.scale = new Vector3(finalX / transform.lossyScale.x, 0.01f, finalZ / transform.lossyScale.z);
+        } else {
+            shape.scale = new Vector3(50f, 0.01f, 50f);
+        }
 
-        // ★ 珊瑚级渲染
+        // ★ 核心渲染：几何金属颗粒 (Cube Rendering)
         psr.renderMode = ParticleSystemRenderMode.Mesh;
         GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         psr.mesh = tempCube.GetComponent<MeshFilter>().sharedMesh;
@@ -84,28 +86,12 @@ public class GroundParticleController : MonoBehaviour
         ps.Play();
     }
 
-    void UpdateEmissionBounds()
+    void HideTargetMesh()
     {
-        if (baseMr == null || ps == null) return;
-        
-        var shape = ps.shape;
-        // 探测包围盒大小
-        Vector3 worldSize = baseMr.bounds.size;
-        
-        // 如果测得的包围盒太小 (可能是局部 Mesh)，强制最小 30 米
-        float finalX = Mathf.Max(worldSize.x, 40f);
-        float finalZ = Mathf.Max(worldSize.z, 40f);
-
-        // 应用到 Shape (注意坐标系转化)
-        shape.scale = new Vector3(finalX / transform.lossyScale.x, 0.01f, finalZ / transform.lossyScale.z);
-    }
-
-    void HideBaseMesh()
-    {
-        // ★ 核心修复 3：强制彻底隐藏
+        // ★ 核心：绝对透明容器化
         if (baseMr != null) baseMr.enabled = false;
         
-        // 同时也尝试寻找父级或相关的 Renderer
+        // 递归隐藏所有子层级 Renderer (防止手掌模型或其他附件被渲染出来)
         foreach (var r in GetComponentsInChildren<Renderer>()) {
             if (r != psr) r.enabled = false;
         }
@@ -135,11 +121,11 @@ public class GroundParticleController : MonoBehaviour
             case MovementMode.TreeRandom:
                 var vel = ps.velocityOverLifetime;
                 vel.enabled = true;
-                vel.x = new ParticleSystem.MinMaxCurve(-0.03f, 0.03f);
-                vel.z = new ParticleSystem.MinMaxCurve(-0.03f, 0.03f);
+                vel.x = new ParticleSystem.MinMaxCurve(-0.06f, 0.06f);
+                vel.z = new ParticleSystem.MinMaxCurve(-0.06f, 0.06f);
                 vel.y = new ParticleSystem.MinMaxCurve(0f, 0f);
                 noise.enabled = true;
-                noise.strength = 0.015f; 
+                noise.strength = 0.02f; 
                 break;
         }
     }
@@ -166,19 +152,13 @@ public class GroundParticleController : MonoBehaviour
         if (s == null) s = Shader.Find("Standard");
         Material mat = new Material(s);
         mat.SetFloat("_Surface", 1); 
-        mat.SetFloat("_Mode", 3);
-        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.SetInt("_ZWrite", 0);
         mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         mat.renderQueue = 3000;
         
         Color tColor = new Color(color.r, color.g, color.b, 0.55f);
         mat.SetColor("_BaseColor", tColor);
-        mat.SetColor("_Color", tColor);
         mat.SetFloat("_Metallic", 0.93f);
         mat.SetFloat("_Smoothness", 0.97f);
-        mat.SetFloat("_Glossiness", 0.97f);
         return mat;
     }
 
