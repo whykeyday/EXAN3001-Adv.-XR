@@ -37,12 +37,12 @@ public class TreeSceneSetup : MonoBehaviour
         // 深棕色森林氛围
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
-        RenderSettings.fogColor = forestFogColor;
-        RenderSettings.fogDensity = 0.008f; // 大幅降低雾浓度，让粉色花瓣和远处粒子可见
+        RenderSettings.fogColor = Color.black; // 强制黑雾
+        RenderSettings.fogDensity = 0.003f; // 极致稀薄
 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.05f, 0.03f, 0.02f); 
-        RenderSettings.ambientIntensity = 0.35f; // 稍微提亮环境光，让粒子特效更可见
+        RenderSettings.ambientLight = new Color(0.02f, 0.015f, 0.01f); 
+        RenderSettings.ambientIntensity = 0.15f; // 压低环境光
         RenderSettings.skybox = null;
 
         // 方向光调暖月光色

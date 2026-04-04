@@ -128,13 +128,13 @@ public class OceanSceneSetup : MonoBehaviour
         {
             RenderSettings.fog      = true;
             RenderSettings.fogMode  = FogMode.ExponentialSquared;
-            RenderSettings.fogColor = fogColor;
-            RenderSettings.fogDensity = minFog;
+            RenderSettings.fogColor = Color.black; // 雾气设为黑色，防止白蒙蒙感
+            RenderSettings.fogDensity = minFog * 0.5f; // 进一步降低基础浓度
         }
 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.02f, 0.06f, 0.15f);
-        RenderSettings.ambientIntensity = 0.3f;
+        RenderSettings.ambientLight = new Color(0.01f, 0.02f, 0.05f); // 极暗环境光
+        RenderSettings.ambientIntensity = 0.1f; // 压低亮度
         RenderSettings.skybox = null;
 
         Camera cam = Camera.main;
