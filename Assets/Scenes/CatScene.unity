@@ -134560,7 +134560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireplaceClip: {fileID: 8300000, guid: a90456ce8979316419d172474e19b619, type: 3}
-  fireplaceVolume: 0.52
+  fireplaceVolume: 0.113
   fireFarDistance: 14
   fireNearDistance: 1
   fireFalloffExponent: 1.5

@@ -62,11 +62,22 @@ public class GlobalAudioManager : MonoBehaviour
         }
     }
 
-    void Start()
+    System.Collections.IEnumerator Start()
     {
         if (meditationTracks == null || meditationTracks.Length == 0)
         {
             Debug.LogError("[GlobalAudioManager] ❌ 警告：你还没有放入任何 BGM 曲目！请在 Inspector 侧边栏拖入你的 mp3/wav。");
+            yield break;
+        }
+
+        // ★ 核心修复：VR 一开机有时候连原生的 playOnAwake 都不认。
+        // 强制等待 1.5 秒确保底层引擎完全就绪，然后补一发强行 Play()
+        yield return new WaitForSeconds(1.5f);
+
+        if (audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.Play();
+            Debug.Log("[GlobalAudioManager] Delayed Start triggered Play() as a fallback for VR cold boot.");
         }
     }
 

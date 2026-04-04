@@ -143,12 +143,13 @@ public class ParticleTreeHealer : MonoBehaviour
             magicObj.transform.SetParent(transform, false);
             magicHealAudio = magicObj.AddComponent<AudioSource>();
             magicHealAudio.clip = magicHealClip;
-            magicHealAudio.spatialBlend = 1f;
+            // ★ 修改为 2D 贴耳音效，防止树干中心太远导致原生的 3D 衰减让你听不见
+            magicHealAudio.spatialBlend = 0f; 
             magicHealAudio.loop = true;
             magicHealAudio.playOnAwake = false;
-            magicHealAudio.ignoreListenerPause = true; // ★ 防止传送时中断
-            magicHealAudio.volume = 0f; // 初始静音，由 Update 中的 magicCurrentVolume 直接控制
-            magicHealAudio.Play();
+            magicHealAudio.ignoreListenerPause = true; 
+            magicHealAudio.volume = 0f; 
+            // 不再后台悄悄播放，依靠触摸瞬间触发 Play()
             Debug.Log($"[TreeAudio] Magic audio created. Clip: {magicHealClip.name}, magicVolume: {magicVolume}");
         }
 
@@ -564,28 +565,70 @@ public class ParticleTreeHealer : MonoBehaviour
         }
     }
 
+    private float healDebounceTimer = 0f;
+    private bool magicAudioArmed = true;
+
     void Update()
     {
         // 彻底移除原先的 Camera 自动触发预案与全场景手部对象搜索逻辑
         // 因为用户场景中已经在碰撞体上精准绑定了 triggers。
         // 现在仅完全依靠真实的物体碰撞 (手部/控制器触发 OnTriggerStay)
-        bool isHealing = triggerOverlapDetected;
+        
+        // ★ 小心！OnTriggerStay 是按物理帧 (FixedUpdate) 跑的，而 Update 按渲染帧跑
+        // 会导致如果渲染帧比物理帧快，就会漏掉导致瞬间判断成 false，从而疯狂重启音乐卡壳。
+        // 必须加入 0.1 秒的防抖滤波！
+        if (triggerOverlapDetected)
+        {
+            healDebounceTimer = 0.1f;
+        }
+        
+        bool isHealing = (healDebounceTimer > 0f);
+        
+        if (healDebounceTimer > 0f) healDebounceTimer -= Time.deltaTime;
+        
         triggerOverlapDetected = false;
+
+        // ★ 控制 Magic 音效的“武装”状态：
+        // 只有倒退回彻底枯死状态，才重新允许播放
+        if (energyLevel <= 0.01f) magicAudioArmed = true;
+        // 如果彻底满了（治愈完毕），直接缴械
+        if (energyLevel >= 1.0f) magicAudioArmed = false;
 
         if (isHealing)
         {
+            // 如果上一个瞬间没摸，这个瞬间刚摸上，并且当前是被允许播魔法的阶段
+            if (!wasHealing && magicHealAudio != null && magicAudioArmed)
+            {
+                magicHealAudio.time = 0f;
+                if (!magicHealAudio.isPlaying) magicHealAudio.Play();
+            }
+
             energyLevel += healingRate * Time.deltaTime;
             healLingerTimer = healLingerDuration;
 
             if (showDebugDistance) Debug.Log($"[TreeAudio] Healing! energy: {energyLevel:F2}, magicVol: {magicCurrentVolume:F2}");
 
-            // ★ 直接淡入魔法嗡鸣，不再依赖 AudioDistanceFader
-            magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, magicVolume, Time.deltaTime * 3f);
+            // ★ 只有 Armed 状态，且在摸着，才淡入音量
+            if (magicAudioArmed)
+            {
+                magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, magicVolume, Time.deltaTime * 10f);
+            }
+            else
+            {
+                // 如果已经满了被缴械了，即使手还摸着，也快速淡出声音
+                magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, 0f, Time.deltaTime * 5f);
+            }
         }
         else
         {
-            // ★ 直接淡出
-            magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, 0f, Time.deltaTime * 3f);
+            // ★ 离开后快速淡出
+            magicCurrentVolume = Mathf.MoveTowards(magicCurrentVolume, 0f, Time.deltaTime * 5f);
+            
+            // 完全没声了就暂停引擎，节省性能
+            if (magicCurrentVolume == 0f && magicHealAudio != null && magicHealAudio.isPlaying)
+            {
+                magicHealAudio.Pause();
+            }
 
             if (healLingerTimer > 0f)
             {
