@@ -50902,7 +50902,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2096442890036865669, guid: 35ff916ecc9f6b14fbb0601886db838d, type: 3}
       propertyPath: bgmVolume
-      value: 0.222
+      value: 0.111
       objectReference: {fileID: 0}
     - target: {fileID: 5605880397603512724, guid: 35ff916ecc9f6b14fbb0601886db838d, type: 3}
       propertyPath: m_Name
@@ -134560,7 +134560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireplaceClip: {fileID: 8300000, guid: a90456ce8979316419d172474e19b619, type: 3}
-  fireplaceVolume: 1
+  fireplaceVolume: 0.52
   fireFarDistance: 14
   fireNearDistance: 1
   fireFalloffExponent: 1.5
