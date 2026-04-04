@@ -110,20 +110,20 @@ public class BreathInputManager : MonoBehaviour
         if (clip == null) return;
         
         GameObject emitter = new GameObject(emitterName);
-        emitter.transform.position = Camera.main.transform.position + Random.onUnitSphere * dist;
+        // 让它始终跟随相机，防止跑远了没声
+        emitter.transform.SetParent(Camera.main.transform, false);
+        emitter.transform.localPosition = Random.onUnitSphere * dist;
+
         AudioSource src = emitter.AddComponent<AudioSource>();
         src.clip = clip;
         src.volume = volume;
-        src.spatialBlend = 1f; // 3D Spatial
-        src.ignoreListenerPause = true;
-        // ★ 不再使用 AudioDistanceFader，用 Unity 原生 3D rolloff
-        src.minDistance = ambientNearDistance;
-        src.maxDistance = ambientFarDistance;
-        src.rolloffMode = AudioRolloffMode.Linear;
+        src.spatialBlend = 0f; // ★ 用户要求 Constant Volume，强制 2D 播放
+        src.ignoreListenerPause = true; // ★ 防止传送中断
+        src.playOnAwake = false;
         src.Play();
         
         Destroy(emitter, clip.length + 1f);
-        Debug.Log($"[OceanSound] Played {emitterName}: {clip.name} Volume: {volume}");
+        Debug.Log($"[OceanSound] Played {emitterName} (2D Constant): {clip.name} Vol: {volume}");
     }
 
     void InitializeMicrophone()

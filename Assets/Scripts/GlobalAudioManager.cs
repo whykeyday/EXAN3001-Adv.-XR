@@ -79,7 +79,7 @@ public class GlobalAudioManager : MonoBehaviour
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        Debug.Log($"[GlobalAudioManager] Scene loaded: {scene.name}. isPlaying: {audioSource?.isPlaying}");
+        Debug.Log($"[GlobalBGM] Scene loaded: {scene.name}. isPlaying: {audioSource?.isPlaying}");
 
         // 场景切换后确保音频继续播放（Unity有时会在切场景时暂停AudioSource）
         if (audioSource != null && meditationTracks != null && meditationTracks.Length > 0)
@@ -87,13 +87,21 @@ public class GlobalAudioManager : MonoBehaviour
             // ★ 强制刷新 2D + ignoreListenerPause，防止新场景中的某些设置覆盖
             audioSource.spatialBlend = 0f;
             audioSource.ignoreListenerPause = true;
+            audioSource.ignoreListenerVolume = true;
 
             if (!audioSource.isPlaying)
             {
                 audioSource.UnPause();
                 if (!audioSource.isPlaying)
+                {
+                    Debug.Log("[GlobalBGM] UnPause failed, playing random track.");
                     PlayRandomTrack();
+                }
             }
+        }
+        else
+        {
+             Debug.LogWarning($"[GlobalBGM] SceneLoaded but audioSource or tracks are null! Source: {audioSource != null}, Tracks: {meditationTracks?.Length ?? 0}");
         }
     }
 
@@ -110,8 +118,21 @@ public class GlobalAudioManager : MonoBehaviour
             Debug.LogWarning("[GlobalAudioManager] AudioSource was lost — rebuilt.");
         }
 
-        // 音量实时同步 Inspector 调节
-        audioSource.volume = bgmVolume;
+        // ★ 音量实时同步 Inspector 调节
+        if (audioSource != null)
+        {
+            audioSource.volume = bgmVolume;
+            // 强行锁定 2D + 忽略暂停，应对任何意外覆盖
+            audioSource.spatialBlend = 0f;
+            audioSource.ignoreListenerPause = true;
+            audioSource.ignoreListenerVolume = true;
+
+            if (!audioSource.isPlaying && meditationTracks != null && meditationTracks.Length > 0)
+            {
+                Debug.LogWarning("[GlobalBGM] AudioSource was NOT playing — forced PlayNextTrack().");
+                PlayNextTrack();
+            }
+        }
 
         // 当前曲目播完，自动播下一首曲目
         if (meditationTracks != null && meditationTracks.Length > 0)

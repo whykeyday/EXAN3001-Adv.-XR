@@ -112,26 +112,25 @@ public class CatSceneSetup : MonoBehaviour
     {
         Transform sparkParent;
 
-        if (fireplaceModel != null) 
+        if (fireplaceModel != null)
         {
             sparkParent = fireplaceModel;
-            
+
             // 自动为真实的篝火模型添加抓取/触碰碰撞盒
             Collider col = sparkParent.gameObject.GetComponentInChildren<Collider>();
             if (col == null)
             {
                 BoxCollider bc = sparkParent.gameObject.AddComponent<BoxCollider>();
                 bc.isTrigger = true;
-                bc.size = new Vector3(1.5f, 1f, 1.5f); // 范围给大一点，方便手摸到
+                bc.size = new Vector3(1.5f, 1f, 1.5f);
             }
-            else { col.isTrigger = true; } // 手能穿过去触发
+            else { col.isTrigger = true; }
 
             Rigidbody rb = sparkParent.gameObject.GetComponent<Rigidbody>();
             if (rb == null) { rb = sparkParent.gameObject.AddComponent<Rigidbody>(); rb.isKinematic = true; }
 
-            // 挂载我们新写的专属篝火互动脚本！
             CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
-            // 注意：fireScript 现在会自动从父级 CatSceneSetup 读取 clip
+            SetupCampfireAudio(fireScript, sparkParent); // ★ 直接在这里创建音频，不依赖 CampfireInteraction.Start()
         }
         else
         {
@@ -142,7 +141,7 @@ public class CatSceneSetup : MonoBehaviour
             sparkParent = fireplace.transform;
 
             CampfireInteraction fireScript = sparkParent.gameObject.AddComponent<CampfireInteraction>();
-            // 注意：fireScript 现在会自动从父级 CatSceneSetup 读取 clip
+            SetupCampfireAudio(fireScript, sparkParent); // ★ 直接在这里创建音频
         }
         
         // 获取视觉中心（破除原点偏移）
@@ -202,6 +201,40 @@ public class CatSceneSetup : MonoBehaviour
         colorOL.color = grad;
 
         ps.GetComponent<ParticleSystemRenderer>().material = ParticleUtils.GetGlowingSphereMaterial();
+    }
+
+    /// <summary>
+    /// ★ 由 CatSceneSetup 直接创建篝火音频（不再依赖 CampfireInteraction.Start 的 FindObjectOfType 查找）
+    /// </summary>
+    void SetupCampfireAudio(CampfireInteraction fireScript, Transform sparkParent)
+    {
+        if (fireplaceClip == null)
+        {
+            Debug.LogError("[CatSceneSetup] ❌ fireplaceClip is NULL! 请在 CatManager Inspector 中拖入篝火音频！");
+            return;
+        }
+
+        GameObject emitter = new GameObject("Fire_Audio_Emitter");
+        emitter.transform.SetParent(sparkParent, false);
+        emitter.transform.localPosition = Vector3.up * 0.2f;
+
+        AudioSource src = emitter.AddComponent<AudioSource>();
+        src.clip = fireplaceClip;
+        src.spatialBlend = 1f;
+        src.loop = true;
+        src.volume = fireplaceVolume;
+        src.playOnAwake = false;
+        src.ignoreListenerPause = true; // ★ 解决传送中断
+        src.minDistance = fireNearDistance;
+        src.maxDistance = fireFarDistance;
+        src.rolloffMode = AudioRolloffMode.Linear;
+        
+        src.Play();
+
+        // 直接传给 CampfireInteraction，它不再需要自己找配置
+        fireScript.SetAudioSource(src);
+
+        Debug.Log($"[CatSceneSetup] Campfire audio CREATED and PLAYING. Clip: {fireplaceClip.name}, vol: {fireplaceVolume}, ignorePause: {src.ignoreListenerPause}");
     }
 
     /// <summary>
@@ -533,6 +566,14 @@ public class CampfireInteraction : MonoBehaviour
     private float currentFireIntensity = 0f;
     private float maxFireRate = 50f;
 
+    /// <summary>
+    /// ★ 由 CatSceneSetup 直接调用，传入已经创建好的 AudioSource（不再需要自己 FindObjectOfType）
+    /// </summary>
+    public void SetAudioSource(AudioSource src)
+    {
+        fireplaceAudio = src;
+    }
+
     public Vector3 GetTrueCenter()
     {
         Renderer[] rs = GetComponentsInChildren<Renderer>();
@@ -557,41 +598,9 @@ public class CampfireInteraction : MonoBehaviour
             em.rateOverTime = 0f;
         }
 
-        // 从场景中找 CatSceneSetup（fireplaceModel 不一定是其子物体，所以不能用 GetComponentInParent）
-        CatSceneSetup mainSetup = setup ?? FindObjectOfType<CatSceneSetup>();
-        AudioClip clipToUse = (mainSetup != null) ? mainSetup.fireplaceClip : null;
-        float farDist = (mainSetup != null) ? mainSetup.fireFarDistance : 15f;
-        float nearDist = (mainSetup != null) ? mainSetup.fireNearDistance : 1.0f;
-        float falloff = (mainSetup != null) ? mainSetup.fireFalloffExponent : 1.5f;
-        float baseVol = (mainSetup != null) ? mainSetup.fireplaceVolume : 1.0f;
-
-        Debug.Log($"[Campfire] mainSetup: {mainSetup != null}, clipToUse: {(clipToUse != null ? clipToUse.name : "NULL")}, baseVol: {baseVol}");
-
-        if (clipToUse != null)
-        {
-            // 将音源移到物体中心（通常是火苗根部）
-            GameObject emitter = new GameObject("Fire_Audio_Emitter");
-            emitter.transform.SetParent(transform, false);
-            emitter.transform.localPosition = Vector3.up * 0.2f;
-
-            fireplaceAudio = emitter.AddComponent<AudioSource>();
-            fireplaceAudio.clip = clipToUse;
-            fireplaceAudio.spatialBlend = 1f;
-            fireplaceAudio.loop = true;
-            fireplaceAudio.volume = baseVol;
-            fireplaceAudio.playOnAwake = false;
-            fireplaceAudio.ignoreListenerPause = true;
-            // ★ 不再使用 AudioDistanceFader，改用 Unity 原生 3D 距离衰减
-            fireplaceAudio.minDistance = nearDist;
-            fireplaceAudio.maxDistance = farDist;
-            fireplaceAudio.rolloffMode = AudioRolloffMode.Linear;
-            fireplaceAudio.Play();
-            Debug.Log($"[Campfire] Audio PLAYING. Clip: {clipToUse.name}, vol: {baseVol}, near: {nearDist}, far: {farDist}");
-        }
-        else
-        {
-            Debug.LogError("[Campfire] fireplaceClip is NULL! 请在 CatManager Inspector 中拖入篝火音频文件！");
-        }
+        // ★ 音频现在由 CatSceneSetup.SetupCampfireAudio() 直接创建并传入
+        // 不再需要在这里查找配置
+        Debug.Log($"[Campfire] Start. fireplaceAudio assigned: {fireplaceAudio != null}");
     }
 
     void Update()
@@ -624,7 +633,16 @@ public class CampfireInteraction : MonoBehaviour
             noise.strength = Mathf.Lerp(0f, 1.5f, currentFireIntensity); 
         }
 
-        // 篝火声音由 AudioDistanceFader 控制，不手动设 volume
+        // 3. 音效防御性恢复：确保它始终在播放 (因为 Unity 有时在切场景/传送时静默 AudioSource)
+        if (fireplaceAudio != null)
+        {
+            fireplaceAudio.ignoreListenerPause = true;
+            if (!fireplaceAudio.isPlaying && fireplaceAudio.isActiveAndEnabled)
+            {
+                fireplaceAudio.Play();
+                Debug.Log("[Campfire] Audio was NOT playing — forced Play().");
+            }
+        }
     }
 
     void OnTriggerEnter(Collider other)

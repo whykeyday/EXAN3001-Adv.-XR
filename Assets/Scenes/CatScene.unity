@@ -134503,7 +134503,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireplaceClip: {fileID: 8300000, guid: a90456ce8979316419d172474e19b619, type: 3}
   fireplaceVolume: 1
-  fireFarDistance: 3
+  fireFarDistance: 14
   fireNearDistance: 1
   fireFalloffExponent: 1.5
   blackCatModel: {fileID: 1854359415}

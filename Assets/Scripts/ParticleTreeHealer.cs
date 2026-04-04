@@ -128,10 +128,10 @@ public class ParticleTreeHealer : MonoBehaviour
             birdAudio.spatialBlend = 1f;
             birdAudio.volume = 1f;
             birdAudio.playOnAwake = false;
-            birdAudio.ignoreListenerPause = true;
-            birdAudio.minDistance = birdNearDistance;
-            birdAudio.maxDistance = birdFarDistance;
-            birdAudio.rolloffMode = AudioRolloffMode.Linear; // 线性衰减，简单可控
+            birdAudio.ignoreListenerPause = true; // ★ 防止传送中断
+            birdAudio.minDistance = 5.0f; // ★ 调大最小距离，确保更远也能听到
+            birdAudio.maxDistance = Mathf.Max(birdFarDistance, 30f); 
+            birdAudio.rolloffMode = AudioRolloffMode.Linear;
             Debug.Log($"[TreeAudio] Bird audio created. Clip: {birdAudioClip.name}");
         }
         if (magicHealClip != null)
@@ -644,6 +644,10 @@ public class ParticleTreeHealer : MonoBehaviour
             if (birdCoroutine != null) { StopCoroutine(birdCoroutine); birdCoroutine = null; }
             if (birdAudio != null && birdAudio.isPlaying) birdAudio.Stop();
         }
+
+        // 防御性检查：确保声音没有被静默
+        if (birdAudio != null) birdAudio.ignoreListenerPause = true;
+        if (magicHealAudio != null) magicHealAudio.ignoreListenerPause = true;
 
         // 保持飘落特效状态（密集的短距悬浮花簇）
         var pEmis = petalsPS.emission;
