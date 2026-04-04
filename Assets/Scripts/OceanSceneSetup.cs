@@ -181,13 +181,22 @@ public class OceanSceneSetup : MonoBehaviour
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 if (mat == null) mat = new Material(Shader.Find("Standard"));
 
-                Color planeColor = new Color(0.0f, 0.03f, 0.08f, 0.35f);
+                Color planeColor = new Color(0.0f, 0.0f, 0.0f, 0.25f); // 纯黑
                 mat.SetFloat("_Surface", 1f); 
                 mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 mat.SetInt("_ZWrite", 0);
                 mat.renderQueue = 3000;
                 mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+
+                // ★ 深度净化：彻底关闭高光和反射
+                mat.SetFloat("_Smoothness", 0f);
+                mat.SetFloat("_Metallic", 0f);
+                mat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
+                mat.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+                mat.SetFloat("_SpecularHighlights", 0f);
+                mat.SetFloat("_EnvironmentReflections", 0f);
+
                 mat.SetColor("_BaseColor", planeColor);
                 mat.color = planeColor;
 

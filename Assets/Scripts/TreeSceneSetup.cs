@@ -77,15 +77,24 @@ public class TreeSceneSetup : MonoBehaviour
                 Material brownMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 if (brownMat == null) brownMat = new Material(Shader.Find("Standard"));
 
-                Color brownColor = new Color(0.18f, 0.12f, 0.06f, 0.7f);
+                Color darkColor = new Color(0.0f, 0.0f, 0.0f, 0.25f); // 纯黑
                 brownMat.SetFloat("_Surface", 1f); 
                 brownMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 brownMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 brownMat.SetInt("_ZWrite", 0);
                 brownMat.renderQueue = 3000;
                 brownMat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                brownMat.SetColor("_BaseColor", brownColor);
-                brownMat.color = brownColor;
+
+                // ★ 深度净化：彻底关闭高光和反射
+                brownMat.SetFloat("_Smoothness", 0f);
+                brownMat.SetFloat("_Metallic", 0f);
+                brownMat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
+                brownMat.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+                brownMat.SetFloat("_SpecularHighlights", 0f);
+                brownMat.SetFloat("_EnvironmentReflections", 0f);
+
+                brownMat.SetColor("_BaseColor", darkColor);
+                brownMat.color = darkColor;
 
                 mr.material = brownMat;
                 mr.enabled = true;
