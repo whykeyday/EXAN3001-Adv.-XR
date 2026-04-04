@@ -170,7 +170,7 @@ public class OceanSceneSetup : MonoBehaviour
     }
 
     /// <summary>
-    /// 把已有的 Plane 设为深蓝色（移除白色地面）
+    /// 将 Plane 转换为蓝色波动粒子容器
     /// </summary>
     void MakePlaneDeepBlue()
     {
@@ -178,30 +178,15 @@ public class OceanSceneSetup : MonoBehaviour
         {
             if (mr.gameObject.name.Contains("Plane"))
             {
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                if (mat == null) mat = new Material(Shader.Find("Standard"));
-
-                Color planeColor = new Color(0.0f, 0.0f, 0.0f, 0.25f); // 纯黑
-                mat.SetFloat("_Surface", 1f); 
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", 0);
-                mat.renderQueue = 3000;
-                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-
-                // ★ 深度净化：彻底关闭高光和反射
-                mat.SetFloat("_Smoothness", 0f);
-                mat.SetFloat("_Metallic", 0f);
-                mat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
-                mat.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
-                mat.SetFloat("_SpecularHighlights", 0f);
-                mat.SetFloat("_EnvironmentReflections", 0f);
-
-                mat.SetColor("_BaseColor", planeColor);
-                mat.color = planeColor;
-
-                mr.material = mat;
-                mr.enabled = true; 
+                // 挂载粒子控制器
+                GroundParticleController controller = mr.gameObject.GetComponent<GroundParticleController>();
+                if (controller == null) controller = mr.gameObject.AddComponent<GroundParticleController>();
+                
+                // 设置海洋默认参数：蓝色，波动
+                controller.mainColor = new Color(0.1f, 0.4f, 1.0f, 0.8f);
+                controller.mode = GroundParticleController.MovementMode.OceanWavy;
+                controller.particleDensity = 120f;
+                controller.particleSize = 0.05f;
             }
         }
     }

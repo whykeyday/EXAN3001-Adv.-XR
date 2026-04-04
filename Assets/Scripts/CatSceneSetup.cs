@@ -60,7 +60,7 @@ public class CatSceneSetup : MonoBehaviour
     }
 
     /// <summary>
-    /// 黑色地板：将场景所有 Plane 改为深色/黑色半透明材质
+    /// 将 Plane 转换为淡红色闪烁粒子容器
     /// </summary>
     void MakePlanesDark()
     {
@@ -68,30 +68,15 @@ public class CatSceneSetup : MonoBehaviour
         {
             if (mr.gameObject.name.Contains("Plane"))
             {
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                if (mat == null) mat = new Material(Shader.Find("Standard"));
-
-                Color darkColor = new Color(0.0f, 0.0f, 0.0f, 0.25f); // 纯黑
-                mat.SetFloat("_Surface", 1f);
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", 0);
-                mat.renderQueue = 3000;
-                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                // 挂载粒子控制器
+                GroundParticleController controller = mr.gameObject.GetComponent<GroundParticleController>();
+                if (controller == null) controller = mr.gameObject.AddComponent<GroundParticleController>();
                 
-                // ★ 深度净化：彻底关闭高光和反射
-                mat.SetFloat("_Smoothness", 0f);
-                mat.SetFloat("_Metallic", 0f);
-                mat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
-                mat.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
-                mat.SetFloat("_SpecularHighlights", 0f);
-                mat.SetFloat("_EnvironmentReflections", 0f);
-
-                mat.SetColor("_BaseColor", darkColor);
-                mat.color = darkColor;
-
-                mr.material = mat;
-                mr.enabled = true;
+                // 设置猫咪默认参数：淡红色，闪烁
+                controller.mainColor = new Color(1.0f, 0.3f, 0.3f, 0.7f);
+                controller.mode = GroundParticleController.MovementMode.CatBlinking;
+                controller.particleDensity = 40f;
+                controller.particleSize = 0.035f;
             }
         }
     }

@@ -66,7 +66,7 @@ public class TreeSceneSetup : MonoBehaviour
     }
 
     /// <summary>
-    /// 把场景里已有的白色 Plane 变为半透明棕色
+    /// 将 Plane 转换为黄色随机漂移粒子容器
     /// </summary>
     void MakePlaneBrown()
     {
@@ -74,30 +74,15 @@ public class TreeSceneSetup : MonoBehaviour
         {
             if (mr.gameObject.name.Contains("Plane"))
             {
-                Material brownMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                if (brownMat == null) brownMat = new Material(Shader.Find("Standard"));
-
-                Color darkColor = new Color(0.0f, 0.0f, 0.0f, 0.25f); // 纯黑
-                brownMat.SetFloat("_Surface", 1f); 
-                brownMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                brownMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                brownMat.SetInt("_ZWrite", 0);
-                brownMat.renderQueue = 3000;
-                brownMat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-
-                // ★ 深度净化：彻底关闭高光和反射
-                brownMat.SetFloat("_Smoothness", 0f);
-                brownMat.SetFloat("_Metallic", 0f);
-                brownMat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
-                brownMat.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
-                brownMat.SetFloat("_SpecularHighlights", 0f);
-                brownMat.SetFloat("_EnvironmentReflections", 0f);
-
-                brownMat.SetColor("_BaseColor", darkColor);
-                brownMat.color = darkColor;
-
-                mr.material = brownMat;
-                mr.enabled = true;
+                // 挂载粒子控制器
+                GroundParticleController controller = mr.gameObject.GetComponent<GroundParticleController>();
+                if (controller == null) controller = mr.gameObject.AddComponent<GroundParticleController>();
+                
+                // 设置森林默认参数：黄色，随机移动
+                controller.mainColor = new Color(1.0f, 0.75f, 0.2f, 0.8f);
+                controller.mode = GroundParticleController.MovementMode.TreeRandom;
+                controller.particleDensity = 60f;
+                controller.particleSize = 0.04f;
             }
         }
     }
