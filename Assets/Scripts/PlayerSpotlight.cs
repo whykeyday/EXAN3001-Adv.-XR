@@ -2,18 +2,18 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家脚下渐变自发光光晕：跟随 XR 摄像机的 XZ 位置。
-/// 使用 SpriteRenderer 保证 100% 圆形，消除方格。
-/// 已修复：高度检测逻辑，确保光圈不会浮在空中。
+/// 使用 Additive 模式 (黑色 = 透明)，彻底解决白框问题。
+/// 已优化：海洋探测（从胸部向下），尺寸和亮度回正。
 /// </summary>
 public class PlayerSpotlight : MonoBehaviour
 {
-    [Header("Glow Settings")]
-    public Color lightColor = new Color(1.0f, 0.75f, 0.3f, 0.45f); // 琥珀色
-    public float glowRadius = 1.0f;
-    public float glowIntensity = 1.5f; 
-    public float groundOffset = 0.012f;
+    [Header("Glow Aesthetics")]
+    public Color lightColor = new Color(1.0f, 0.7f, 0.25f, 1.0f); // 琥珀色 (Additive 下 Alpha 建议为 1)
+    public float glowRadius = 0.85f;      
+    public float glowIntensity = 1.0f; 
+    public float groundOffset = 0.015f;
 
-    [Header("Follow")]
+    [Header("Follow Settings")]
     public Transform followTarget;
 
     private SpriteRenderer glowRenderer;
@@ -24,17 +24,16 @@ public class PlayerSpotlight : MonoBehaviour
     void Start()
     {
         CreateGlowSprite();
-        // 初始高度强制为 0
-        lastValidGroundY = 0f;
+        lastValidGroundY = transform.position.y - 1.6f;
     }
 
     void CreateGlowSprite()
     {
-        GameObject glowObj = new GameObject("GroundGlow_Sprite");
+        GameObject glowObj = new GameObject("GroundGlow_ZeroFailure");
         glowObj.transform.SetParent(transform, false);
         glowRenderer = glowObj.AddComponent<SpriteRenderer>();
         
-        int texSize = 256; 
+        int texSize = 128; 
         Texture2D tex = new Texture2D(texSize, texSize, TextureFormat.RGBA32, false);
         tex.wrapMode = TextureWrapMode.Clamp;
 
@@ -47,26 +46,41 @@ public class PlayerSpotlight : MonoBehaviour
                 float dy = (y - center) / (center);
                 float dist = Mathf.Sqrt(dx * dx + dy * dy);
 
+                // ★ 叠加混合逻辑：背景必须是纯黑色 (0,0,0,0)
                 float falloff = Mathf.Exp(-dist * dist * 10f); 
-                float alpha = Mathf.Clamp01(falloff);
-                if (dist > 0.85f) alpha *= Mathf.Clamp01((1.0f - dist) / 0.15f);
-                if (dist > 0.99f) alpha = 0f;
+                float brightness = Mathf.Clamp01(falloff);
+                if (dist > 0.85) brightness *= Mathf.Clamp01((1.0f - dist) / 0.15f);
+                if (dist > 0.99f) brightness = 0f;
 
-                tex.SetPixel(x, y, new Color(1, 1, 1, alpha));
+                // 使用琥珀色预乘，Additive 模式下，黑色即透明
+                Color finalC = lightColor * brightness * glowIntensity;
+                finalC.a = 1.0f; // Additive 混合下 Alpha 通常设为 1
+                tex.SetPixel(x, y, finalC);
             }
         }
         tex.Apply();
 
         generatedSprite = Sprite.Create(tex, new Rect(0, 0, texSize, texSize), new Vector2(0.5f, 0.5f), 100f);
         glowRenderer.sprite = generatedSprite;
-        glowObj.transform.localScale = Vector3.one * (glowRadius * 2.0f);
+        glowObj.transform.localScale = Vector3.one * (glowRadius * 2.5f);
         glowObj.transform.localRotation = Quaternion.Euler(90, 0, 0);
 
-        Shader s = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
+        // ★ 给 URP 用的确定性 Additive 混合方法
+        Shader s = Shader.Find("Universal Render Pipeline/Unlit");
         if (s == null) s = Shader.Find("Sprites/Default");
-        glowRenderer.material = new Material(s);
-        glowRenderer.color = lightColor * glowIntensity;
-        glowRenderer.sortingOrder = 5;
+        
+        Material mat = new Material(s);
+        // 关键：强制改为 Additive 混合 (One / One)
+        // 这种模式下，Shader 不看 Alpha 通道，只看颜色。黑色 = 100% 透明，完全解决白方块。
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        mat.SetInt("_ZWrite", 0);
+        if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1); // Transparent
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white); // 贴图已自带颜色
+
+        glowRenderer.material = mat;
+        glowRenderer.color = Color.white; 
+        glowRenderer.sortingOrder = 1000; // 海洋最顶层
     }
 
     void LateUpdate()
@@ -79,41 +93,38 @@ public class PlayerSpotlight : MonoBehaviour
             if (followTarget == null) return;
         }
 
-        // ★ 核心改进：计算排除层级（排除玩家、手部、IgnoreRaycast等）
-        int playerLayer = LayerMask.NameToLayer("Player");
-        int handLayer = LayerMask.NameToLayer("GrabInteractor");
-        int uiLayer = LayerMask.NameToLayer("UI");
-        
-        // 构造一个包含这些“干扰项”的 Mask
-        int ignoreMask = (1 << 2); // 默认忽略 Ignore Raycast 层
-        if (playerLayer != -1) ignoreMask |= (1 << playerLayer);
-        if (handLayer != -1) ignoreMask |= (1 << handLayer);
-        if (uiLayer != -1) ignoreMask |= (1 << uiLayer);
-
-        // 使用 ~ 取反：检测除 ignoreMask 以外的所有物体 (包括 Default, Ground 等)
-        Vector3 rayStart = followTarget.position + Vector3.up * 1.0f;
+        // ★ 核心改进：射线的起点设在胸部下方 (Camera 往下 0.6m)
+        // 这会跳过你头顶的海平面 Plane，直接刺向脚底的沙滩
+        Vector3 rayStart = followTarget.position + Vector3.down * 0.6f;
         float targetY = lastValidGroundY;
 
-        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 15f, ~ignoreMask))
+        // 排除干扰层级
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int ignoreMask = (1 << 2) | (1 << 5); // Ignore Raycast & UI
+        if (playerLayer != -1) ignoreMask |= (1 << playerLayer);
+
+        // 使用普通的 Raycast，但在胸部以下探测
+        if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 30f, ~ignoreMask))
         {
             targetY = hit.point.y + groundOffset;
             lastValidGroundY = targetY;
         }
         else
         {
-            // 如果连这都扫不到地板，尝试寻找场景最低点作为兜底，绝不回到眼睛高度
-            targetY = lastValidGroundY; 
+            // 海底兜底高度：相机下方 1.7 米
+            targetY = followTarget.position.y - 1.7f; 
         }
 
-        // 维持脚底高度
         float currentY = (glowRenderer != null) ? glowRenderer.transform.position.y : lastValidGroundY;
-        float smoothY = Mathf.SmoothDamp(currentY, targetY, ref currentYVelocity, 0.05f);
+        // 顺滑移动
+        float smoothY = Mathf.SmoothDamp(currentY, targetY, ref currentYVelocity, 0.08f);
         
         Vector3 targetPos = new Vector3(followTarget.position.x, smoothY, followTarget.position.z);
         if (glowRenderer != null)
         {
             glowRenderer.transform.position = targetPos;
-            glowRenderer.transform.rotation = Quaternion.Euler(90, 0, 0);
+            glowRenderer.transform.rotation = Quaternion.identity; 
+            glowRenderer.transform.Rotate(90, 0, 0); // 确保平铺在地板上
         }
     }
 
