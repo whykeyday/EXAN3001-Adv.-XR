@@ -64,11 +64,11 @@ public class ParticleTreeHealer : MonoBehaviour
 
     [Header("====== Butterfly & Bird Settings (手动调整) ======")]
     [Tooltip("蝴蝶单只尺寸（如果你觉得蝴蝶太大，请把这里调小，建议 0.005-0.02）")]
-    public float butterflySize = 0.012f;
+    public float butterflySize = 0.006f;
     [Tooltip("最少同时出现的蝴蝶数量")]
-    public int minButterflyCount = 6;
+    public int minButterflyCount = 8;
     [Tooltip("最多同时出现的蝴蝶数量")]
-    public int maxButterflyCount = 9;
+    public int maxButterflyCount = 12;
     [Tooltip("鸟叫声最小间隔(秒)")]
     public float minBirdInterval = 6f;
     [Tooltip("鸟叫声最大间隔(秒)")]
