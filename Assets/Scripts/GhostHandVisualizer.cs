@@ -4,33 +4,23 @@ using UnityEngine.XR.Management;
 using System.Collections.Generic;
 
 /// <summary>
-/// Ghost hand visualizer with PlayerHand tagged fingertip colliders.
-/// When controllers are put down, ghost hands appear and their fingertips
-/// have trigger colliders for scene interaction (trees, cats, fish etc.)
+/// Tube Hand Version with Aggressive Hiding.
+/// Ensures standard controllers are hidden in ALL scenes automatically.
 /// </summary>
-
 public class GhostHandVisualizer : MonoBehaviour
 {
     public XRHandSubsystem handSubsystem;
     
     [Header("Visual Settings")]
     public Material handMaterial; 
-    public float handRadius = 0.012f; // 从 3.5cm 降为 1.2cm (苗条感)
-    public float handScale = 1.0f;    // 还原真人比例 (不再臃肿)
+    public float handRadius = 0.012f; 
+    public float handScale = 1.0f;    
 
-    [Header("Icons (UI 反馈)")]
-    public GameObject leftHandIcon;
-    public GameObject rightHandIcon;
-    public GameObject leftControllerIcon;
-    public GameObject rightControllerIcon;
+    [Header("Hiding (Auto-finds if null)")]
+    public List<GameObject> manualHideList = new List<GameObject>();
 
     [Header("Tracking")]
-    [Tooltip("如果为空，自动寻找 XR Origin")]
     public Transform xrOrigin;
-
-    [Header("Controller Visuals")]
-    public GameObject leftControllerVisual;
-    public GameObject rightControllerVisual;
 
     private class HandVisuals
     {
@@ -58,6 +48,12 @@ public class GhostHandVisualizer : MonoBehaviour
         
         leftHandVisuals = CreateHandVisuals("LeftHandTube");
         rightHandVisuals = CreateHandVisuals("RightHandTube");
+
+        if (xrOrigin == null)
+        {
+            var origin = FindObjectOfType<Unity.XR.CoreUtils.XROrigin>();
+            if (origin != null) xrOrigin = origin.transform;
+        }
     }
 
     void CreateMaterial()
@@ -66,21 +62,16 @@ public class GhostHandVisualizer : MonoBehaviour
         {
             Shader s = Shader.Find("Universal Render Pipeline/Unlit");
             if (s == null) s = Shader.Find("Sprites/Default"); 
-
             if (s != null)
             {
                 handMaterial = new Material(s);
-                // 极致透明感：0.15 Alpha
-                Color ghostColor = new Color(1f, 1f, 1f, 0.15f);
+                Color ghostColor = new Color(0.4f, 0.7f, 1f, 0.2f);
                 handMaterial.SetColor("_BaseColor", ghostColor);
                 handMaterial.color = ghostColor;
-                
-                // 开启透明混合
                 handMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 handMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 handMaterial.SetInt("_ZWrite", 0);
                 handMaterial.renderQueue = 3000;
-                handMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             }
         }
     }
@@ -90,8 +81,6 @@ public class GhostHandVisualizer : MonoBehaviour
         HandVisuals visuals = new HandVisuals();
         visuals.root = new GameObject(name);
         visuals.root.transform.parent = transform;
-        visuals.root.transform.localPosition = Vector3.zero;
-        visuals.root.transform.localScale = Vector3.one;
 
         for (int i = 0; i < 5; i++)
         {
@@ -101,113 +90,102 @@ public class GhostHandVisualizer : MonoBehaviour
             LineRenderer lr = fingerObj.AddComponent<LineRenderer>();
             lr.useWorldSpace = true;
             lr.startWidth = handRadius * 2f; 
-            lr.endWidth = handRadius * 1.5f; // 指尖稍微更尖一点
+            lr.endWidth = handRadius * 1.5f; 
             lr.material = handMaterial;
             lr.positionCount = 5;
             lr.numCapVertices = 8;
-            lr.numCornerVertices = 8;
             lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            
             visuals.fingers.Add(lr);
 
-            GameObject tipObj = new GameObject($"Fingertip_{i}");
+            GameObject tipObj = new GameObject($"Tip_{i}");
             tipObj.transform.parent = fingerObj.transform;
-            tipObj.tag = "PlayerHand"; // 必须有此 Tag
+            tipObj.tag = "HandFingertip"; // 交互标签
+            tipObj.layer = 2; // Ignore Raycast
             
-            SphereCollider tipCol = tipObj.AddComponent<SphereCollider>();
-            tipCol.isTrigger = true;
-            tipCol.radius = handRadius * 1.2f; 
+            var col = tipObj.AddComponent<SphereCollider>();
+            col.isTrigger = true;
+            col.radius = handRadius * 1.5f; 
             
-            Rigidbody tipRb = tipObj.AddComponent<Rigidbody>();
-            tipRb.isKinematic = true;
-            tipRb.useGravity = false;
+            var rb = tipObj.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
             
+            // 绑定交互触发器
+            var trigger = tipObj.AddComponent<HandTriggerFeedback>();
             visuals.fingertipColliders.Add(tipObj);
         }
-
         return visuals;
     }
 
     void GetHandSubsystem()
     {
-        var subsystems = new List<XRHandSubsystem>();
-        SubsystemManager.GetInstances(subsystems);
-        if (subsystems.Count > 0) handSubsystem = subsystems[0];
-    }
-
-    bool IsControllerTracked(UnityEngine.XR.XRNode node)
-    {
-        var devices = new List<UnityEngine.XR.InputDevice>();
-        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(node, devices);
-        foreach (var device in devices)
-        {
-            if (device.isValid && (device.characteristics & UnityEngine.XR.InputDeviceCharacteristics.Controller) != 0)
-                return true;
-        }
-        return false;
+        var subs = new List<XRHandSubsystem>();
+        SubsystemManager.GetInstances(subs);
+        if (subs.Count > 0) handSubsystem = subs[0];
     }
 
     void Update()
     {
-        bool leftCtrlActive = IsControllerTracked(UnityEngine.XR.XRNode.LeftHand);
-        bool rightCtrlActive = IsControllerTracked(UnityEngine.XR.XRNode.RightHand);
-
-        if (leftControllerVisual != null) leftControllerVisual.SetActive(leftCtrlActive);
-        if (rightControllerVisual != null) rightControllerVisual.SetActive(rightCtrlActive);
-
-        // UI 图标逻辑
-        if (leftHandIcon != null) leftHandIcon.SetActive(!leftCtrlActive);
-        if (rightHandIcon != null) rightHandIcon.SetActive(!rightCtrlActive);
-        if (leftControllerIcon != null) leftControllerIcon.SetActive(leftCtrlActive);
-        if (rightControllerIcon != null) rightControllerIcon.SetActive(rightCtrlActive);
-
-        if (xrOrigin == null)
-        {
-            GameObject originObj = GameObject.Find("XR Origin");
-            if (originObj == null) originObj = GameObject.Find("XR Rig");
-            if (originObj != null) xrOrigin = originObj.transform;
-        }
+        // 强力隐藏旧模型
+        KillOldVisuals();
 
         if (handSubsystem != null)
         {
-            UpdateHand(handSubsystem.leftHand, leftHandVisuals, !leftCtrlActive);
-            UpdateHand(handSubsystem.rightHand, rightHandVisuals, !rightCtrlActive);
+            UpdateHand(handSubsystem.leftHand, leftHandVisuals);
+            UpdateHand(handSubsystem.rightHand, rightHandVisuals);
         }
     }
 
-    void UpdateHand(XRHand hand, HandVisuals visuals, bool allowHand)
+    void KillOldVisuals()
     {
-        if (!allowHand || !hand.isTracked)
+        foreach (var obj in manualHideList) if (obj != null) obj.SetActive(false);
+        
+        var controllers = FindObjectsOfType<UnityEngine.XR.Interaction.Toolkit.ActionBasedController>();
+        foreach (var ctrl in controllers)
         {
-            visuals.root.SetActive(false);
-            return;
-        }
-
-        visuals.root.SetActive(true);
-
-        for (int i = 0; i < 5; i++)
-        {
-            LineRenderer lr = visuals.fingers[i];
-            XRHandJointID[] chain = fingerChains[i];
-            
-            lr.startWidth = handRadius * 2f;
-            lr.endWidth = handRadius * 1.5f;
-
-            for (int k = 0; k < chain.Length; k++)
+            foreach (Transform child in ctrl.transform)
             {
-                var joint = hand.GetJoint(chain[k]);
-                if (joint.TryGetPose(out Pose pose))
+                string n = child.name.ToLower();
+                if ((n.Contains("visual") || n.Contains("model") || n.Contains("hand")) && !n.Contains("ray"))
                 {
-                    // 坐标转换到 XR Origin 空间保持跟随
-                    Vector3 worldPos = xrOrigin != null ? xrOrigin.TransformPoint(pose.position) : pose.position;
-                    lr.SetPosition(k, worldPos);
-
-                    if (k == chain.Length - 1 && i < visuals.fingertipColliders.Count)
-                    {
-                        visuals.fingertipColliders[i].transform.position = worldPos;
-                    }
+                    if (child.gameObject.activeSelf) child.gameObject.SetActive(false);
                 }
             }
         }
+    }
+
+    void UpdateHand(XRHand hand, HandVisuals visuals)
+    {
+        bool tracked = hand.isTracked;
+        visuals.root.SetActive(tracked);
+        if (!tracked) return;
+
+        for (int i = 0; i < 5; i++)
+        {
+            XRHandJointID[] chain = fingerChains[i];
+            for (int k = 0; k < chain.Length; k++)
+            {
+                if (hand.GetJoint(chain[k]).TryGetPose(out Pose pose))
+                {
+                    Vector3 worldPos = xrOrigin != null ? xrOrigin.TransformPoint(pose.position) : pose.position;
+                    visuals.fingers[i].SetPosition(k, worldPos);
+                    if (k == chain.Length - 1) visuals.fingertipColliders[i].transform.position = worldPos;
+                }
+            }
+        }
+    }
+}
+
+// 交互桥梁
+public class HandTriggerFeedback : MonoBehaviour
+{
+    void OnTriggerEnter(Collider other)
+    {
+        other.GetComponent<TreeHealer>()?.ReceiveTouch();
+        other.GetComponent<CatInteract>()?.ReceiveTouch();
+    }
+    void OnTriggerStay(Collider other)
+    {
+        other.GetComponent<TreeHealer>()?.ReceiveTouch();
+        other.GetComponent<CatInteract>()?.ReceiveTouch();
     }
 }

@@ -209,4 +209,14 @@ public class CatInteract : MonoBehaviour
         purrLevel = 0f;
         ApplyPurrEffects(0f);
     }
+
+    /// <summary>
+    /// Called by external triggers (like Ghost Hand fingertips) to simulate petting.
+    /// </summary>
+    public void ReceiveTouch()
+    {
+        purrLevel += purrBuildupRate * Time.deltaTime;
+        purrLevel = Mathf.Clamp01(purrLevel);
+        ApplyPurrEffects(purrLevel);
+    }
 }
