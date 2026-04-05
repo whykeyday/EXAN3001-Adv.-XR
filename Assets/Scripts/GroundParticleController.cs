@@ -197,7 +197,8 @@ public class GroundParticleController : MonoBehaviour
 
     private Material CreateStyleMaterial(ParticleStyle s, Color color)
     {
-        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        // ★ 必须使用专门的 Particles/Lit，普通的 URP/Lit 会无视粒子的自身颜色，导致马卡龙色全失效！
+        Shader shader = Shader.Find("Universal Render Pipeline/Particles/Lit");
         if (shader == null) shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
         if (shader == null) shader = Shader.Find("Standard");
 
