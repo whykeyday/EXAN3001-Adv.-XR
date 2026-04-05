@@ -6039,14 +6039,15 @@ MonoBehaviour:
   aliveParticleRate: 5000
   maxParticleLimit: 20000
   healLingerDuration: 60
-  healingRate: 0.05
+  healingRate: 0.7
   decayRate: 0.124
   energyLevel: 0.333
   birdAudioClip: {fileID: 8300000, guid: c6d464537e095f7408ee9d03c56b7be2, type: 3}
   birdVolume: 0.037
   magicHealClip: {fileID: 8300000, guid: 0c087b88251e6f14e9e07303955c3841, type: 3}
-  minButterflyCount: 10
-  maxButterflyCount: 15
+  butterflySize: 0.0006
+  minButterflyCount: 6
+  maxButterflyCount: 9
   minBirdInterval: 6
   maxBirdInterval: 9
   birdFarDistance: 4
