@@ -44,21 +44,6 @@ public class SceneAssembler : MonoBehaviour
     private int currentSceneIndex = -1;
     private List<ParticleSystem> currentSceneParticles = new List<ParticleSystem>();
 
-    private void Start()
-    {
-        // ★ 核心灯光救援：强制写入基础环境光，防止任何模型因为背光变成黑炭/暗蓝色！
-        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.7f, 0.7f, 0.75f); // 极亮的灰白天空光
-
-        // 强制在前侧补一盏人造太阳光来照亮碎片和里面的树、猫的正面
-        GameObject hackLight = new GameObject("Auto_Fill_Light");
-        Light l = hackLight.AddComponent<Light>();
-        l.type = LightType.Directional;
-        l.color = new Color(1f, 0.95f, 0.9f); // 温暖阳光
-        l.intensity = 1.2f;
-        hackLight.transform.rotation = Quaternion.Euler(30f, 180f, 0f); // 强制往屏幕方向斜照
-    }
-
     // ============ PUBLIC API ============
 
     /// <summary>
