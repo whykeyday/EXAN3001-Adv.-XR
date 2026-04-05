@@ -50,7 +50,7 @@ public class ParticleTreeHealer : MonoBehaviour
     public float healLingerDuration = 60f;
     private float healLingerTimer = 0f;
 
-    [Range(0.01f, 1f)] public float healingRate = 0.05f;
+    [Range(0.01f, 10f)] public float healingRate = 0.5f; // ★ 调高上限，允许像以前一样“秒开”
     [Range(0.01f, 1f)] public float decayRate = 0.02f;
     [Range(0, 1)] public float energyLevel = 0f;
 
@@ -63,6 +63,8 @@ public class ParticleTreeHealer : MonoBehaviour
     public AudioClip magicHealClip;
 
     [Header("====== Butterfly & Bird Settings (手动调整) ======")]
+    [Tooltip("蝴蝶单只尺寸（如果你觉得蝴蝶太大，请把这里调小，建议 0.005-0.02）")]
+    public float butterflySize = 0.012f;
     [Tooltip("最少同时出现的蝴蝶数量")]
     public int minButterflyCount = 6;
     [Tooltip("最多同时出现的蝴蝶数量")]
@@ -155,12 +157,14 @@ public class ParticleTreeHealer : MonoBehaviour
             magicHealAudio.clip = magicHealClip;
             // ★ 修改为 2D 贴耳音效，防止树干中心太远导致原生的 3D 衰减让你听不见
             magicHealAudio.spatialBlend = 0f; 
-            magicHealAudio.loop = true;
+            // ★ 关闭循环，只响一次
+            magicHealAudio.loop = false;
             magicHealAudio.playOnAwake = false;
             magicHealAudio.ignoreListenerPause = true; 
             magicHealAudio.volume = 0f; 
+
             // 不再后台悄悄播放，依靠触摸瞬间触发 Play()
-            Debug.Log($"[TreeAudio] Magic audio created. Clip: {magicHealClip.name}, magicVolume: {magicVolume}");
+            Debug.Log($"[TreeAudio] Magic audio created. Clip: {magicHealClip.name}");
         }
 
         // ★ 强行覆盖 Inspector 中可能残留的旧参数，确保本次更新立即生效！！
@@ -222,10 +226,8 @@ public class ParticleTreeHealer : MonoBehaviour
         canopyMaxHeight = Mathf.Max(wMaxY, aMaxY);
         trunkHeightThreshold = wMinY + (wMaxY - wMinY) * 0.45f;
 
-        // 强行修正 UX 体验数值，完全遵循交互逻辑
-        healingRate = 0.4f; // 2.5秒完全治愈
-        healLingerDuration = 5.0f; // 离开手后 5 秒便开始衰退
-        decayRate = 0.5f;  // 2秒衰退为枯树（走远后很快恢复枯木）
+        // 面板变量现已彻底生效，不再使用代码强制覆盖
+        // 用户可以在 Inspector 中自由调整 healLingerDuration 等自然衰老时间
 
         // 1. 强力清理旧状态：隐藏所有 MeshRenderer（我们只需要纯粒子！）
         var meshRenderers = GetComponentsInChildren<MeshRenderer>();
@@ -451,36 +453,43 @@ public class ParticleTreeHealer : MonoBehaviour
         GameObject bf = new GameObject("Butterfly_PS");
         bf.transform.SetParent(transform, false);
         bf.transform.localPosition = Vector3.zero;
-        bf.transform.localScale = Vector3.one; 
-        
+        bf.transform.localScale = Vector3.one;
+
         butterfliesPS = bf.AddComponent<ParticleSystem>();
         var bMain = butterfliesPS.main;
         bMain.loop = true;
-        bMain.startLifetime = new ParticleSystem.MinMaxCurve(6f, 12f); 
-        bMain.startSpeed = 0f; 
-        bMain.startSize = new ParticleSystem.MinMaxCurve(0.0003f, 0.0008f); 
-        bMain.simulationSpace = ParticleSystemSimulationSpace.World;
+        bMain.startLifetime = new ParticleSystem.MinMaxCurve(8f, 15f); // 延长寿命，让缓慢飞舞时间更长
+        bMain.startSpeed = 0f;
+        // ★ 核心修复 1：使用面板变量控制尺寸。如果以前特别大，是因为 scalingMode 继承了树的巨大缩放。
+        bMain.startSize = butterflySize;
+        bMain.simulationSpace = ParticleSystemSimulationSpace.World; // ★ 改为 World 空间，相对玩家头部
         bMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        bMain.maxParticles = maxButterflyCount; // ★ 通过面板调整最大蝴蝶数 (目前要求 6-9)
+        bMain.maxParticles = maxButterflyCount;
 
         var bShape = butterfliesPS.shape;
-        bShape.shapeType = ParticleSystemShapeType.Box; 
-        float treeH = aMaxY - aMinY;
-        bShape.position = Vector3.up * ((aMinY + aMaxY) / 2f); // 回归到居中树木位置
-        bShape.scale = new Vector3(treeH * 0.8f, treeH * 0.8f, treeH * 0.8f); // 一个中等大小的立方体区域
-        
+        bShape.shapeType = ParticleSystemShapeType.Box;
+
+        // ★ 新逻辑：相对玩家头部到树冠的范围
+        float treeBase = witheredMesh.bounds.min.y;
+        float treeTop = witheredMesh.bounds.max.y;
+        float h = treeTop - treeBase;
+
+        // 发射位置从玩家头顶（约 1.7m）开始，到树冠为止
+        bShape.position = new Vector3(0, treeBase + h * 0.6f, 0);
+        bShape.scale = new Vector3(h * 0.6f, h * 0.4f, h * 0.6f); // 较小范围，限制在树冠区域
+
         var bVel = butterfliesPS.velocityOverLifetime;
         bVel.enabled = true;
-        // ★ 增加随机游荡速度，取消过于生硬的轨道旋转
-        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.1f, 0.1f); 
-        bVel.x = new ParticleSystem.MinMaxCurve(-0.5f / s, 0.5f / s); 
-        bVel.y = new ParticleSystem.MinMaxCurve(-0.3f / s, 0.3f / s); // 轻微上下浮动
-        bVel.z = new ParticleSystem.MinMaxCurve(-0.5f / s, 0.5f / s);
+        // ★ 大幅降低速度：徐徐飞舞
+        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.05f, 0.05f); // 减半
+        bVel.x = new ParticleSystem.MinMaxCurve(-0.15f / s, 0.15f / s); // 降低70%
+        bVel.y = new ParticleSystem.MinMaxCurve(0.08f / s, 0.15f / s); // 缓缓向上飞，降低70%
+        bVel.z = new ParticleSystem.MinMaxCurve(-0.15f / s, 0.15f / s); // 降低70%
 
         var bNoise = butterfliesPS.noise;
         bNoise.enabled = true;
-        bNoise.strength = 1.0f; // ★ 加入强的 Noise 让其飞行路线更加自然，像真实的蝴蝶
-        bNoise.frequency = 0.2f;
+        bNoise.strength = 0.6f; // 降低噪声强度，飞舞更平稳
+        bNoise.frequency = 0.15f; // 降低频率，飞舞更缓
 
         var bColList = butterfliesPS.colorOverLifetime;
         bColList.enabled = true;
@@ -725,12 +734,13 @@ public class ParticleTreeHealer : MonoBehaviour
         }
 
         var bEmis = butterfliesPS.emission;
-        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 1.0f : 0f; // ★ 稍微提高发射速率，以满足存活要求
+        // ★ 治愈过半即开始出现
+        bEmis.rateOverTime = (energyLevel >= 0.5f) ? 2.0f : 0f; 
         
-        if (butterfliesPS != null && energyLevel >= 0.95f && Time.frameCount % 60 == 0) 
+        if (butterfliesPS != null && energyLevel >= 0.5f && Time.frameCount % 60 == 0) 
         {
             var bMain = butterfliesPS.main;
-            bMain.maxParticles = Random.Range(minButterflyCount, maxButterflyCount + 1); // 随机化上限 6-9 之间！
+            bMain.maxParticles = Random.Range(minButterflyCount, maxButterflyCount + 1);
         }
     }
 
