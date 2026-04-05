@@ -181,11 +181,17 @@ public class GroundParticleController : MonoBehaviour
             UpdateStyleAndMovement();
         }
 
-        if (psr != null && psr.material != null && (!useMultiColor)) {
-            // 单色模式下的材质颜色覆盖
+        if (psr != null && psr.material != null) {
+            // 当启用多色时，必须把材质本体的底色洗白，否则原来的 MainColor 会像滤镜一样把所有颜色染没！
+            Color matTint = useMultiColor ? Color.white : mainColor;
             float alpha = (visualStyle == ParticleStyle.SoftTranslucent) ? 0.3f : 0.6f;
-            psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
-            psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
+            
+            psr.material.SetColor("_BaseColor", new Color(matTint.r, matTint.g, matTint.b, alpha));
+            psr.material.SetColor("_Color", new Color(matTint.r, matTint.g, matTint.b, alpha));
+            
+            if (visualStyle == ParticleStyle.GlowingSphere) {
+                psr.material.SetColor("_EmissionColor", matTint * 1.5f);
+            }
         }
     }
 
@@ -231,7 +237,7 @@ public class GroundParticleController : MonoBehaviour
     {
         Gradient g = new Gradient();
         g.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(Color.yellow, 0.3f), new GradientColorKey(Color.cyan, 0.6f), new GradientColorKey(Color.white, 1f) },
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) }, // ★ 必须全白，否则会吃掉你配置的马卡龙色！
             new GradientAlphaKey[] { new GradientAlphaKey(0.05f, 0), new GradientAlphaKey(1, 0.5f), new GradientAlphaKey(0.05f, 1) }
         );
         return g;
