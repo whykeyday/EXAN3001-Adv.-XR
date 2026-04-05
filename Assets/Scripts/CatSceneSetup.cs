@@ -25,6 +25,8 @@ public class CatSceneSetup : MonoBehaviour
 
     [Header("2. Murdered Soul Suspect Cat (Auto 5s Anim)")]
     public Transform murderedCatModel;
+    [Tooltip("拖入沙发猫的喵叫音频（将自动按3-4秒间隔触发）")]
+    public AudioClip sofaCatAudio;
 
     [Header("3. Toon Cat Free (Purr + Anim on Touch)")]
     public Transform toonCatModel;
@@ -315,12 +317,22 @@ public class CatSceneSetup : MonoBehaviour
             AttachForwarders(blackCatModel, rec);
         }
 
-        // 2. 灵魂疑犯猫 (死循环脚本)
+        // 2. 灵魂疑犯猫 (自动播放动画 + 定点间隔猫叫)
         if (murderedCatModel != null)
         {
             EnsureColliderAndRigidBody(murderedCatModel);
             murderedCatModel.gameObject.AddComponent<SofaCatForeverLooper>();
             
+            // 全自动 3-4 秒间隔猫叫控制权
+            if (sofaCatAudio != null)
+            {
+                AudioSource src = CreateAudioSource(murderedCatModel, sofaCatAudio, false);
+                src.minDistance = 0.5f; 
+                src.maxDistance = 5.0f;
+                CatAutoMeower meower = murderedCatModel.gameObject.AddComponent<CatAutoMeower>();
+                meower.audioSource = src;
+            }
+
             CatTouchReceiver rec = murderedCatModel.gameObject.AddComponent<CatTouchReceiver>();
             rec.catRole = CatTouchReceiver.CatRole.Purr;
             AttachForwarders(murderedCatModel, rec);
@@ -749,5 +761,35 @@ public class CampfireInteraction : MonoBehaviour
     void IgniteFireplace()
     {
         currentFireIntensity = 1.0f;
+    }
+}
+
+/// <summary>
+/// 全自动间歇猫咪呼叫发生器（提供 3~4 秒随机间隔的叫声，独立于触摸系统）
+/// </summary>
+public class CatAutoMeower : MonoBehaviour
+{
+    public AudioSource audioSource;
+    private float nextMeowTime;
+
+    void Start()
+    {
+        nextMeowTime = Time.time + Random.Range(3.0f, 4.0f);
+        if (audioSource != null)
+        {
+            audioSource.loop = false; // 取消自带的死循环
+            audioSource.Stop();       // 停止初始化播放
+        }
+    }
+
+    void Update()
+    {
+        if (audioSource == null || audioSource.clip == null) return;
+        
+        if (Time.time > nextMeowTime)
+        {
+            audioSource.PlayOneShot(audioSource.clip);
+            nextMeowTime = Time.time + Random.Range(3.0f, 4.0f); // 刷新下一次触发时间在 3~4 秒之后
+        }
     }
 }
