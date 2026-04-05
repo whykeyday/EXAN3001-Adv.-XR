@@ -15,6 +15,12 @@ public class ShardInteraction : MonoBehaviour
     [Tooltip("Color tint on hover (additive)")]
     public Color hoverTint = new Color(0.2f, 0.2f, 0.2f, 0f);
 
+    [Header("Portal Color Settings (碎片颜色定制)")]
+    [Tooltip("为这块水晶碎片染上专属的马卡龙色！默认白色代表保持原本的冰蓝色。")]
+    public Color portalColor = Color.white;
+    [Tooltip("水晶基础发光强度")]
+    public float baseEmissionStrength = 1.5f;
+
     private Vector3 originalScale;
     private Material[] materials;
     private Color[] originalEmissionColors;
@@ -75,6 +81,25 @@ public class ShardInteraction : MonoBehaviour
                     originalRimIntensities[i] = materials[i].GetFloat("_RimIntensity");
                 
                 materials[i].EnableKeyword("_EMISSION");
+
+                // ★ 全新功能：强制在这个阶段给水晶染上玩家自定的马卡龙色（覆盖原本的暗淡蓝冰）
+                if (portalColor != Color.white)
+                {
+                    if (materials[i].HasProperty("_BaseColor"))
+                    {
+                        Color tintedBase = originalBaseColors[i] * portalColor;
+                        materials[i].SetColor("_BaseColor", tintedBase);
+                        originalBaseColors[i] = tintedBase; // 更新基准色，确保 Hover 基于新颜色
+                    }
+
+                    if (materials[i].HasProperty("_EmissionColor"))
+                    {
+                        // 提取原本的亮度或强制给予一个基础亮度，并用选定的颜色渲染发光
+                        Color tintedEmission = portalColor * baseEmissionStrength;
+                        materials[i].SetColor("_EmissionColor", tintedEmission);
+                        originalEmissionColors[i] = tintedEmission; 
+                    }
+                }
             }
         }
 
