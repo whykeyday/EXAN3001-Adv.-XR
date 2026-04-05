@@ -2351,11 +2351,11 @@ MonoBehaviour:
   particleSizeMin: 0.002
   particleSizeMax: 0.12
   bloomBrightness: 2.5
-  colorStart: {r: 0.84134567, g: 0.5568628, b: 0.9607843, a: 1}
-  colorEnd: {r: 0.9265717, g: 0.019607842, b: 1, a: 1}
+  colorStart: {r: 0.62102866, g: 0.5568628, b: 0.9607843, a: 1}
+  colorEnd: {r: 0.3174062, g: 0.019607842, b: 1, a: 1}
   trailLifetime: 0.25
-  trailColorHead: {r: 0.8431373, g: 0.5568628, b: 0.9607844, a: 1}
-  trailColorTail: {r: 0.92549026, g: 0.019607844, b: 1, a: 0.70980394}
+  trailColorHead: {r: 0.61960787, g: 0.5568628, b: 0.9607844, a: 1}
+  trailColorTail: {r: 0.31764707, g: 0.019607844, b: 1, a: 0.70980394}
   dissolveMaterialTemplate: {fileID: 2100000, guid: 989b548d0813d234b8d95df2eb4ab169, type: 2}
 --- !u!199 &666406012
 ParticleSystemRenderer:
@@ -22474,7 +22474,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 2.2136741e-10, y: 1.2062874e+27, z: 718646.3, w: 6.829149e+22}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 2.67709e-17}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
