@@ -17,6 +17,9 @@ public class GroundParticleController : MonoBehaviour
     [Header("--- 2. Visual Style (视觉质感) ---")]
     public ParticleStyle visualStyle = ParticleStyle.MetallicGem;
     public Color mainColor = Color.white;
+    public bool useMultiColor = false;
+    [Tooltip("点击右下角的 + 或 - 号可以直接添加想要的单独颜色槽！最多同时支持 8 种不同颜色。每次发射粒子只会在这些里面纯随机挑。")]
+    public Color[] multiColorSlots = new Color[] { new Color(0f, 0.8f, 1f), new Color(1f, 0.6f, 0.8f) };
     [Range(0.001f, 0.3f)] public float particleSize = 0.045f;
     [Range(5f, 3000f)] public float particleDensity = 400f;
 
@@ -138,7 +141,34 @@ public class GroundParticleController : MonoBehaviour
         
         var main = ps.main;
         main.startSize = particleSize;
-        main.startColor = mainColor;
+        
+        if (useMultiColor && multiColorSlots != null && multiColorSlots.Length > 0)
+        {
+            // Unity 引擎底层限制一个颜色分布带最多存 8 种提取节点
+            int count = Mathf.Min(8, multiColorSlots.Length);
+            Gradient grad = new Gradient();
+            grad.mode = GradientMode.Fixed; // ★ 绝对不要渐变融合色，只要槽里装配的纯色！
+            
+            GradientColorKey[] colorKeys = new GradientColorKey[count];
+            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[count];
+            
+            for (int i = 0; i < count; i++)
+            {
+                // 强制把颜色槽均分铺开给粒子系统当词库抽签用
+                float t = (count == 1) ? 0f : ((float)i / (count - 1)); 
+                colorKeys[i] = new GradientColorKey(multiColorSlots[i], t);
+                alphaKeys[i] = new GradientAlphaKey(multiColorSlots[i].a, t);
+            }
+            grad.SetKeys(colorKeys, alphaKeys);
+
+            var minMax = new ParticleSystem.MinMaxGradient(grad);
+            minMax.mode = ParticleSystemGradientMode.RandomColor; 
+            main.startColor = minMax;
+        }
+        else
+        {
+            main.startColor = mainColor;
+        }
 
         var emission = ps.emission;
         emission.rateOverTime = particleDensity;
@@ -151,7 +181,8 @@ public class GroundParticleController : MonoBehaviour
             UpdateStyleAndMovement();
         }
 
-        if (psr != null && psr.material != null) {
+        if (psr != null && psr.material != null && (!useMultiColor)) {
+            // 单色模式下的材质颜色覆盖
             float alpha = (visualStyle == ParticleStyle.SoftTranslucent) ? 0.3f : 0.6f;
             psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
             psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));

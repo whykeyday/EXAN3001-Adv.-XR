@@ -25,6 +25,7 @@ public class CatSceneSetup : MonoBehaviour
 
     [Header("2. Murdered Soul Suspect Cat (Auto 5s Anim)")]
     public Transform murderedCatModel;
+    public AudioClip murderedCatAudio;
 
     [Header("3. Toon Cat Free (Purr + Anim on Touch)")]
     public Transform toonCatModel;
@@ -323,6 +324,7 @@ public class CatSceneSetup : MonoBehaviour
             
             CatTouchReceiver rec = murderedCatModel.gameObject.AddComponent<CatTouchReceiver>();
             rec.catRole = CatTouchReceiver.CatRole.Purr;
+            if (murderedCatAudio != null) rec.audioSource = CreateAudioSource(murderedCatModel, murderedCatAudio, true);
             AttachForwarders(murderedCatModel, rec);
         }
 
