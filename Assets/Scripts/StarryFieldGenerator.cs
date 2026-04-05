@@ -11,10 +11,6 @@ public class StarryFieldGenerator : MonoBehaviour
     // Size Logic: Medium is most common
     public float starSizeMin = 0.02f;
     public float starSizeMax = 0.6f; // User requested 0.6 max
-
-    [Header("Color Variations (马卡龙多色配置)")]
-    public bool useMultiColor = true;
-    public Color[] multiColorSlots = new Color[] { new Color(0f, 0.8f, 1f), new Color(1f, 0.6f, 0.8f), new Color(1f, 0.8f, 0.2f) };
     
     [Header("Exclusion Zones")]
     [Tooltip("Particles inside these areas will be removed.")]
@@ -111,37 +107,11 @@ public class StarryFieldGenerator : MonoBehaviour
         main.startSize = new ParticleSystem.MinMaxCurve(starSizeMax, sizeCurve);
 
         // EXTRA BRIGHTNESS: Use HDR color or full Alpha
-        if (useMultiColor && multiColorSlots != null && multiColorSlots.Length > 0)
-        {
-            int maxKeys = Mathf.Min(8, multiColorSlots.Length);
-            Gradient fixedGrad = new Gradient();
-            fixedGrad.mode = GradientMode.Fixed;
-
-            GradientColorKey[] gck = new GradientColorKey[maxKeys];
-            GradientAlphaKey[] gak = new GradientAlphaKey[maxKeys];
-
-            for (int i = 0; i < maxKeys; i++)
-            {
-                float t = (maxKeys == 1) ? 0f : ((float)i / (maxKeys - 1));
-                // Multiply by intensity for glow/bloom
-                Color boostColor = multiColorSlots[i] * 3.0f;
-                boostColor.a = 1.0f;
-                gck[i] = new GradientColorKey(boostColor, t);
-                gak[i] = new GradientAlphaKey(1.0f, t);
-            }
-            fixedGrad.SetKeys(gck, gak);
-            
-            var minMaxGrad = new ParticleSystem.MinMaxGradient(fixedGrad);
-            minMaxGrad.mode = ParticleSystemGradientMode.RandomColor;
-            main.startColor = minMaxGrad;
-        }
-        else
-        {
-            main.startColor = new ParticleSystem.MinMaxGradient(
-                new Color(1f, 1f, 1f, 0.6f) * 1.5f, // Dim stars
-                new Color(1f, 1f, 1f, 1.0f) * 3.0f  // Very bright stars
-            );
-        }
+        // Multiplied by intensity for Bloom
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(1f, 1f, 1f, 0.6f) * 1.5f, // Dim stars
+            new Color(1f, 1f, 1f, 1.0f) * 3.0f  // Very bright stars
+        );
         main.maxParticles = count;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.cullingMode = ParticleSystemCullingMode.Automatic;

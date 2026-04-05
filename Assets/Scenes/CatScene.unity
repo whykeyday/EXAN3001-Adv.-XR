@@ -134567,7 +134567,6 @@ MonoBehaviour:
   blackCatModel: {fileID: 1854359415}
   blackCatAggrAudio: {fileID: 8300000, guid: d7625e21157d45c4ba5064932564cca9, type: 3}
   murderedCatModel: {fileID: 1272770465}
-  murderedCatAudio: {fileID: 8300000, guid: ba90d85c0b5fe9044b06fbbe11a60315, type: 3}
   toonCatModel: {fileID: 1639619902}
   toonCatPurrAudio: {fileID: 8300000, guid: acbd758d3251b9e4faad40df6cb571ed, type: 3}
   fireSpeed: 0.1
