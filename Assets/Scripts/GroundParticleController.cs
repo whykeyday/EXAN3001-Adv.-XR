@@ -17,6 +17,9 @@ public class GroundParticleController : MonoBehaviour
     [Header("--- 2. Visual Style (视觉质感) ---")]
     public ParticleStyle visualStyle = ParticleStyle.MetallicGem;
     public Color mainColor = Color.white;
+    public bool useMultiColor = false;
+    [Tooltip("点击右下角的 + 号直接添加想要的单独颜色槽！最多同时支持 8 种颜色，粒子的生成会在这几个纯色里随机抽取。")]
+    public Color[] multiColorSlots = new Color[] { new Color(0f, 0.8f, 1f), new Color(1f, 0.6f, 0.8f) };
     [Range(0.001f, 0.3f)] public float particleSize = 0.045f;
     [Range(5f, 3000f)] public float particleDensity = 400f;
 
@@ -138,7 +141,33 @@ public class GroundParticleController : MonoBehaviour
         
         var main = ps.main;
         main.startSize = particleSize;
-        main.startColor = mainColor;
+        
+        if (useMultiColor && multiColorSlots != null && multiColorSlots.Length > 0)
+        {
+            int count = multiColorSlots.Length;
+            Gradient grad = new Gradient();
+            // 必须是 Fixed，保证粒子是实打实的纯色，不要渐变乱混色！
+            grad.mode = GradientMode.Fixed;
+            
+            GradientColorKey[] colorKeys = new GradientColorKey[count];
+            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[count];
+            
+            for (int i = 0; i < count; i++)
+            {
+                float t = (count == 1) ? 0f : ((float)i / (count - 1)); 
+                colorKeys[i] = new GradientColorKey(multiColorSlots[i], t);
+                alphaKeys[i] = new GradientAlphaKey(multiColorSlots[i].a, t);
+            }
+            grad.SetKeys(colorKeys, alphaKeys);
+
+            var minMax = new ParticleSystem.MinMaxGradient(grad);
+            minMax.mode = ParticleSystemGradientMode.RandomColor; 
+            main.startColor = minMax;
+        }
+        else
+        {
+            main.startColor = mainColor;
+        }
 
         var emission = ps.emission;
         emission.rateOverTime = particleDensity;
@@ -151,7 +180,7 @@ public class GroundParticleController : MonoBehaviour
             UpdateStyleAndMovement();
         }
 
-        if (psr != null && psr.material != null) {
+        if (psr != null && psr.material != null && (!useMultiColor)) {
             float alpha = (visualStyle == ParticleStyle.SoftTranslucent) ? 0.3f : 0.6f;
             psr.material.SetColor("_BaseColor", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
             psr.material.SetColor("_Color", new Color(mainColor.r, mainColor.g, mainColor.b, alpha));
@@ -160,7 +189,8 @@ public class GroundParticleController : MonoBehaviour
 
     private Material CreateStyleMaterial(ParticleStyle s, Color color)
     {
-        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        // ★ 核心底层修复：默认的 Lit 不兼容粒子的自身定色，必须用 Particles专属 Shader 才能保证马卡龙色不被蓝底色吞噬！
+        Shader shader = Shader.Find("Universal Render Pipeline/Particles/Lit");
         if (shader == null) shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
         if (shader == null) shader = Shader.Find("Standard");
 
@@ -200,7 +230,8 @@ public class GroundParticleController : MonoBehaviour
     {
         Gradient g = new Gradient();
         g.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(Color.red, 0f), new GradientColorKey(Color.yellow, 0.3f), new GradientColorKey(Color.cyan, 0.6f), new GradientColorKey(Color.white, 1f) },
+            // ★ 把原来的红黄蓝渐变强制洗掉，改用纯白（让我们的多色槽去真正接管颜色）
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
             new GradientAlphaKey[] { new GradientAlphaKey(0.05f, 0), new GradientAlphaKey(1, 0.5f), new GradientAlphaKey(0.05f, 1) }
         );
         return g;

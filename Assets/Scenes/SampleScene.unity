@@ -21451,6 +21451,7 @@ GameObject:
   - component: {fileID: 1249617918}
   - component: {fileID: 1249617922}
   - component: {fileID: 1249617923}
+  - component: {fileID: 1249617924}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -21641,6 +21642,33 @@ MonoBehaviour:
   wallHeight: 10
   wallThickness: 1
   makePlaneInvisible: 1
+--- !u!114 &1249617924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249617917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83244f19a06808843a9ebc50ccaefff9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heightOffset: 0.05
+  coverageArea: 80
+  visualStyle: 0
+  mainColor: {r: 1, g: 0.9800184, b: 0.68490565, a: 1}
+  useMultiColor: 1
+  multiColorSlots:
+  - {r: 0.6999999, g: 0.9399999, b: 1, a: 1}
+  - {r: 0.97735846, g: 0.6841509, b: 0.8307547, a: 1}
+  - {r: 0.9764706, g: 0.7760963, b: 0.68235296, a: 1}
+  - {r: 0.7701739, g: 0.68235296, b: 0.9764706, a: 1}
+  - {r: 0.68235296, g: 0.9764706, b: 0.7759976, a: 1}
+  particleSize: 0.056
+  particleDensity: 704
+  movementMode: 1
+  hideOriginalMesh: 1
 --- !u!43 &1254362822
 Mesh:
   m_ObjectHideFlags: 0
@@ -22446,7 +22474,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 9.47e-43, y: -5.6744615e-37, z: 9.47e-43, w: 6e-44}
+  m_BoundingSphereOverride: {x: 0, y: 0.33333334, z: 0.33333334, w: 0.33333334}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
