@@ -59,6 +59,10 @@ public class ParticleTreeHealer : MonoBehaviour
     public AudioClip birdAudioClip;
     [Tooltip("鸟叫声音量")]
     [Range(0f, 1f)] public float birdVolume = 0.5f;
+    [Tooltip("鸟叫最小间隔(秒)")]
+    public float minBirdInterval = 6f;
+    [Tooltip("鸟叫最大间隔(秒)")]
+    public float maxBirdInterval = 12f;
     [Tooltip("触碰树的魔法治愈音效")]
     public AudioClip magicHealClip;
 
@@ -88,10 +92,10 @@ public class ParticleTreeHealer : MonoBehaviour
     private ParticleSystem witheredPS;
     private ParticleSystem alivePS;
     private ParticleSystem petalsPS;
-    private ParticleSystem scarfPS;
     private ParticleSystem butterfliesPS;
     private ParticleSystem soilPS;
-
+    private ParticleSystem yellowScarfPS;
+    
     [Header("Distance Tracking")]
     [Tooltip("树干中心（用于计算手部距离），如果不拖入则使用本物体中心")]
     public Transform treeCenter;
@@ -367,67 +371,66 @@ public class ParticleTreeHealer : MonoBehaviour
         pRender.material = glowMat;
 
         var pEmis = petalsPS.emission;
-        pEmis.rateOverTime = 0; // 等待愈合后触发
+        pEmis.rateOverTime = 0; 
 
         // ==========================================
         // 4. 黄色环绕丝巾 (YellowScarf_PS)
         // ==========================================
-        GameObject scarfObj = new GameObject("YellowScarf_PS");
-        scarfObj.transform.SetParent(transform, false);
-        scarfObj.transform.localPosition = Vector3.zero;
-        scarfObj.transform.localScale = Vector3.one;
+        GameObject yellowObj = new GameObject("YellowScarf_PS");
+        yellowObj.transform.SetParent(transform, false);
+        yellowObj.transform.localPosition = Vector3.zero;
+        yellowObj.transform.localScale = Vector3.one;
 
-        scarfPS = scarfObj.AddComponent<ParticleSystem>();
-        var sMain = scarfPS.main;
-        sMain.loop = true;
-        sMain.startLifetime = 15f; // ★ 时间放慢到 15 秒！
-        sMain.startSpeed = 0f;
-        sMain.startSize = 0.0001f; // 几乎隐藏本体，全看丝带拖尾
-        sMain.startColor = new Color(1f, 0.9f, 0.2f, 1f);
-        sMain.simulationSpace = ParticleSystemSimulationSpace.World;
-        sMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
-        sMain.maxParticles = 2; // ★ 物理级硬锁：全宇宙同时最多只能存在 2 条丝带！绝对不可能乱！
+        yellowScarfPS = yellowObj.AddComponent<ParticleSystem>();
+        var ysMain = yellowScarfPS.main;
+        ysMain.loop = true;
+        ysMain.startLifetime = 15f; 
+        ysMain.startSpeed = 0f;
+        ysMain.startSize = 0.0001f; 
+        ysMain.startColor = new Color(1f, 0.9f, 0.2f, 1f);
+        ysMain.simulationSpace = ParticleSystemSimulationSpace.World;
+        ysMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        ysMain.maxParticles = 2; 
 
-        var sShape = scarfPS.shape;
-        sShape.shapeType = ParticleSystemShapeType.Circle;
-        sShape.position = Vector3.up * wMinY; // ★ 从地面根部开始往上绕！
-        sShape.radius = canopyMaxHeight * 4.5f; // ★ 直径再远3倍！
-        sShape.arcMode = ParticleSystemShapeMultiModeValue.BurstSpread; // 让两个丝带头在圆环对侧严格对称！
+        var ysShape = yellowScarfPS.shape;
+        ysShape.shapeType = ParticleSystemShapeType.Circle;
+        ysShape.position = Vector3.up * wMinY; 
+        ysShape.radius = canopyMaxHeight * 4.5f; 
+        ysShape.arcMode = ParticleSystemShapeMultiModeValue.BurstSpread; 
         
-        var sVel = scarfPS.velocityOverLifetime;
-        sVel.enabled = true;
-        sVel.orbitalY = 0.3f; // ★ 极慢极慢的环绕旋转
-        sVel.y = (canopyMaxHeight * 2.0f) / 15f; // ★ 15秒内飞高到原先 2 倍的树盖高度，角度更大，更明显往上蹿！
+        var ysVel = yellowScarfPS.velocityOverLifetime;
+        ysVel.enabled = true;
+        ysVel.orbitalY = 0.3f; 
+        ysVel.y = (canopyMaxHeight * 2.0f) / 15f; 
 
-        var sNoise = scarfPS.noise;
-        sNoise.enabled = true;
-        sNoise.strength = 1.0f / s; 
-        sNoise.frequency = 0.15f;  
-        sNoise.scrollSpeed = 0.2f;
+        var ysNoise = yellowScarfPS.noise;
+        ysNoise.enabled = true;
+        ysNoise.strength = 1.0f / s; 
+        ysNoise.frequency = 0.15f;  
+        ysNoise.scrollSpeed = 0.2f;
 
-        var sColList = scarfPS.colorOverLifetime;
-        sColList.enabled = false; // 关闭生命周期颜色，转而使用真正的拖尾末端淡出
+        var ysColList = yellowScarfPS.colorOverLifetime;
+        ysColList.enabled = false; 
 
-        var sTrails = scarfPS.trails;
-        sTrails.enabled = true;
-        sTrails.ratio = 1.0f; 
-        sTrails.lifetimeMultiplier = 0.4f; // 拖尾长度
+        var ysTrails = yellowScarfPS.trails;
+        ysTrails.enabled = true;
+        ysTrails.ratio = 1.0f; 
+        ysTrails.lifetimeMultiplier = 0.4f; 
         
-        // ★ 针对拖影本身的头尾颜色淡出：头部完全不透明 -> 尾部彻底变淡透明
         Gradient trailGrad = new Gradient();
         trailGrad.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
             new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) }
         );
-        sTrails.colorOverTrail = trailGrad;
+        ysTrails.colorOverTrail = trailGrad;
 
-        var sRender = scarfPS.GetComponent<ParticleSystemRenderer>();
-        sRender.renderMode = ParticleSystemRenderMode.None; // ★ 隐藏光球本身，只渲染丝带拖尾！
-        sRender.trailMaterial = glowMat;
+        var ysRender = yellowScarfPS.GetComponent<ParticleSystemRenderer>();
+        ysRender.renderMode = ParticleSystemRenderMode.None; 
+        ysRender.trailMaterial = glowMat;
         
-        var sEmis = scarfPS.emission;
-        sEmis.rateOverTime = 0; 
-        sEmis.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 2, 2, 0, 15f) }); // ★ 与 15 秒寿命保持一致，15秒发一次
+        var ysEmis = yellowScarfPS.emission;
+        ysEmis.rateOverTime = 0; 
+        ysEmis.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 2, 2, 0, 15f) }); 
 
         // ==========================================
         // 5. 蝴蝶与土壤 (Butterfly_PS, Soil_PS)
@@ -446,29 +449,37 @@ public class ParticleTreeHealer : MonoBehaviour
         butterfliesPS = bf.AddComponent<ParticleSystem>();
         var bMain = butterfliesPS.main;
         bMain.loop = true;
-        bMain.startLifetime = new ParticleSystem.MinMaxCurve(4f, 8f);
-        bMain.startSpeed = 0f; // 无需初始速度
-        bMain.startSize = 0.006f; // ★ 变小，远看不再突兀
+        bMain.startLifetime = new ParticleSystem.MinMaxCurve(6f, 12f); 
+        bMain.startSpeed = 0f; 
+        bMain.startSize = new ParticleSystem.MinMaxCurve(0.0003f, 0.0008f); 
         bMain.simulationSpace = ParticleSystemSimulationSpace.World;
         bMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        bMain.maxParticles = 8; // ★ 设置最大同时存在数量为 8 只
+
 
         var bShape = butterfliesPS.shape;
-        bShape.shapeType = ParticleSystemShapeType.Box; // ★ 跟随粉色花瓣相同的发射区域
+        bShape.shapeType = ParticleSystemShapeType.Box; 
         float treeH = aMaxY - aMinY;
-        bShape.position = Vector3.up * (aMinY + treeH * 0.95f); // 同样定位在树冠 95%
-        bShape.scale = new Vector3(treeH * 1.5f, treeH * 0.1f, treeH * 1.5f); // 相同的覆盖整个树顶的薄气垫
+        bShape.position = Vector3.up * ((aMinY + aMaxY) / 2f); // ★ 回归到居中树木位置
+        bShape.scale = new Vector3(treeH * 0.8f, treeH * 0.8f, treeH * 0.8f); // ★ 一个中等大小的立方体区域！
+
         
         var bVel = butterfliesPS.velocityOverLifetime;
         bVel.enabled = true;
-        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f); // 稍微加快环绕速度让其有动感
-        bVel.x = new ParticleSystem.MinMaxCurve(-0.2f / s, 0.2f / s); // ★ 加快横向穿梭
-        bVel.y = new ParticleSystem.MinMaxCurve(-0.05f / s, 0.05f / s); // ★ 给一点微弱的上下浮动，不死板
-        bVel.z = new ParticleSystem.MinMaxCurve(-0.2f / s, 0.2f / s);
+        // ★ 增加随机游荡速度，取消过于生硬的轨道旋转
+        bVel.orbitalY = new ParticleSystem.MinMaxCurve(-0.1f, 0.1f); 
+        bVel.x = new ParticleSystem.MinMaxCurve(-0.5f / s, 0.5f / s); 
+        bVel.y = new ParticleSystem.MinMaxCurve(-0.3f / s, 0.3f / s); // 轻微上下浮动
+        bVel.z = new ParticleSystem.MinMaxCurve(-0.5f / s, 0.5f / s);
+
+        var bNoise = butterfliesPS.noise;
+        bNoise.enabled = true;
+        bNoise.strength = 1.0f; // ★ 加入强烈的 Noise 让其飞行路线杂乱、自然，像真正的蝴蝶
+        bNoise.frequency = 0.2f;   
 
         var bColList = butterfliesPS.colorOverLifetime;
         bColList.enabled = true;
         Gradient bGrad = new Gradient();
-        // ★ 从透明度 0 淡入出现，在尾期彻底淡出 (decay 消失)
         bGrad.SetKeys(
             new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
             new GradientAlphaKey[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.2f), new GradientAlphaKey(1f, 0.8f), new GradientAlphaKey(0f, 1f) }
@@ -476,16 +487,15 @@ public class ParticleTreeHealer : MonoBehaviour
         bColList.color = bGrad;
 
         var bTrails = butterfliesPS.trails;
-        bTrails.enabled = true;
-        bTrails.ratio = 1.0f; // 蝴蝶全部带有光斑拖尾
-        bTrails.lifetimeMultiplier = 0.2f; // 拖尾轻微保留
+        bTrails.enabled = false; // ★ 彻底关闭拖尾！这就是那团白色大粒子的真凶！
 
         var texAnim = butterfliesPS.textureSheetAnimation;
-        texAnim.enabled = true; // ★ 重新开启帧动画！原来是 3 个连着的图！
-        texAnim.numTilesX = 3;  // ★ 1行3列的排布
+        texAnim.enabled = true; 
+        texAnim.numTilesX = 3;  
         texAnim.numTilesY = 1;
-        texAnim.animation = ParticleSystemAnimationType.WholeSheet; // 连贯播放整个序列
-        texAnim.cycleCount = 10; // ★ 保证在漫长的生命里，翅膀能多扑扇几遍！
+        texAnim.animation = ParticleSystemAnimationType.WholeSheet; 
+        texAnim.cycleCount = 15; // 大幅增加拍翅膀频率，飞起来更好看
+
 
         var bRender = butterfliesPS.GetComponent<ParticleSystemRenderer>();
         bRender.renderMode = ParticleSystemRenderMode.Billboard;
@@ -604,7 +614,8 @@ public class ParticleTreeHealer : MonoBehaviour
             }
 
             energyLevel += healingRate * Time.deltaTime;
-            healLingerTimer = healLingerDuration;
+            healLingerTimer = 60.0f; // ★ 当手摸着的时候，维持 60 秒的等待时间（1分钟才开始干枯）
+
 
             if (showDebugDistance) Debug.Log($"[TreeAudio] Healing! energy: {energyLevel:F2}, magicVol: {magicCurrentVolume:F2}");
 
@@ -664,15 +675,15 @@ public class ParticleTreeHealer : MonoBehaviour
         var aEmis = alivePS.emission;
         aEmis.rateOverTime = aliveParticleRate * energyLevel;
 
-        // 2. 黄色由于改为了两条动态上升的丝带拖尾 Burst，仅需整体控制启停即可，不需要 rateOverTime
-        var sEmis = scarfPS.emission;
+        // 2A. 黄色丝带
+        var ysEmis = yellowScarfPS.emission;
         if (energyLevel >= 0.95f || (energyLevel > 0f && isHealing))
         {
-            if (!sEmis.enabled) { sEmis.enabled = true; scarfPS.Play(); } // 重置播放触发两条初始丝带
+            if (!ysEmis.enabled) { ysEmis.enabled = true; yellowScarfPS.Play(); } 
         }
         else
         {
-            sEmis.enabled = false;
+            ysEmis.enabled = false;
         }
 
         // 3. 满状态触发特效：粉色落花 & 蝴蝶 & 鸟叫循环
@@ -710,7 +721,7 @@ public class ParticleTreeHealer : MonoBehaviour
         }
 
         var bEmis = butterfliesPS.emission;
-        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 0.4f : 0f; // ★ 再少一半，数量极度稀缺
+        bEmis.rateOverTime = (energyLevel >= 0.95f) ? 1.0f : 0f; // ★ 略微提高发射速率，以满足满屏最多存在 5-8 只的要求
     }
 
     IEnumerator FadeOutBirdAudio()
@@ -728,17 +739,21 @@ public class ParticleTreeHealer : MonoBehaviour
 
     IEnumerator RandomBirdRoutine()
     {
-        // 激活后立即叫一声
-        if (birdAudio != null) birdAudio.PlayOneShot(birdAudio.clip);
-
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(3f, 5f));
-            if (birdAudio != null)
+            // ★ 这就是海洋海鸥那套间隔算法：每次绝对静音等待这么长时间
+            float wait = Random.Range(minBirdInterval, maxBirdInterval);
+            yield return new WaitForSeconds(wait);
+
+            if (birdAudio != null && birdAudio.clip != null)
             {
                 birdAudio.pitch = Random.Range(0.9f, 1.1f);
-                birdAudio.volume = birdVolume; // ★ 实时同步调音
+                birdAudio.volume = birdVolume; // 实时同步调音
                 birdAudio.PlayOneShot(birdAudio.clip);
+                
+                // ★ 极其关键：等该次鸟叫彻底完全播放结束以后，再回去进行下一轮的纯静默等待倒数！
+                // 这样绝对不会发生刚叫完一秒又叫、甚至两声鸟叫重叠在一起乱成一锅粥的情况
+                yield return new WaitForSeconds(birdAudio.clip.length);
             }
         }
     }
