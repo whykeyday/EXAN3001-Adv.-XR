@@ -57,6 +57,7 @@ public class CatSceneSetup : MonoBehaviour
         CreateFireplacePlaceholder();
         SetupFurnitureAndCats();
         MakePlanesDark();
+        CreateStarCluster(); // ★ 生成小群星星
     }
 
     [Header("Ground Particle Container")]
@@ -82,6 +83,68 @@ public class CatSceneSetup : MonoBehaviour
         controller.movementMode = GroundParticleController.MovementMode.CatBlinking;
         controller.particleDensity = 100f;
         controller.particleSize = 0.045f;
+    }
+
+    /// <summary>
+    /// 在旁边生成一小群闪烁呼吸的星星
+    /// </summary>
+    void CreateStarCluster()
+    {
+        GameObject cluster = new GameObject("StarCluster_Breathing");
+        cluster.transform.SetParent(transform, false);
+        
+        // ★ 核心修复：放在正上方高空
+        cluster.transform.localPosition = new Vector3(0f, 20f, 0f); 
+
+        ParticleSystem ps = cluster.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.loop = true;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f); // 呼吸周期
+        main.startSpeed = 0f; // 相对静止
+        main.startSize = new ParticleSystem.MinMaxCurve(0.06f, 0.12f); // 稍微放大点因为距离远了
+        main.maxParticles = 2000; // 数量大量增加以填满巨大的天空
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Hemisphere; // 半球形穹顶，最适合做满天星
+        shape.radius = 100f; // ★ 半径 100 米的巨型天穹，绝对铺满视野
+        shape.radiusThickness = 0.5f; // 从边缘到内部均匀分布
+
+        // ★ 呼吸闪烁的核心：体积随时间涨落
+        var sizeOverTime = ps.sizeOverLifetime;
+        sizeOverTime.enabled = true;
+        AnimationCurve curve = new AnimationCurve();
+        curve.AddKey(0f, 0f);
+        curve.AddKey(0.5f, 1f);
+        curve.AddKey(1f, 0f);
+        sizeOverTime.size = new ParticleSystem.MinMaxCurve(1f, curve);
+
+        // ★ 色彩淡入淡出配合呼吸
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(new Color(0.9f, 0.95f, 1f), 1f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.8f, 0.5f), new GradientAlphaKey(0f, 1f) }
+        );
+        col.color = grad;
+
+        var renderer = ps.GetComponent<ParticleSystemRenderer>();
+        renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        
+        Material m = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit"));
+        m.EnableKeyword("_ALPHABLEND_ON");
+        m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        m.SetFloat("_Surface", 1.0f);
+        m.SetFloat("_Blend", 0.0f);
+        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        m.SetInt("_ZWrite", 0);
+        renderer.material = m;
+
+        var emis = ps.emission;
+        emis.rateOverTime = 400f; // 大穹顶需要非常高的发射率来维持星空密度
     }
 
     /// <summary>
