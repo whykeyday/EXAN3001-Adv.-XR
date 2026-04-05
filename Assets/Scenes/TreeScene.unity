@@ -6044,7 +6044,7 @@ MonoBehaviour:
   birdFarDistance: 4
   birdNearDistance: 1
   birdFalloff: 1.5
-  magicVolume: 0.525
+  magicVolume: 0.076
   magicRecognitionDistance: 0.8
   magicFarDistance: 8
   magicNearDistance: 0.5

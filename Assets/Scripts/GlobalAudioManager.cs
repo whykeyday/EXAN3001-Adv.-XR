@@ -59,10 +59,11 @@ public class GlobalAudioManager : MonoBehaviour
             audioSource.Play(); 
             
             // 给系统 2 秒的启动保护期，这段时间内禁止乱切歌
-            nextAllowedPlayTime = Time.time + 2.0f;
+            nextAllowedPlayTime = Time.realtimeSinceStartup + 2.0f;
             Debug.Log($"[GlobalAudioManager] Awake initialized. Picked true random first track: {audioSource.clip.name}");
         }
     }
+
 
     System.Collections.IEnumerator Start()
     {
@@ -80,6 +81,36 @@ public class GlobalAudioManager : MonoBehaviour
         {
             audioSource.Play();
             Debug.Log("[GlobalAudioManager] Delayed Start triggered Play() as a fallback for VR cold boot.");
+        }
+
+        // ★ 完全摒弃易碎的 Update 循环，启动独立的协程绝对监控 BGM 状态
+        StartCoroutine(BgmMonitorRoutine());
+    }
+
+    System.Collections.IEnumerator BgmMonitorRoutine()
+    {
+        while (true)
+        {
+            // 每秒检查一次，极为节省性能且不受任何异常中断影响
+            yield return new WaitForSecondsRealtime(1.0f);
+
+            if (audioSource == null || meditationTracks == null || meditationTracks.Length == 0) continue;
+
+            // 如果当前确实没在播了，且距上次切歌至少过了 3 秒冷却
+            if (!audioSource.isPlaying && Time.realtimeSinceStartup >= nextAllowedPlayTime)
+            {
+                Debug.Log("[GlobalAudioManager] 协程检测到当前无声，立刻切换下一首！");
+                PlayNextTrack();
+            }
+            // 补偿：如果快要播完了，提前零点几秒无缝切换
+            else if (audioSource.isPlaying && audioSource.clip != null && Time.realtimeSinceStartup >= nextAllowedPlayTime)
+            {
+                if (audioSource.time >= audioSource.clip.length - 0.2f)
+                {
+                    Debug.Log("[GlobalAudioManager] 协程检测到当前曲目即将结束，无缝衔接下一首！");
+                    PlayNextTrack();
+                }
+            }
         }
     }
 
@@ -102,9 +133,10 @@ public class GlobalAudioManager : MonoBehaviour
         if (audioSource != null)
         {
             audioSource.spatialBlend = 0f;
-            nextAllowedPlayTime = Time.time + 3.0f; // 切场景时禁止切歌锁定 3 秒，让引擎缓存度过卡顿期
+            nextAllowedPlayTime = Time.realtimeSinceStartup + 3.0f; // 切场景时禁止切歌锁定 3 秒，让引擎缓存度过卡顿期
             Debug.Log($"[GlobalAudioManager] Scene {scene.name} loaded. BGM continues seamlessly.");
         }
+
     }
 
     void Update()
@@ -117,20 +149,16 @@ public class GlobalAudioManager : MonoBehaviour
             audioSource.volume = bgmVolume;
         }
 
-        // ★ 新增功能：按 A 键随机切歌 (PC 端可用 Space 键盘空格测试)
-        // 支持右手 A 键 或 通用 Button.One
-        if (OVRInput.GetDown(OVRInput.RawButton.A) || OVRInput.GetDown(OVRInput.Button.One) || Input.GetKeyDown(KeyCode.Space))
+        // ★ OVRInput 极其容易在跨场景或者未带头显的情况下抛出异常导致 Update 崩溃，必须用 try-catch 保护
+        try 
         {
-            Debug.Log("[GlobalAudioManager] User pressed 'A' or Space to skip track.");
-            PlayNextTrack();
-        }
-
-        // ★ 核心兜底机制：只要过了开机冷却保护期（2秒），如果发现还是没声音（不管是被吞了还是在 BasicScene 出 bug 了），强制帮它响！
-        if (!audioSource.isPlaying && Time.time >= nextAllowedPlayTime)
-        {
-            Debug.Log("[GlobalAudioManager] Fallback detected silence, auto-triggering next track!");
-            PlayNextTrack();
-        }
+            if (OVRInput.GetDown(OVRInput.RawButton.A) || OVRInput.GetDown(OVRInput.Button.One) || Input.GetKeyDown(KeyCode.Space))
+            {
+                Debug.Log("[GlobalAudioManager] User pressed 'A' or Space to skip track.");
+                PlayNextTrack();
+            }
+        } 
+        catch (System.Exception) { /* 忽略 OVRInput 异常，防止掐断系统 */ }
     }
 
     void PlayNextTrack()
@@ -166,9 +194,10 @@ public class GlobalAudioManager : MonoBehaviour
         audioSource.Play();
         
         // 锁定切歌功能 3 秒，防止任何意外判定
-        nextAllowedPlayTime = Time.time + 3.0f;
+        nextAllowedPlayTime = Time.realtimeSinceStartup + 3.0f;
         
         Debug.Log($"[GlobalAudioManager] 正在播放曲目: {audioSource.clip.name}");
+
     }
 
     public void SetVolume(float vol)

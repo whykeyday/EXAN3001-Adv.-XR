@@ -134,6 +134,8 @@ public class CatSceneSetup : MonoBehaviour
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
         
         Material m = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit"));
+        m.mainTexture = ParticleUtils.GetSoftCircleTexture(); // ★ 强制使用柔和圆点贴图，消除正方形！
+        
         m.EnableKeyword("_ALPHABLEND_ON");
         m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         m.SetFloat("_Surface", 1.0f);

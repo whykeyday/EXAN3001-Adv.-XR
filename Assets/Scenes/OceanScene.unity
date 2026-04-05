@@ -235520,8 +235520,8 @@ MonoBehaviour:
   bubbleClip: {fileID: 8300000, guid: 8abff1739e5030f48b9ab335fd00b8d2, type: 3}
   seagullVolume: 0.119
   bubbleVolume: 0.186
-  minSeagullInterval: 6
-  maxSeagullInterval: 9
+  minSeagullInterval: 8
+  maxSeagullInterval: 12
   minBubbleInterval: 4
   maxBubbleInterval: 7
   ambientFarDistance: 15

@@ -84,9 +84,10 @@ public class GroundParticleController : MonoBehaviour
         psr.material = CreateStyleMaterial(visualStyle, mainColor);
         if (visualStyle == ParticleStyle.MetallicGem) {
             psr.renderMode = ParticleSystemRenderMode.Mesh;
-            GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            psr.mesh = tempCube.GetComponent<MeshFilter>().sharedMesh;
-            DestroyImmediate(tempCube);
+            // ★ 核心修复：用户要求不要正方体，改为球体 (Sphere)
+            GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            psr.mesh = tempMesh.GetComponent<MeshFilter>().sharedMesh;
+            DestroyImmediate(tempMesh);
         } else {
             psr.renderMode = ParticleSystemRenderMode.Billboard;
         }
@@ -164,6 +165,11 @@ public class GroundParticleController : MonoBehaviour
         if (shader == null) shader = Shader.Find("Standard");
 
         Material mat = new Material(shader);
+        
+        // ★ 核心修复：如果是 2D Billboard 模式，强制使用程序化圆形贴图，彻底消除正方形边缘
+        mat.mainTexture = ParticleUtils.GetSoftCircleTexture();
+        if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", ParticleUtils.GetSoftCircleTexture());
+
         mat.SetFloat("_Surface", 1); 
         mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         mat.renderQueue = 3000;

@@ -86,6 +86,8 @@ public class BreathInputManager : MonoBehaviour
                 {
                     AudioClip clip = validClips[Random.Range(0, validClips.Count)];
                     PlayAmbient3DSound(clip, seagullVolume, 5f, "SeagullEmitter_Temp");
+                    // ★ 核心修复：确保海鸥叫完之后，才开始倒数 6-9 秒间隔，否则就变成了重叠加频！
+                    yield return new WaitForSeconds(clip.length);
                 }
             }
         }
@@ -101,6 +103,8 @@ public class BreathInputManager : MonoBehaviour
             if (bubbleClip != null)
             {
                 PlayAmbient3DSound(bubbleClip, bubbleVolume, 2f, "BubbleEmitter_Temp");
+                // 同理，等待水泡播放完毕
+                yield return new WaitForSeconds(bubbleClip.length);
             }
         }
     }
