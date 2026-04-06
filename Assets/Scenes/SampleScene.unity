@@ -21666,7 +21666,7 @@ MonoBehaviour:
   - {r: 0.7701739, g: 0.68235296, b: 0.9764706, a: 1}
   - {r: 0.68235296, g: 0.9764706, b: 0.7759976, a: 1}
   particleSize: 0.056
-  particleDensity: 704
+  particleDensity: 328
   movementMode: 1
   hideOriginalMesh: 1
 --- !u!43 &1254362822
@@ -22474,7 +22474,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 6e-45, y: 5.613e-41, z: 1.846872e+25, w: 0}
+  m_BoundingSphereOverride: {x: 0, y: 1e-45, z: 6e-44, w: 6.9e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -22560,13 +22560,8 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.035
   handScale: 1.8
-  leftHandIcon: {fileID: 0}
-  rightHandIcon: {fileID: 0}
-  leftControllerIcon: {fileID: 0}
-  rightControllerIcon: {fileID: 0}
+  manualHideList: []
   xrOrigin: {fileID: 0}
-  leftControllerVisual: {fileID: 0}
-  rightControllerVisual: {fileID: 0}
 --- !u!1 &2059223537
 GameObject:
   m_ObjectHideFlags: 0
@@ -22613,8 +22608,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cffb1e5cc9fe01943805d863774f0985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxParticles: 400
-  boxSize: {x: 20, y: 20, z: 20}
+  maxParticles: 4000
+  boxSize: {x: 100, y: 100, z: 100}
   starSizeMin: 0.02
   starSizeMax: 0.15
   exclusionZones: []
@@ -27866,7 +27861,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.45
+      value: 0.33
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalPosition.y
@@ -27874,11 +27869,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.61
+      value: -6.6
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9999485
+      value: 0.99992794
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalRotation.x
@@ -27886,7 +27881,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.010149612
+      value: -0.012011285
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalRotation.z
@@ -27898,7 +27893,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 1.163
+      value: -1.376
       objectReference: {fileID: 0}
     - target: {fileID: 8298045291338814965, guid: 77e7c27b2c5525e4aa8cc9f99d654486, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -27933,7 +27928,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2096442890036865669, guid: 35ff916ecc9f6b14fbb0601886db838d, type: 3}
       propertyPath: bgmVolume
-      value: 0.02
+      value: 0.053
       objectReference: {fileID: 0}
     - target: {fileID: 5605880397603512724, guid: 35ff916ecc9f6b14fbb0601886db838d, type: 3}
       propertyPath: m_Name

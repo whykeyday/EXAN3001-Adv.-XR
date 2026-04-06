@@ -25824,6 +25824,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: uploads_files_6405736_free_fish_pack
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 13b1e2e9f50d6754985ec784211dc1a6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1564518010477501249, guid: 13b1e2e9f50d6754985ec784211dc1a6, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -45716,13 +45720,8 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
-  leftHandIcon: {fileID: 0}
-  rightHandIcon: {fileID: 0}
-  leftControllerIcon: {fileID: 0}
-  rightControllerIcon: {fileID: 0}
+  manualHideList: []
   xrOrigin: {fileID: 0}
-  leftControllerVisual: {fileID: 441087511}
-  rightControllerVisual: {fileID: 441087510}
 --- !u!114 &441087509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45740,16 +45739,6 @@ MonoBehaviour:
   glowIntensity: 3
   groundOffset: 0.02
   followTarget: {fileID: 0}
---- !u!1 &441087510 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5895826684305351068, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
-  m_PrefabInstance: {fileID: 441087506}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &441087511 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9173983156334026967, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
-  m_PrefabInstance: {fileID: 441087506}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &444348892
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -150564,7 +150553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83244f19a06808843a9ebc50ccaefff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightOffset: -0.59
+  heightOffset: -1
   coverageArea: 80
   visualStyle: 1
   mainColor: {r: 0.19433957, g: 1, b: 0.8905945, a: 1}
@@ -235530,8 +235519,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 759fe3410c680634984b5323b8e3852a, type: 3}
   - {fileID: 8300000, guid: ec8111ade52bfad469f77ed95c05fd3e, type: 3}
   bubbleClip: {fileID: 8300000, guid: 8abff1739e5030f48b9ab335fd00b8d2, type: 3}
-  seagullVolume: 0.119
-  bubbleVolume: 0.186
+  seagullVolume: 0.049
+  bubbleVolume: 0.135
   minSeagullInterval: 8
   maxSeagullInterval: 12
   minBubbleInterval: 4

@@ -449,7 +449,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -457,7 +457,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 5.3
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -526,13 +526,8 @@ MonoBehaviour:
   handMaterial: {fileID: 2100000, guid: 9e93f0d42602e7741998b1b36181272c, type: 2}
   handRadius: 0.025
   handScale: 1.8
-  leftHandIcon: {fileID: 0}
-  rightHandIcon: {fileID: 0}
-  leftControllerIcon: {fileID: 0}
-  rightControllerIcon: {fileID: 0}
+  manualHideList: []
   xrOrigin: {fileID: 0}
-  leftControllerVisual: {fileID: 441087511}
-  rightControllerVisual: {fileID: 441087510}
 --- !u!114 &441087509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -550,16 +545,6 @@ MonoBehaviour:
   glowIntensity: 3
   groundOffset: 0.02
   followTarget: {fileID: 0}
---- !u!1 &441087510 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5895826684305351068, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
-  m_PrefabInstance: {fileID: 441087506}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &441087511 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9173983156334026967, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
-  m_PrefabInstance: {fileID: 441087506}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &756192406
 GameObject:
   m_ObjectHideFlags: 0
@@ -6053,7 +6038,7 @@ MonoBehaviour:
   birdAudioClip: {fileID: 8300000, guid: c6d464537e095f7408ee9d03c56b7be2, type: 3}
   birdVolume: 0.037
   magicHealClip: {fileID: 8300000, guid: 0c087b88251e6f14e9e07303955c3841, type: 3}
-  butterflySize: 0.0006
+  butterflySize: 0.0008
   minButterflyCount: 6
   maxButterflyCount: 9
   minBirdInterval: 6
@@ -6104,10 +6089,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.009923698
+  m_Radius: 0.0185183
   m_Height: 0.05218946
   m_Direction: 1
-  m_Center: {x: 0.00013742653, y: 0.009589313, z: 0.00019631861}
+  m_Center: {x: -0.0015686116, y: 0.009589313, z: -0.0025416173}
 --- !u!1 &2092139007
 GameObject:
   m_ObjectHideFlags: 0
